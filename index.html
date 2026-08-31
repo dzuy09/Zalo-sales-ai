@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Trợ Lý Lái Xe">
+  <meta name="theme-color" content="#1877f2">
+  <title>Trợ Lý AI Tư Vấn Lái Xe Thành Công</title>
+  
+  <!-- App Icon -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231877f2'/%3E%3Ccircle cx='50' cy='50' r='32' stroke='white' stroke-width='6' fill='none'/%3E%3Ccircle cx='50' cy='50' r='10' fill='white'/%3E%3Cline x1='18' y1='50' x2='40' y2='50' stroke='white' stroke-width='5'/%3E%3Cline x1='60' y1='50' x2='82' y2='50' stroke='white' stroke-width='5'/%3E%3Cline x1='50' y1='60' x2='50' y2='82' stroke='white' stroke-width='5'/%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --primary: #1877f2;
+      --primary-dark: #0052cc;
+      --bg: #f2f4f7;
+      --card-bg: #ffffff;
+      --text: #1c1e21;
+      --text-muted: #65676b;
+      --border: #e4e6eb;
+      --green: #0b8043;
+      --red: #d93025;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      padding-top: max(12px, env(safe-area-inset-top));
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* App Header */
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 82, 204, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-logo {
+      font-size: 22px;
+    }
+
+    .header-title h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .header-title p {
+      font-size: 11px;
+      opacity: 0.88;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.22);
+      border: none;
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .icon-btn:active {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Pronoun Selector */
+    .section-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .section-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pronoun-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .pronoun-chip {
+      background: #f0f2f5;
+      border: 1px solid #d8dadf;
+      color: var(--text);
+      padding: 8px 4px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .pronoun-chip.active {
+      background: #e7f3ff;
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      background: #e4e6eb;
+      padding: 3px;
+      border-radius: 10px;
+      gap: 3px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 9px 2px;
+      border: none;
+      background: transparent;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+
+    /* Tab Contents */
+    .tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tab-pane.active {
+      display: flex;
+    }
+
+    /* Textarea & Inputs */
+    .app-textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 13.5px;
+      line-height: 1.45;
+      font-family: inherit;
+      resize: vertical;
+      background: #fff;
+      min-height: 80px;
+    }
+
+    .app-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.15);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 3px 8px rgba(24, 119, 242, 0.25);
+    }
+
+    .btn-primary:active {
+      opacity: 0.9;
+      transform: scale(0.99);
+    }
+
+    .btn-zalo {
+      background: linear-gradient(135deg, #0084ff, #0056b3);
+      color: #fff;
+      border: none;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 3px 8px rgba(0, 132, 255, 0.3);
+    }
+
+    .btn-zalo:active {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: #f0f2f5;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn-secondary:active {
+      background: #e4e6eb;
+    }
+
+    /* AI Result Box */
+    .result-card {
+      background: #ffffff;
+      border: 1.5px solid var(--primary);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(24, 119, 242, 0.12);
+    }
+
+    .result-textarea {
+      min-height: 220px;
+      max-height: 380px;
+      border: 1px solid var(--border);
+      background: #fbfcfe;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      font-family: inherit;
+      resize: vertical;
+      overflow-y: auto;
+    }
+
+    /* Template Cards */
+    .template-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .template-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .template-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .template-body-text {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .template-thumb-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f0f2f5;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    .template-thumb {
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .template-action-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+
+    /* Form Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 999;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-sheet {
+      background: #fff;
+      width: 100%;
+      max-width: 600px;
+      border-radius: 20px 20px 0 0;
+      padding: 18px 16px max(24px, env(safe-area-inset-bottom));
+      max-height: 88vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #444;
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Image Uploader */
+    .image-uploader-box {
+      border: 1.5px dashed var(--border);
+      padding: 12px;
+      border-radius: 8px;
+      background: #fafbfc;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .image-uploader-box:active {
+      background: #eef5fc;
+      border-color: var(--primary);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #242526;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      text-align: center;
+      max-width: 90%;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-brand">
+      <span class="header-logo">🚗</span>
+      <div class="header-title">
+        <h1>Trợ Lý AI Lái Xe Thành Công</h1>
+        <p>Phiên bản di động cho iPhone & Zalo</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btn-open-settings" class="icon-btn" title="Cài đặt API & Firebase">⚙️</button>
+    </div>
+  </header>
+
+  <!-- Main App -->
+  <main>
+    <!-- Pronoun Selector -->
+    <div class="section-card">
+      <div class="section-label">
+        <span>CẶP XƯNG HÔ (Tôi / Khách)</span>
+        <span id="current-pronoun-label" style="color: var(--primary); font-weight: 700;">Em / Anh</span>
+      </div>
+      <div class="pronoun-grid" id="pronoun-chips-container"></div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="tab-ai">🤖 AI Trả Lời</button>
+      <button class="tab-btn" data-tab="tab-templates">📋 Mẫu Tin Nhắn</button>
+      <button class="tab-btn" data-tab="tab-knowledge">📚 Tri Thức AI</button>
+    </div>
+
+    <!-- TAB 1: AI Chatbot -->
+    <div class="tab-pane active" id="tab-ai">
+      <div class="section-card" style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 12px; font-weight: 700; color: #444;">CÂU HỎI CỦA KHÁCH HÀNG:</label>
+        <textarea id="ai-customer-input" class="app-textarea" placeholder="Dán hoặc nhập câu hỏi của khách hàng (VD: Học phí B1 bao nhiêu em? Lịch học thế nào?)..." rows="3"></textarea>
+        <button id="btn-generate-ai" class="btn-primary">
+          <span>✨ AI Soạn Kịch Bản Trả Lời</span>
+        </button>
+      </div>
+
+      <!-- AI Result Box -->
+      <div class="result-card" id="ai-result-box" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; font-weight: 700; color: var(--primary);">GỢI Ý CÂU TRẢ LỜI ĐẦY ĐỦ:</span>
+          <span style="font-size: 11px; color: var(--text-muted);">Có thể sửa trước khi gửi</span>
+        </div>
+        <textarea id="ai-result-text" class="result-textarea"></textarea>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+          <button id="btn-ai-copy-zalo" class="btn-zalo">
+            <span>🚀 Copy & Mở Zalo</span>
+          </button>
+          <button id="btn-ai-copy-only" class="btn-secondary">
+            <span>📋 Sao chép</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Templates -->
+    <div class="tab-pane" id="tab-templates">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 12px; font-weight: 700; color: #555;">KHO TIN NHẮN MẪU CHỐT SALE</span>
+        <button id="btn-open-create-tpl" class="btn-secondary" style="background: #e7f3ff; color: var(--primary); border-color: var(--primary);">
+          ➕ Thêm Mẫu Mới
+        </button>
+      </div>
+
+      <div id="templates-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+      <button id="btn-reset-default-tpl" class="btn-secondary" style="align-self: center; margin-top: 6px; font-size: 11.5px;">
+        🔄 Khôi phục 8 mẫu mặc định gốc
+      </button>
+    </div>
+
+    <!-- TAB 3: Knowledge Base -->
+    <div class="tab-pane" id="tab-knowledge">
+      <div class="section-card" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; font-weight: 700; color: var(--primary);">TRI THỨC ĐÀO TẠO CHO AI</span>
+          <button id="btn-reset-knowledge" class="btn-secondary" style="font-size: 11px;">
+            🔄 Khôi phục gốc
+          </button>
+        </div>
+        <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">
+          💡 Bạn có thể cập nhật học phí mới, hạn nộp hồ sơ mới hoặc ưu đãi mới vào đây. AI sẽ tự động đọc nội dung này để tư vấn:
+        </p>
+        <textarea id="knowledge-textarea" class="app-textarea" style="min-height: 340px; font-size: 12.5px;"></textarea>
+        <button id="btn-save-knowledge" class="btn-primary">
+          💾 Lưu & Cập Nhật Tri Thức Cho AI
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: CÀI ĐẶT API KEY & FIREBASE -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title">⚙️ CẤU HÌNH AI & CLOUD FIREBASE</span>
+        <button id="btn-close-settings-modal" class="icon-btn" style="background: #f0f2f5; color: #333;">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label>1. Google Gemini API Key:</label>
+        <input type="password" id="set-gemini-key" class="form-input" placeholder="Dán mã AIzaSy...">
+        <small style="font-size: 11px; color: var(--primary);">
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: inherit;">👉 Lấy Gemini API Key miễn phí tại đây</a>
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>2. Phiên bản Model AI:</label>
+        <select id="set-model-select" class="form-input">
+          <option value="gemini-3.6-flash">gemini-3.6-flash (Mới nhất, khuyên dùng)</option>
+          <option value="gemini-3.0-flash">gemini-3.0-flash</option>
+          <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+        </select>
+      </div>
+
+      <hr style="border: none; border-top: 1px dashed var(--border); margin: 4px 0;">
+
+      <div class="form-group">
+        <label style="color: var(--green);">☁️ 3. Firebase Realtime Database URL (Đồng bộ Laptop & iPhone):</label>
+        <input type="text" id="set-firebase-url" class="form-input" placeholder="https://du-an-default-rtdb.firebaseio.com">
+        <small style="font-size: 11px; color: #666;">Dán URL Firebase để tự động đồng bộ 2 chiều giữa máy tính và iPhone.</small>
+      </div>
+
+      <div class="form-group">
+        <label>Firebase Secret / Token (Tùy chọn):</label>
+        <input type="password" id="set-firebase-auth" class="form-input" placeholder="Bỏ trống nếu dùng Test Mode">
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 4px;">
+        <button id="btn-sync-pull" class="btn-secondary" style="flex: 1; border-color: var(--green); color: var(--green); background: #e6f4ea;">
+          🔄 Tải từ Cloud về
+        </button>
+        <button id="btn-sync-push" class="btn-secondary" style="flex: 1; border-color: var(--primary); color: var(--primary); background: #e7f3ff;">
+          ⬆️ Đẩy lên Cloud
+        </button>
+      </div>
+
+      <button id="btn-save-settings" class="btn-primary" style="margin-top: 6px;">
+        💾 Lưu Cấu Hình
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: THÊM / SỬA TIN NHẮN MẪU -->
+  <div class="modal-overlay" id="tpl-modal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title" id="tpl-modal-title">TẠO TIN NHẮN MẪU MỚI</span>
+        <button id="btn-close-tpl-modal" class="icon-btn" style="background: #f0f2f5; color: #333;">✕</button>
+      </div>
+
+      <input type="hidden" id="form-tpl-id" value="">
+
+      <div class="form-group">
+        <label>Tiêu đề mẫu:</label>
+        <input type="text" id="form-tpl-title" class="form-input" placeholder="Ví dụ: 1. Tư vấn khóa B2 số sàn...">
+      </div>
+
+      <div class="form-group">
+        <label>Danh mục:</label>
+        <input type="text" id="form-tpl-category" class="form-input" placeholder="Ví dụ: 🚗 Khóa Học, 💰 Học Phí...">
+      </div>
+
+      <div class="form-group">
+        <label>Nội dung tin nhắn (Có thể dùng {tôi}, {khách}, emoji...):</label>
+        <textarea id="form-tpl-content" class="app-textarea" style="min-height: 120px;" placeholder="Dạ {tôi} gửi {khách} thông tin khóa học..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>🖼️ Đính kèm hình ảnh (Bảng giá, bản đồ sân tập...):</label>
+        <input type="file" id="form-img-file" accept="image/*" style="display: none;">
+        <div id="form-upload-trigger" class="image-uploader-box">
+          <span style="font-size: 13px; color: var(--primary); font-weight: 600;">📁 Chọn ảnh từ máy</span>
+          <p style="font-size: 11px; color: #888; margin-top: 2px;">Hỗ trợ ảnh JPG, PNG, WEBP</p>
+        </div>
+        <div id="form-img-preview-box" style="display: none; position: relative; margin-top: 6px; text-align: center;">
+          <img id="form-img-preview" src="" alt="preview" style="max-width: 100%; max-height: 140px; border-radius: 8px; border: 1px solid var(--border);">
+          <button id="btn-remove-form-img" style="position: absolute; top: -8px; right: 8px; background: var(--red); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; cursor: pointer;">✕</button>
+        </div>
+      </div>
+
+      <button id="btn-save-tpl" class="btn-primary" style="margin-top: 6px;">
+        💾 Lưu Tin Nhắn Mẫu
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Message -->
+  <div id="app-toast" class="toast">Thông báo</div>
+
+  <!-- EMBEDDED KNOWLEDGE BASE & ENGINE -->
+  <script>
+
+// KHO TRI THỨC VÀ TEMPLATE TIN NHẮN MẪU - HỖ TRỢ BIẾN XƯNG HÔ CẢ CÓ DẤU VÀ KHÔNG DẤU
+
+const DEFAULT_DRIVING_SCHOOL_KNOWLEDGE = `
+BẠN LÀ: Chuyên viên tư vấn tuyển sinh nhiệt tình, chuyên nghiệp của Trường Dạy Lái Xe Thành Công TP.HCM (Tư vấn viên: Duy / Anh Duy).
+MỤC TIÊU: Tư vấn khóa học lái xe ô tô (Hạng B tự động, Hạng B cơ khí, Hạng C1), giải đáp thắc mắc, tạo sự an tâm và thúc đẩy khách hàng ghi danh giữ suất.
+
+QUY TẮC XƯNG HÔ BẮT BUỘC:
+- Bản thân xưng là: {toi} hoặc {tôi} (Ví dụ: Em / Anh / Con)
+- Gọi khách hàng là: {khach} hoặc {khách} (Ví dụ: Anh / Chị / Cô / Chú / Em / Bạn)
+- ĐẶC BIỆT KHI XƯNG ANH/EM (Người tư vấn là Anh, Khách là Em):
+  + TUYỆT ĐỐI KHÔNG DÙNG các từ kính ngữ của người dưới như "Dạ", "ạ", "ạ!", "ạ?".
+  + Dùng từ ngữ thân thiện của người đi trước: "Chào em nhé! 🌸", "Anh gửi em...", "nha em", "nhé em", "nha!", "nhé!".
+- KHI XƯNG EM/ANH, EM/CHỊ, CON/CÔ, CON/CHÚ: Dùng kính ngữ "Dạ...", "...ạ!" lịch sự, ân cần.
+
+PHONG CÁCH TƯ VẤN:
+- Tự nhiên, vui tươi, chân thành, phân đoạn ngắn gọn, XUỐNG DÒNG RÕ RÀNG giữa các ý.
+- Sử dụng IN HOA các tiêu đề, số tiền kết hợp emoji màu sắc (🌸, 🚗, 🚚, 💰, ⏰, 📍, 📌, 🔹, 🔴, ➊, ➋, ➌) để làm nổi bật thông tin.
+- TUYỆT ĐỐI KHÔNG DÙNG dấu sao markdown *...* quanh từ ngữ.
+- Kết thúc bằng 1 câu hỏi mở để chốt hẹn hoặc tiếp tục tư vấn.
+
+THÔNG TIN CHI TIẾT KHÓA HỌC:
+1. PHÂN LOẠI HẠNG BẰNG THEO LUẬT MỚI:
+- Hạng B số tự động: Lái ô tô 4-9 chỗ, tải đến 3.5 tấn số tự động. Chạy DAT 710km đường trường. Dễ học, thi dễ đậu, phù hợp lái xe gia đình.
+- Hạng B cơ khí: Lái được cả số sàn và số tự động (4-9 chỗ, tải đến 3.5 tấn). Chạy DAT 810km đường trường. Sau 2 năm nâng lên hạng C được.
+- Hạng C1: Lái xe 4-9 chỗ, tải đến dưới 7.5 tấn. Chạy DAT 825km. Phù hợp nếu gia đình/công ty có sẵn xe tải lớn. (Khác hạng C là lái full tải).
+
+2. HỌC PHÍ & ĐÓNG PHÍ (ĐÃ BAO GỒM 1 KÈM 1, XE 2022-2025, ĐỦ KM DAT, 5 GIỜ XE CHIP):
+- Hạng B (Tự động hoặc Cơ khí):
+  + Học ngày trong tuần (Thứ 2 - Thứ 6): 22.300.000đ
+  + Học ngày cuối tuần (Thứ 2 - Chủ Nhật): 24.300.000đ
+- Hạng C1:
+  + Học ngày trong tuần (Thứ 2 - Thứ 6): 25.300.000đ
+  + Học ngày cuối tuần (Thứ 2 - Chủ Nhật): 27.300.000đ
+- Chi phí chưa bao gồm:
+  + Khám sức khỏe lái xe: dự trù ~300.000đ.
+  + Phí thi sát hạch + cấp bằng: 645.000đ (Công an cấp mã QR thanh toán trước thi).
+- Chia 3 đợt đóng:
+  + Đợt 1: Đăng ký hồ sơ: đóng 5.000.000đ giữ suất.
+  + Đợt 2: Chậm nhất 08/09/2026 (để vào khóa thi T1/2027 cho hạng B hoặc T3/2027 cho C1): đóng 13 triệu (hạng B) hoặc 15 triệu (hạng C1) để gửi công an duyệt.
+  + Đợt 3: Xong 16 giờ thực hành đầu tiên: đóng phần còn lại.
+
+3. CHƯƠNG TRÌNH ƯU ĐÃI THÁNG NÀY:
+- Sinh nhật trong tháng 9: Giảm ngay 500.000đ.
+- Đăng ký nhóm: Nhóm 2 người giảm 300.000đ/người; Nhóm 3 người giảm 400.000đ/người.
+- Học viên cũ giới thiệu: Giảm thêm 300.000đ.
+- Đăng ký nhóm có học viên cũ giới thiệu: Giảm nhóm + 100.000đ/người.
+
+4. QUY TRÌNH ĐÀO TẠO & ĐIỂM VƯỢT TRỘI TẠI THÀNH CÔNG:
+- Bao chạy đủ km DAT thực tế ngoài đường (B tự động 710km, B cơ khí 810km, C1 825km) không giới hạn số giờ. Lỗi/mất dữ liệu được chạy lại miễn phí.
+- Luyện 04 giờ sa hình thô trên sân trường Thành Công.
+- Luyện 02 giờ cabin điện tử mô hình (chỉ học theo quy định, không thi).
+- ĐẶC BIỆT: Tặng 05 GIỜ XE CHIP CẢM ỨNG CHẤM THI (4 giờ tại sân đào tạo Thành Công + 1 giờ tại sân thi sát hạch Thành Công) - các trường khác chỉ cho 1-2 giờ.
+- Giáo viên 1 kèm 1 suốt khóa, xe đời mới 2022-2025.
+- KHÔNG BAO ĐẬU: Vì CSGT - Bộ Công An tổ chức thi sát hạch và cấp bằng chính quy bằng hệ thống tự động, nhưng trường đào tạo bài bản 1 kèm 1 và 5h xe chip giúp học viên tự tin thi đậu.
+
+5. THỜI GIAN HỌC LINH ĐỘNG:
+- Lý thuyết: Học online Zoom tối Thứ 5 (18h-20h, 5 buổi) HOẶC học trực tiếp tại 439 Hoàng Văn Thụ, Tân Bình vào Thứ 7 (Sáng 9h-11h, Chiều 14h-16h, Tối 18h-20h).
+- Thực hành: Tự chọn theo thời gian rảnh, 1 buổi/tuần (tối thiểu 4h/buổi: Sáng 8h-12h hoặc Chiều 13h-17h).
+
+6. ĐỊA ĐIỂM ĐÓN & SÂN TẬP (KHÔNG ĐÓN TẠI NHÀ):
+- Giai đoạn 1 (Lái đường trường DAT): Đón nhận xe tại 4 điểm:
+  + 162 Chế Lan Viên, Tây Thạnh, Tân Phú (gần KCN Tân Bình)
+  + 793/55 Trần Xuân Soạn, Tân Hưng, Q.7 (gần Lotte Q7)
+  + 22 Cao Đức Lân, An Phú, Quận 2 (gần Mega Market Q2)
+  + 11/8 Nguyễn Bình, Phú Xuân, Nhà Bè (Sân đào tạo Thành Công)
+- Giai đoạn 2 (Học sa hình & Ôn thi):
+  + Học 4h sa hình thô + 4h xe chip cảm ứng: Sân đào tạo Thành Công - 11/8 Nguyễn Bình, Nhà Bè (https://g.co/kgs/3XWL7i).
+  + Ôn 1h xe chip trước ngày thi: Sân sát hạch Thành Công - 705 Nguyễn Văn Tạo, Nhà Bè.
+
+7. VĂN PHÒNG GHI DANH & HỒ SƠ:
+- Hồ sơ mang theo: Bản gốc CCCD + Bằng lái xe khác (nếu có). Chụp ảnh & làm đơn miễn phí tại văn phòng.
+- Các văn phòng ghi danh (08h30 - 18h00 Thứ 2 - Chủ Nhật):
+  + Trụ sở chính: 439 Hoàng Văn Thụ, P.4, Tân Bình (https://maps.app.goo.gl/PTTd7atMFjYupksJ7) - Hotline: 0943.119.331 / 0934.267.658 (Gặp Anh Duy)
+  + VP Tân Phú: 162 Chế Lan Viên, Tân Phú (Gặp Anh Duy)
+  + VP Quận 7: 793/55 Trần Xuân Soạn, Q.7 (https://maps.app.goo.gl/WeehebMhgQ7mD3Np6 - Gặp Anh Duy)
+  + VP Quận 2: 22 Cao Đức Lân, An Phú, Q.2 (Gặp Anh Duy)
+  + VP Sân Nhà Bè: 11/8 Nguyễn Bình, Nhà Bè (https://g.co/kgs/3XWL7i - Gặp Ms. Nhi: 0389802953, 08h00-16h30)
+- Dự kiến thi: Tháng 01/2027 (Hạng B), Tháng 03/2027 (Hạng C1). Thi đạt 5-7 ngày có bằng.
+`;
+
+const DEFAULT_FAST_TEMPLATES = [
+  {
+    id: "tpl_1",
+    category: "🚗 Phân Loại Bằng & Học Phí",
+    title: "1. Tư vấn Hạng B (Tự động vs Cơ khí) & Học phí",
+    content: `Dạ {tôi} chào {khách} ạ! 🌸
+
+Hiện tại bằng lái ô tô 4-9 chỗ (tải dưới 3.5 tấn) được chia làm 2 loại:
+
+🚗 HẠNG B SỐ TỰ ĐỘNG:
+👉 Lái xe số tự động gia đình, thi rất nhẹ nhàng, không lo tắt máy, chạy đủ 710km DAT đường trường.
+
+🚗 HẠNG B CƠ KHÍ:
+👉 Lái được cả số sàn và số tự động, sau 2 năm có thể nâng lên hạng C, chạy đủ 810km DAT đường trường.
+
+💰 HỌC PHÍ TRỌN GÓI HẠNG B BÊN {TÔI}:
+🔴 Học ngày trong tuần (Thứ 2 - Thứ 6): 22.300.000đ
+🔴 Học ngày cuối tuần (Thứ 2 - Chủ Nhật): 24.300.000đ
+(Phí trên đã bao gồm giáo viên 1 kèm 1, xe đời mới 2022-2025, bao chạy đủ km DAT và tặng kèm 05 GIỜ LUYỆN XE CHIP CẢM ỨNG chấm thi ạ).
+
+📌 HỌC PHÍ ĐƯỢC CHIA LÀM 3 ĐỢT ĐÓNG:
+➊ ĐỢT 1: Đăng ký đóng 5 TRIỆU để {tôi} vào hồ sơ giữ suất thi tháng 01/2027.
+➋ ĐỢT 2: Chậm nhất 08/09/2026 đóng 13 TRIỆU để gửi công an duyệt vào khóa.
+➌ ĐỢT 3: Khi học xong 16 giờ thực hành đầu tiên đóng phần còn lại.
+
+{Khách} đang muốn học xe số tự động hay học số sàn cơ khí để sau này nâng bằng ạ?`
+  },
+  {
+    id: "tpl_2",
+    category: "🚗 Phân Loại Bằng & Học Phí",
+    title: "2. Tư vấn Hạng C1 (Xe tải dưới 7.5 tấn)",
+    content: `Dạ {tôi} gửi {khách} thông tin khóa học lái xe HẠNG C1 (lái ô tô 4-9 chỗ và xe tải dưới 7.5 tấn) bên trường Thành Công bên {tôi} nhé! 🚚
+
+💰 HỌC PHÍ TRỌN GÓI HẠNG C1:
+🔴 Học ngày trong tuần (Thứ 2 - Thứ 6): 25.300.000đ
+🔴 Học ngày cuối tuần (Thứ 2 - Chủ Nhật): 27.300.000đ
+(Bao trọn gói 1 Thầy 1 Trò, xe đời mới, bao chạy đủ 825km DAT và tặng 05 GIỜ LUYỆN XE CHIP CẢM ỨNG chấm thi ạ).
+
+📌 Đóng phí chia làm 3 đợt (Đợt 1 chỉ 5 TRIỆU đăng ký giữ suất thi dự kiến tháng 03/2027).
+
+Không biết {khách} đang cần bằng để lái xe tải cho gia đình hay chạy xe cho công ty ạ?`
+  },
+  {
+    id: "tpl_3",
+    category: "⏰ Lịch Học & Điểm Đón",
+    title: "3. Lịch học Lý thuyết & Thực hành linh động",
+    content: `Dạ {tôi} gửi {khách} lịch học cực kỳ linh động bên trường Thành Công nha! 🚗
+
+⏰ 1. LÝ THUYẾT:
+🔹 Học online qua Zoom tối Thứ 5 (18h00 - 20h00, 5 buổi).
+🔹 HOẶC học trực tiếp tại 439 Hoàng Văn Thụ, Tân Bình vào Thứ 7 (Ca sáng: 9h-11h, Chiều: 14h-16h, Tối: 18h-20h).
+
+⏰ 2. THỰC HÀNH (1 THẦY KÈM 1 TRÒ):
+🔹 Mỗi tuần {khách} sắp xếp 1 buổi (tối thiểu 4 tiếng): Ca sáng 8h00-12h00 hoặc Ca chiều 13h00-17h00 theo thời gian rảnh của {khách}.
+
+📍 GIAI ĐOẠN 1 (Lái đường trường DAT) {khách} nhận xe tại điểm đón gần mình nhất:
+• 162 Chế Lan Viên, Tây Thạnh, Tân Phú
+• 793/55 Trần Xuân Soạn, Q.7
+• 22 Cao Đức Lân, An Phú, Quận 2
+• 11/8 Nguyễn Bình, Phú Xuân, Nhà Bè
+
+{Khách} đang ở khu vực quận nào để {tôi} hướng dẫn điểm nhận xe gần nhất cho tiện đi lại nha?`
+  },
+  {
+    id: "tpl_4",
+    category: "⏰ Lịch Học & Điểm Đón",
+    title: "4. Địa điểm học Sa hình & Sân sát hạch",
+    content: `Dạ về phần thực hành sa hình, lộ trình học bên {tôi} sẽ chia làm 2 giai đoạn rõ ràng:
+
+🚗 Giai đoạn 1 (Lái đường trường DAT): {khách} nhận xe tại các điểm đón tập trung (Tân Phú, Quận 7, Quận 2 hoặc Nhà Bè).
+🚗 Giai đoạn 2 (Luyện sa hình & Xe chip): {khách} sẽ tự túc di chuyển về Sân đào tạo Thành Công tại địa chỉ 11/8 Nguyễn Bình, Phú Xuân, Nhà Bè để học 4h sa hình thô và 4h xe chip cảm ứng.
+🚗 Trước ngày thi: {khách} sẽ được ôn thêm 1h xe chip tại Sân sát hạch Thành Công (705 Nguyễn Văn Tạo, Nhà Bè) để quen xe và mặt sân thi thật ạ!
+
+Học bài bản như vậy nên khi bước vào kỳ thi sát hạch {khách} sẽ cực kỳ tự tin và vững tay lái ạ! {Khách} có cần {tôi} gửi định vị sân tập qua không ạ?`
+  },
+  {
+    id: "tpl_5",
+    category: "🎁 Ưu Đãi & Khuyến Mãi",
+    title: "5. Chương trình Ưu đãi tháng 9",
+    content: `Dạ {tôi} gửi {khách} chương trình ưu đãi học phí cực tốt trong tháng này bên trường nhé! 🎁
+
+🎂 ƯU ĐÃI SINH NHẬT: Giảm ngay 500.000đ nếu {khách} có sinh nhật trong tháng 9.
+👥 ĐĂNG KÝ NHÓM:
+• Đăng ký nhóm 2 người: Giảm 300.000đ/người.
+• Đăng ký nhóm 3 người trở lên: Giảm 400.000đ/người.
+🤝 HỌC VIÊN CŨ GIỚI THIỆU: Giảm thêm 300.000đ.
+(Nếu đăng ký nhóm mà có học viên cũ giới thiệu, bên {tôi} sẽ giảm thêm 100k/người vào mức giảm nhóm ạ).
+
+🔴 Hồ sơ khóa thi tháng 01/2027 sắp chốt đợt 2 (trước 08/09/2026), {khách} đăng ký sớm đợt 1 chỉ 5 TRIỆU là giữ trọn ưu đãi và suất thi luôn ạ! {Khách} đăng ký 1 mình hay có bạn bè học chung không ạ?`
+  },
+  {
+    id: "tpl_6",
+    category: "🛡️ Quy Trình & Cam Kết",
+    title: "6. Giải đáp về 'Bao đậu' & Cam kết chất lượng",
+    content: `Dạ {tôi} chia sẻ thật lòng với {khách} là hiện nay kỳ thi sát hạch và cấp bằng do trực tiếp Cảnh Sát Giao Thông - Bộ Công An tổ chức và chấm điểm tự động bằng cảm ứng, camera giám sát nên hoàn toàn KHÔNG CÓ TRUNG TÂM NÀO BAO ĐẬU ĐƯỢC đâu ạ.
+
+Tuy nhiên, khi học tại Thành Công bên {tôi}, {khách} hoàn toàn yên tâm vì:
+🌟 Giáo viên kèm riêng 1 Thầy 1 Trò tận tâm, chỉ dẫn từng mẹo canh sa hình chuẩn xác.
+🌟 Được bao chạy đủ số km DAT thực tế, nếu lỗi dữ liệu được chạy lại hoàn toàn miễn phí.
+🌟 Đặc biệt được luyện tập tới 05 GIỜ XE CHIP CẢM ỨNG CHẤM THI ngay trên sân thi (nơi khác chỉ có 1-2 giờ). Luyện xe chip giúp {khach} biết rõ lỗi sai, sửa ngay tại chỗ nên tỷ lệ thi đậu thực tế rất cao ạ!
+
+{Khách} dự định học vào ngày thường hay cuối tuần để {tôi} giữ chỗ giáo viên kinh nghiệm kèm riêng cho mình ạ?`
+  },
+  {
+    id: "tpl_7",
+    category: "🏢 Văn Phòng Ghi Danh & Hồ Sơ",
+    title: "7. Hồ sơ & Địa chỉ văn phòng ghi danh",
+    content: `Dạ {tôi} gửi {khách} thông tin hồ sơ và địa chỉ văn phòng ghi danh Trường Dạy Lái Xe Thành Công nhé!
+
+📄 HỒ SƠ {KHÁCH} MANG THEO:
+1. Bản gốc Căn cước công dân (CCCD).
+2. Bằng lái xe máy/thẻ PET khác (nếu có).
+(Hình thẻ và đơn đăng ký bên {tôi} chụp và in miễn phí tại văn phòng cho {khách} luôn ạ).
+
+🏢 HỆ THỐNG VĂN PHÒNG GHI DANH (08h30 - 18h00 Thứ 2 - Chủ Nhật):
+📍 Trụ sở chính: 439 Hoàng Văn Thụ, P.4, Tân Bình
+📍 VP Tân Phú: 162 Chế Lan Viên, Tây Thạnh, Tân Phú (Gặp Anh Duy)
+📍 VP Quận 7: 793/55 Trần Xuân Soạn, Tân Hưng, Q.7 (Gặp Anh Duy)
+📍 VP Quận 2: 22 Cao Đức Lân, An Phú, Quận 2 (Gặp Anh Duy)
+📍 VP Sân Nhà Bè: 11/8 Nguyễn Bình, Phú Xuân, Nhà Bè (Gặp Ms. Nhi: 0389802953, làm việc 08h00-16h30)
+
+☎ Hotline: 0943.119.331 hoặc 0934.267.658 (Anh Duy).
+
+Hôm nay hoặc ngày mai {khách} tiện ghé qua văn phòng nào để {tôi} chuẩn bị sẵn hồ sơ đón tiếp {khách} chu đáo nhất ạ?`
+  },
+  {
+    id: "tpl_8",
+    category: "🏢 Văn Phòng Ghi Danh & Hồ Sơ",
+    title: "8. Hẹn khách ghé 439 Hoàng Văn Thụ, Tân Bình",
+    content: `Dạ {khách} ghé qua Trụ sở chính của trường tại địa chỉ:
+🏢 TRƯỜNG DẠY LÁI XE THÀNH CÔNG
+📍 Địa chỉ: 439 Hoàng Văn Thụ, Phường 4, Quận Tân Bình, TP.HCM
+(Định vị Google Maps: https://maps.app.goo.gl/PTTd7atMFjYupksJ7 )
+⏰ Giờ làm việc: 08h30 - 18h00 (Tất cả các ngày trong tuần từ Thứ 2 đến Chủ Nhật).
+☎ Hotline: 0943.119.331 - 0934.267.658 (Gặp Anh Duy).
+
+Khi tới {khách} chỉ cần mang theo CCCD gốc, vào quầy báo gặp Anh Duy để {tôi} trực tiếp đón và hỗ trợ làm hồ sơ nhanh gọn nhất cho {khách} nha! Tầm mấy giờ {khách} ghé được ạ?`
+  }
+];
+
+// Hàm thay thế xưng hô thông minh - HỖ TRỢ CẢ CÓ DẤU VÀ KHÔNG DẤU: {tôi}, {toi}, {khách}, {khach}
+function applyPronouns(text, toi, khach) {
+  if (!text) return "";
+  const isOlder = (toi.toLowerCase() === "anh" && khach.toLowerCase() === "em");
+  
+  const lines = text.split("\n");
+  const processedLines = [];
+
+  const toiLower = toi.toLowerCase();
+  const khachLower = khach.toLowerCase();
+  const toiCap = toi.charAt(0).toUpperCase() + toi.slice(1);
+  const khachCap = khach.charAt(0).toUpperCase() + khach.slice(1);
+  const toiUpper = toi.toUpperCase();
+  const khachUpper = khach.toUpperCase();
+
+  for (let i = 0; i < lines.length; i++) {
+    let l = lines[i];
+
+    if (isOlder) {
+      // Khi xưng Anh/Em: Xóa kính ngữ Dạ, ạ
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*ạ![ \t]*(?:🌸)?/gi, "Chào {khách} nhé! 🌸");
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*nha![ \t]*(?:🌸)?/gi, "Chào {khách} nhé! 🌸");
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*gửi[ \t]*\{kh[aá]ch\}/gi, "{Tôi} gửi {khách}");
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chia sẻ/gi, "{Tôi} chia sẻ");
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}/gi, "{Tôi}");
+      l = l.replace(/Dạ[ \t]*\{kh[aá]ch\}/gi, "{Khách}");
+      l = l.replace(/Dạ[ \t]*về/gi, "Về");
+      if (l.startsWith("Dạ ")) {
+        l = l.substring(3);
+      }
+      l = l.replace(/[ \t]+ạ![ \t]*/gi, " nha! ");
+      l = l.replace(/[ \t]+ạ\.[ \t]*/gi, ". ");
+      l = l.replace(/[ \t]+ạ\?[ \t]*/gi, " ha em? ");
+      l = l.replace(/[ \t]+ạ,[ \t]*/gi, ", ");
+      l = l.replace(/[ \t]+ạ\b/gi, " nha");
+    }
+
+    // 1. Thay thế chữ IN HOA: {TÔI}, {TOI}, {KHÁCH}, {KHACH}
+    l = l.replace(/\{TÔI\}/g, toiUpper).replace(/\{TOI\}/g, toiUpper);
+    l = l.replace(/\{KHÁCH\}/g, khachUpper).replace(/\{KHACH\}/g, khachUpper);
+
+    // 2. Thay thế chữ Viết hoa chữ cái đầu: {Tôi}, {Toi}, {Khách}, {Khach}
+    l = l.replace(/\{Tôi\}/g, toiCap).replace(/\{Toi\}/g, toiCap);
+    l = l.replace(/\{Khách\}/g, khachCap).replace(/\{Khach\}/g, khachCap);
+
+    // 3. Thay thế chữ thường: {tôi}, {toi}, {khách}, {khach}
+    l = l.replace(/\{tôi\}/g, toiLower).replace(/\{toi\}/g, toiLower);
+    l = l.replace(/\{khách\}/g, khachLower).replace(/\{khach\}/g, khachLower);
+
+    // 4. Thay thế regex dự phòng cho mọi cách gõ hoa thường bất kỳ
+    l = l.replace(/\{t[oô]i\}/gi, toiLower);
+    l = l.replace(/\{kh[aá]ch\}/gi, khachLower);
+
+    processedLines.push(l);
+  }
+
+  return processedLines.join("\n").trim();
+}
+
+
+    // LOCAL STORAGE WRAPPER
+    const AppStorage = {
+      get: function(key, defaultVal) {
+        try {
+          const val = localStorage.getItem('zs_mobile_' + key);
+          return val !== null ? JSON.parse(val) : defaultVal;
+        } catch(e) {
+          return defaultVal;
+        }
+      },
+      set: function(key, val) {
+        try {
+          localStorage.setItem('zs_mobile_' + key, JSON.stringify(val));
+        } catch(e) {}
+      }
+    };
+
+    // FIREBASE SYNC ENGINE
+    const FirebaseSync = {
+      getEndpoint: function (url, auth) {
+        if (!url) return null;
+        let cleanUrl = url.trim().replace(/\/$/, "");
+        let endpoint = `${cleanUrl}/zalo_sales_data.json`;
+        if (auth && auth.trim()) {
+          endpoint += `?auth=${encodeURIComponent(auth.trim())}`;
+        }
+        return endpoint;
+      },
+
+      pullData: async function (url, auth) {
+        const endpoint = this.getEndpoint(url, auth);
+        if (!endpoint) return null;
+        const res = await fetch(endpoint);
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error || `Lỗi kết nối Firebase (${res.status})`);
+        }
+        return await res.json();
+      },
+
+      pushData: async function (url, auth, data) {
+        const endpoint = this.getEndpoint(url, auth);
+        if (!endpoint) return false;
+        const res = await fetch(endpoint, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...data,
+            lastUpdated: Date.now(),
+            client: "iPhone Mobile Web App"
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error || `Lỗi lưu Firebase (${res.status})`);
+        }
+        return true;
+      }
+    };
+
+    // APP STATE
+    let appState = {
+      toi: "em",
+      khach: "anh",
+      activeTab: "tab-ai",
+      geminiKey: AppStorage.get("geminiKey", ""),
+      modelName: AppStorage.get("modelName", "gemini-3.6-flash"),
+      firebaseUrl: AppStorage.get("firebaseUrl", ""),
+      firebaseAuth: AppStorage.get("firebaseAuth", ""),
+      customKnowledge: AppStorage.get("customKnowledge", DEFAULT_DRIVING_SCHOOL_KNOWLEDGE),
+      templates: AppStorage.get("templates", [...DEFAULT_FAST_TEMPLATES]),
+      currentFormImage: ""
+    };
+
+    const PRONOUN_PRESETS = [
+      { label: "Em / Anh", toi: "em", khach: "anh" },
+      { label: "Em / Chị", toi: "em", khach: "chị" },
+      { label: "Anh / Em", toi: "anh", khach: "em" },
+      { label: "Con / Cô", toi: "con", khach: "cô" },
+      { label: "Con / Chú", toi: "con", khach: "chú" },
+      { label: "Em / Bạn", toi: "em", khach: "bạn" }
+    ];
+
+    function showToast(msg) {
+      const t = document.getElementById("app-toast");
+      t.innerText = msg;
+      t.classList.add("show");
+      setTimeout(() => { t.classList.remove("show"); }, 2800);
+    }
+
+    function openZaloApp() {
+      window.location.href = "zalo://";
+    }
+
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const area = document.createElement('textarea');
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        document.body.removeChild(area);
+      }
+    }
+
+    async function copyImageToClipboard(base64DataUrl) {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = base64DataUrl;
+      });
+
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (!blob) throw new Error("Lỗi tạo Blob ảnh");
+
+      const item = new ClipboardItem({ "image/png": blob });
+      await navigator.clipboard.write([item]);
+    }
+
+    function renderPronounChips() {
+      const container = document.getElementById("pronoun-chips-container");
+      container.innerHTML = "";
+      PRONOUN_PRESETS.forEach((preset) => {
+        const chip = document.createElement("div");
+        chip.className = `pronoun-chip ${appState.toi === preset.toi && appState.khach === preset.khach ? 'active' : ''}`;
+        chip.innerText = preset.label;
+        chip.addEventListener("click", () => {
+          appState.toi = preset.toi;
+          appState.khach = preset.khach;
+          document.getElementById("current-pronoun-label").innerText = preset.label;
+          document.querySelectorAll(".pronoun-chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          renderTemplatesList();
+        });
+        container.appendChild(chip);
+      });
+    }
+
+    function renderTemplatesList() {
+      const container = document.getElementById("templates-container");
+      container.innerHTML = "";
+
+      appState.templates.forEach((tpl) => {
+        const formattedContent = applyPronouns(tpl.content, appState.toi, appState.khach);
+        const hasImage = Boolean(tpl.image);
+
+        const card = document.createElement("div");
+        card.className = "template-item";
+        card.innerHTML = `
+          <div class="template-header">
+            <div class="template-title">${tpl.title}</div>
+            <div style="display: flex; gap: 4px;">
+              <button class="icon-btn btn-edit-tpl" style="background: #f0f2f5; color: #555; width: 28px; height: 28px; font-size: 13px;">✏️</button>
+              <button class="icon-btn btn-del-tpl" style="background: #f0f2f5; color: #d93025; width: 28px; height: 28px; font-size: 13px;">🗑️</button>
+            </div>
+          </div>
+          <div class="template-body-text">${formattedContent.replace(/\n/g, ' ')}</div>
+
+          ${hasImage ? `
+            <div class="template-thumb-row">
+              <img class="template-thumb" src="${tpl.image}" alt="thumb">
+              <span style="font-size: 11.5px; color: #555; flex: 1;">🖼️ Có 1 ảnh đính kèm</span>
+              <button class="btn-secondary btn-copy-img" style="padding: 5px 8px; font-size: 11.5px; background: #fff;">📷 Copy Ảnh & Mở Zalo</button>
+            </div>
+          ` : ''}
+
+          <div class="template-action-group">
+            <button class="btn-secondary btn-copy-txt" style="padding: 6px 10px;">📋 Copy</button>
+            <button class="btn-zalo btn-use-zalo" style="padding: 7px 12px; font-size: 12.5px;">🚀 Copy & Mở Zalo</button>
+          </div>
+        `;
+
+        card.querySelector(".btn-copy-txt").addEventListener("click", async () => {
+          await copyToClipboard(formattedContent);
+          showToast("✓ Đã sao chép tin nhắn!");
+        });
+
+        card.querySelector(".btn-use-zalo").addEventListener("click", async () => {
+          await copyToClipboard(formattedContent);
+          showToast("✓ Đã copy! Đang mở ứng dụng Zalo...");
+          setTimeout(openZaloApp, 400);
+        });
+
+        if (hasImage) {
+          card.querySelector(".btn-copy-img").addEventListener("click", async () => {
+            try {
+              await copyImageToClipboard(tpl.image);
+              showToast("✓ Đã copy ảnh! Đang mở ứng dụng Zalo...");
+              setTimeout(openZaloApp, 400);
+            } catch (e) {
+              showToast("✕ Không thể copy ảnh vào Clipboard.");
+            }
+          });
+        }
+
+        card.querySelector(".btn-edit-tpl").addEventListener("click", () => {
+          openTemplateModal(tpl);
+        });
+
+        card.querySelector(".btn-del-tpl").addEventListener("click", () => {
+          if (confirm(`Xóa mẫu: "${tpl.title}"?`)) {
+            appState.templates = appState.templates.filter(t => t.id !== tpl.id);
+            AppStorage.set("templates", appState.templates);
+            renderTemplatesList();
+            showToast("✓ Đã xóa mẫu tin nhắn!");
+            syncPushToFirebase();
+          }
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function openTemplateModal(tpl = null) {
+      const modal = document.getElementById("tpl-modal");
+      const titleLabel = document.getElementById("tpl-modal-title");
+      const idInput = document.getElementById("form-tpl-id");
+      const titleInput = document.getElementById("form-tpl-title");
+      const catInput = document.getElementById("form-tpl-category");
+      const contentInput = document.getElementById("form-tpl-content");
+      const previewBox = document.getElementById("form-img-preview-box");
+      const previewImg = document.getElementById("form-img-preview");
+      const uploadTrigger = document.getElementById("form-upload-trigger");
+
+      if (tpl) {
+        titleLabel.innerText = "CHỈNH SỬA TIN NHẮN MẪU";
+        idInput.value = tpl.id;
+        titleInput.value = tpl.title;
+        catInput.value = tpl.category || "";
+        contentInput.value = tpl.content;
+        appState.currentFormImage = tpl.image || "";
+        if (tpl.image) {
+          previewImg.src = tpl.image;
+          previewBox.style.display = "block";
+          uploadTrigger.style.display = "none";
+        } else {
+          previewBox.style.display = "none";
+          uploadTrigger.style.display = "block";
+        }
+      } else {
+        titleLabel.innerText = "TẠO TIN NHẮN MẪU MỚI";
+        idInput.value = "";
+        titleInput.value = "";
+        catInput.value = "🚗 Khóa Học";
+        contentInput.value = "";
+        appState.currentFormImage = "";
+        previewBox.style.display = "none";
+        uploadTrigger.style.display = "block";
+      }
+
+      modal.style.display = "flex";
+    }
+
+    function syncPushToFirebase() {
+      if (appState.firebaseUrl) {
+        FirebaseSync.pushData(appState.firebaseUrl, appState.firebaseAuth, {
+          fastTemplates: appState.templates,
+          customKnowledge: appState.customKnowledge
+        }).catch(e => console.warn("Firebase push error:", e));
+      }
+    }
+
+    async function generateAIResponse(question) {
+      if (!appState.geminiKey) {
+        throw new Error("Chưa cài đặt Gemini API Key! Vui lòng bấm vào biểu tượng ⚙️ ở góc trên để nhập API Key.");
+      }
+
+      const isOlder = (appState.toi.toLowerCase() === "anh" && appState.khach.toLowerCase() === "em");
+      const systemPrompt = applyPronouns(appState.customKnowledge || DEFAULT_DRIVING_SCHOOL_KNOWLEDGE, appState.toi, appState.khach);
+
+      const userPrompt = `
+Khách hàng vừa hỏi:
+"${question}"
+
+HÃY SOẠN MỘT CÂU TRẢ LỜI TƯ VẤN CHỐT SALE ĐẦY ĐỦ, HOÀN CHỈNH TỪ ĐẦU ĐẾN CUỐI:
+1. XƯNG HÔ: Bản thân xưng là "${appState.toi}", gọi khách là "${appState.khach}".
+${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu bằng "Chào em nhé! 🌸" hoặc "Anh gửi em...", kết thúc bằng "nha em", "nhé em".' : '- Mở đầu lịch sự: "Dạ em chào {khách} ạ! 🌸"'}
+2. NỘI DUNG: Trả lời thẳng vào câu hỏi, nêu rõ học phí ngày thường / cuối tuần, ưu điểm 1 kèm 1, xe 2022-2025, đủ km DAT, 05 GIỜ XE CHIP CẢM ỨNG chấm thi, chính sách chia 3 đợt đóng (Đợt 1 chỉ 5 TRIỆU giữ suất).
+3. TRÌNH BÀY: Xuống dòng tách bạch, IN HOA tiêu đề và số tiền, dùng emoji màu sắc (🌸, 🚗, 💰, ⏰, 📍, 📌, 🔴, ➊, ➋, ➌). TUYỆT ĐỐI KHÔNG dùng dấu sao markdown *...*.
+4. Kết thúc bằng 1 câu hỏi mở thân thiện chốt lịch hoặc hồ sơ.
+`;
+
+      const model = appState.modelName || "gemini-3.6-flash";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${appState.geminiKey}`;
+
+      const payload = {
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        generationConfig: { temperature: 0.7, topP: 0.95, maxOutputTokens: 4096 }
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `Lỗi API (${res.status})`);
+      }
+
+      const data = await res.json();
+      const parts = data?.candidates?.[0]?.content?.parts || [];
+      let text = parts.map(p => p.text || "").join("").trim();
+      return text.replace(/\*/g, "").trim();
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      renderPronounChips();
+      renderTemplatesList();
+      document.getElementById("knowledge-textarea").value = appState.customKnowledge;
+
+      if (appState.firebaseUrl) {
+        try {
+          const cloudData = await FirebaseSync.pullData(appState.firebaseUrl, appState.firebaseAuth);
+          if (cloudData) {
+            if (cloudData.fastTemplates) {
+              appState.templates = cloudData.fastTemplates;
+              AppStorage.set("templates", appState.templates);
+              renderTemplatesList();
+            }
+            if (cloudData.customKnowledge) {
+              appState.customKnowledge = cloudData.customKnowledge;
+              AppStorage.set("customKnowledge", appState.customKnowledge);
+              document.getElementById("knowledge-textarea").value = appState.customKnowledge;
+            }
+          }
+        } catch (e) {}
+      }
+
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+          btn.classList.add("active");
+          const tabId = btn.getAttribute("data-tab");
+          document.getElementById(tabId).classList.add("active");
+        });
+      });
+
+      const btnGenAI = document.getElementById("btn-generate-ai");
+      btnGenAI.addEventListener("click", async () => {
+        const input = document.getElementById("ai-customer-input").value.trim();
+        if (!input) {
+          alert("Vui lòng nhập câu hỏi của khách hàng.");
+          return;
+        }
+
+        btnGenAI.disabled = true;
+        btnGenAI.innerHTML = `<span>⏳ Đang phân tích và soạn câu trả lời...</span>`;
+
+        try {
+          const reply = await generateAIResponse(input);
+          document.getElementById("ai-result-text").value = reply;
+          document.getElementById("ai-result-box").style.display = "flex";
+          showToast("✓ Đã soạn câu trả lời hoàn chỉnh!");
+        } catch (err) {
+          alert("Lỗi AI: " + err.message);
+        } finally {
+          btnGenAI.disabled = false;
+          btnGenAI.innerHTML = `<span>✨ AI Soạn Kịch Bản Trả Lời</span>`;
+        }
+      });
+
+      document.getElementById("btn-ai-copy-zalo").addEventListener("click", async () => {
+        const text = document.getElementById("ai-result-text").value;
+        await copyToClipboard(text);
+        showToast("✓ Đã copy! Đang chuyển sang Zalo...");
+        setTimeout(openZaloApp, 400);
+      });
+
+      document.getElementById("btn-ai-copy-only").addEventListener("click", async () => {
+        const text = document.getElementById("ai-result-text").value;
+        await copyToClipboard(text);
+        showToast("✓ Đã sao chép vào bộ nhớ tạm!");
+      });
+
+      document.getElementById("btn-open-create-tpl").addEventListener("click", () => {
+        openTemplateModal();
+      });
+
+      document.getElementById("btn-close-tpl-modal").addEventListener("click", () => {
+        document.getElementById("tpl-modal").style.display = "none";
+      });
+
+      const formFileInput = document.getElementById("form-img-file");
+      const formUploadTrigger = document.getElementById("form-upload-trigger");
+      const formImgPreviewBox = document.getElementById("form-img-preview-box");
+      const formImgPreview = document.getElementById("form-img-preview");
+      const btnRemoveImg = document.getElementById("btn-remove-form-img");
+
+      formUploadTrigger.addEventListener("click", () => { formFileInput.click(); });
+      formFileInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+              const maxWidth = 1000, maxHeight = 1000;
+              let w = img.width, h = img.height;
+              if (w > h) { if (w > maxWidth) { h *= maxWidth / w; w = maxWidth; } }
+              else { if (h > maxHeight) { w *= maxHeight / h; h = maxHeight; } }
+              const canvas = document.createElement("canvas");
+              canvas.width = w; canvas.height = h;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, w, h);
+              const compressed = canvas.toDataURL("image/jpeg", 0.85);
+              appState.currentFormImage = compressed;
+              formImgPreview.src = compressed;
+              formImgPreviewBox.style.display = "block";
+              formUploadTrigger.style.display = "none";
+            };
+            img.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      btnRemoveImg.addEventListener("click", () => {
+        appState.currentFormImage = "";
+        formFileInput.value = "";
+        formImgPreviewBox.style.display = "none";
+        formUploadTrigger.style.display = "block";
+      });
+
+      document.getElementById("btn-save-tpl").addEventListener("click", () => {
+        const id = document.getElementById("form-tpl-id").value;
+        const title = document.getElementById("form-tpl-title").value.trim();
+        const category = document.getElementById("form-tpl-category").value.trim() || "Tư Vấn";
+        const content = document.getElementById("form-tpl-content").value.trim();
+        const image = appState.currentFormImage || "";
+
+        if (!title || !content) {
+          alert("Vui lòng nhập đầy đủ tiêu đề và nội dung mẫu.");
+          return;
+        }
+
+        if (id) {
+          const idx = appState.templates.findIndex(t => t.id === id);
+          if (idx !== -1) {
+            appState.templates[idx] = { id, title, category, content, image };
+          }
+        } else {
+          appState.templates.unshift({ id: "custom_" + Date.now(), title, category, content, image });
+        }
+
+        AppStorage.set("templates", appState.templates);
+        renderTemplatesList();
+        document.getElementById("tpl-modal").style.display = "none";
+        showToast("✓ Đã lưu tin nhắn mẫu!");
+        syncPushToFirebase();
+      });
+
+      document.getElementById("btn-reset-default-tpl").addEventListener("click", () => {
+        if (confirm("Khôi phục 8 mẫu tin nhắn mặc định?")) {
+          appState.templates = [...DEFAULT_FAST_TEMPLATES];
+          AppStorage.set("templates", appState.templates);
+          renderTemplatesList();
+          showToast("✓ Đã khôi phục mẫu mặc định!");
+          syncPushToFirebase();
+        }
+      });
+
+      document.getElementById("btn-save-knowledge").addEventListener("click", () => {
+        const kb = document.getElementById("knowledge-textarea").value.trim();
+        if (!kb) { alert("Tri thức không được để trống."); return; }
+        appState.customKnowledge = kb;
+        AppStorage.set("customKnowledge", kb);
+        showToast("✓ Đã lưu tri thức mới cho AI!");
+        syncPushToFirebase();
+      });
+
+      document.getElementById("btn-reset-knowledge").addEventListener("click", () => {
+        if (confirm("Khôi phục tri thức đào tạo gốc?")) {
+          appState.customKnowledge = DEFAULT_DRIVING_SCHOOL_KNOWLEDGE;
+          document.getElementById("knowledge-textarea").value = DEFAULT_DRIVING_SCHOOL_KNOWLEDGE;
+          AppStorage.set("customKnowledge", DEFAULT_DRIVING_SCHOOL_KNOWLEDGE);
+          showToast("✓ Đã khôi phục tri thức gốc!");
+          syncPushToFirebase();
+        }
+      });
+
+      const settingsModal = document.getElementById("settings-modal");
+      document.getElementById("btn-open-settings").addEventListener("click", () => {
+        document.getElementById("set-gemini-key").value = appState.geminiKey;
+        document.getElementById("set-model-select").value = appState.modelName;
+        document.getElementById("set-firebase-url").value = appState.firebaseUrl;
+        document.getElementById("set-firebase-auth").value = appState.firebaseAuth;
+        settingsModal.style.display = "flex";
+      });
+
+      document.getElementById("btn-close-settings-modal").addEventListener("click", () => {
+        settingsModal.style.display = "none";
+      });
+
+      document.getElementById("btn-save-settings").addEventListener("click", () => {
+        appState.geminiKey = document.getElementById("set-gemini-key").value.trim();
+        appState.modelName = document.getElementById("set-model-select").value;
+        appState.firebaseUrl = document.getElementById("set-firebase-url").value.trim();
+        appState.firebaseAuth = document.getElementById("set-firebase-auth").value.trim();
+
+        AppStorage.set("geminiKey", appState.geminiKey);
+        AppStorage.set("modelName", appState.modelName);
+        AppStorage.set("firebaseUrl", appState.firebaseUrl);
+        AppStorage.set("firebaseAuth", appState.firebaseAuth);
+
+        settingsModal.style.display = "none";
+        showToast("✓ Đã lưu cài đặt AI & Firebase!");
+      });
+
+      document.getElementById("btn-sync-pull").addEventListener("click", async () => {
+        const url = document.getElementById("set-firebase-url").value.trim();
+        const auth = document.getElementById("set-firebase-auth").value.trim();
+        if (!url) { alert("Vui lòng nhập Firebase URL."); return; }
+        const btn = document.getElementById("btn-sync-pull");
+        btn.disabled = true; btn.innerText = "⏳ Đang tải...";
+        try {
+          const cloudData = await FirebaseSync.pullData(url, auth);
+          if (cloudData) {
+            if (cloudData.fastTemplates) {
+              appState.templates = cloudData.fastTemplates;
+              AppStorage.set("templates", appState.templates);
+              renderTemplatesList();
+            }
+            if (cloudData.customKnowledge) {
+              appState.customKnowledge = cloudData.customKnowledge;
+              AppStorage.set("customKnowledge", appState.customKnowledge);
+              document.getElementById("knowledge-textarea").value = appState.customKnowledge;
+            }
+            showToast("✓ Đã đồng bộ từ Firebase về điện thoại!");
+          } else {
+            showToast("Firebase chưa có dữ liệu.");
+          }
+        } catch (e) {
+          alert("Lỗi tải Firebase: " + e.message);
+        } finally {
+          btn.disabled = false; btn.innerText = "🔄 Tải từ Cloud về";
+        }
+      });
+
+      document.getElementById("btn-sync-push").addEventListener("click", async () => {
+        const url = document.getElementById("set-firebase-url").value.trim();
+        const auth = document.getElementById("set-firebase-auth").value.trim();
+        if (!url) { alert("Vui lòng nhập Firebase URL."); return; }
+        const btn = document.getElementById("btn-sync-push");
+        btn.disabled = true; btn.innerText = "⏳ Đang đẩy...";
+        try {
+          await FirebaseSync.pushData(url, auth, {
+            fastTemplates: appState.templates,
+            customKnowledge: appState.customKnowledge
+          });
+          showToast("✓ Đã đẩy dữ liệu lên Firebase thành công!");
+        } catch (e) {
+          alert("Lỗi đẩy Firebase: " + e.message);
+        } finally {
+          btn.disabled = false; btn.innerText = "⬆️ Đẩy lên Cloud";
+        }
+      });
+    });
+
+  </script>
+</body>
+</html>
