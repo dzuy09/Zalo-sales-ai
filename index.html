@@ -573,6 +573,9 @@
         <button id="btn-save-knowledge" class="btn-primary">
           💾 Lưu & Tự Động Đồng Bộ Tri Thức
         </button>
+        <button id="btn-force-sync-tpl" class="btn-secondary" style="width: 100%; margin-top: 8px; padding: 10px; font-weight: 700; color: var(--primary);">
+          🔄 Tự Động Cập Nhật Lại Giá Trong Mẫu Tin Nhắn
+        </button>
       </div>
     </div>
   </main>
@@ -1098,6 +1101,9 @@ function applyPronouns(text, toi, khach) {
               appState.customKnowledge = newData.customKnowledge;
               AppStorage.set("customKnowledge", appState.customKnowledge);
               document.getElementById("knowledge-textarea").value = appState.customKnowledge;
+              appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, appState.customKnowledge);
+              AppStorage.set("templates", appState.templates);
+              renderTemplatesList();
             }
             showToast("☁️ Đã tự động cập nhật dữ liệu mới từ Máy tính!");
           }
@@ -1168,11 +1174,12 @@ function applyPronouns(text, toi, khach) {
     function syncTemplatesWithKnowledgeBase(templates, kbText) {
       if (!templates || !Array.isArray(templates) || !kbText) return templates;
 
-      const bWeekdayMatch = kbText.match(/Hạng B.*?Thứ 2 - Thứ 6\)?:\s*([0-9.,]+đ?)/i);
-      const bWeekendMatch = kbText.match(/Hạng B.*?Thứ 2 - Chủ Nhật\)?:\s*([0-9.,]+đ?)/i);
-      const c1WeekdayMatch = kbText.match(/Hạng C1.*?Thứ 2 - Thứ 6\)?:\s*([0-9.,]+đ?)/i);
-      const c1WeekendMatch = kbText.match(/Hạng C1.*?Thứ 2 - Chủ Nhật\)?:\s*([0-9.,]+đ?)/i);
-      const deadlineMatch = kbText.match(/Chậm nhất\s*([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4})/i);
+      // Sử dụng [\s\S]*? để tìm kiếm xuyên suốt nhiều dòng trên mọi trình duyệt mobile
+      const bWeekdayMatch = kbText.match(/Hạng B[\s\S]*?Thứ 2 - Thứ 6\)?:\s*([0-9.,]+đ?)/i);
+      const bWeekendMatch = kbText.match(/Hạng B[\s\S]*?Thứ 2 - Chủ Nhật\)?:\s*([0-9.,]+đ?)/i);
+      const c1WeekdayMatch = kbText.match(/Hạng C1[\s\S]*?Thứ 2 - Thứ 6\)?:\s*([0-9.,]+đ?)/i);
+      const c1WeekendMatch = kbText.match(/Hạng C1[\s\S]*?Thứ 2 - Chủ Nhật\)?:\s*([0-9.,]+đ?)/i);
+      const deadlineMatch = kbText.match(/(?:Chậm nhất|trước)\s*([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4})/i);
       const birthdayMatch = kbText.match(/Giảm ngay\s*([0-9.,]+đ?)/i);
 
       const feeBWeekday = bWeekdayMatch ? bWeekdayMatch[1] : null;
@@ -1438,6 +1445,11 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
 
     document.addEventListener("DOMContentLoaded", async () => {
       renderPronounChips();
+      // Tự động rà soát đồng bộ giá từ tri thức vào mẫu tin nhắn ngay khi mở web app
+      if (appState.customKnowledge) {
+        appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, appState.customKnowledge);
+        AppStorage.set("templates", appState.templates);
+      }
       renderTemplatesList();
       document.getElementById("knowledge-textarea").value = appState.customKnowledge;
 
@@ -1596,6 +1608,15 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
         renderTemplatesList();
 
         showToast("✓ Đã lưu tri thức & tự động cập nhật các mẫu tin nhắn!");
+        syncPushToFirebase();
+      });
+
+      document.getElementById("btn-force-sync-tpl").addEventListener("click", () => {
+        const kb = document.getElementById("knowledge-textarea").value.trim() || appState.customKnowledge;
+        appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, kb);
+        AppStorage.set("templates", appState.templates);
+        renderTemplatesList();
+        showToast("✓ Đã cập nhật toàn bộ giá trong mẫu tin nhắn!");
         syncPushToFirebase();
       });
 
