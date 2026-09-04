@@ -571,7 +571,7 @@
         </p>
         <textarea id="knowledge-textarea" class="app-textarea" style="min-height: 340px; font-size: 12.5px;"></textarea>
         <button id="btn-save-knowledge" class="btn-primary">
-          💾 Lưu & Cập Nhật Tri Thức Cho AI
+          💾 Lưu & Tự Động Đồng Bộ Tri Thức
         </button>
       </div>
     </div>
@@ -581,7 +581,7 @@
   <div class="modal-overlay" id="settings-modal">
     <div class="modal-sheet">
       <div class="modal-header">
-        <span class="modal-title">⚙️ CẤU HÌNH AI & CLOUD FIREBASE</span>
+        <span class="modal-title">⚙️ CẤU HÌNH AI & TỰ ĐỘNG ĐỒNG BỘ</span>
         <button id="btn-close-settings-modal" class="icon-btn" style="background: #f0f2f5; color: #333;">✕</button>
       </div>
 
@@ -606,9 +606,9 @@
       <hr style="border: none; border-top: 1px dashed var(--border); margin: 4px 0;">
 
       <div class="form-group">
-        <label style="color: var(--green);">☁️ 3. Firebase Realtime Database URL (Đồng bộ Laptop & iPhone):</label>
+        <label style="color: var(--green);">☁️ 3. Firebase Realtime Database URL (Tự động đồng bộ 2 chiều):</label>
         <input type="text" id="set-firebase-url" class="form-input" placeholder="https://du-an-default-rtdb.firebaseio.com">
-        <small style="font-size: 11px; color: #666;">Dán URL Firebase để tự động đồng bộ 2 chiều giữa máy tính và iPhone.</small>
+        <small style="font-size: 11px; color: #666;">Dán URL Database vào đây một lần. Khi sửa mẫu trên máy tính hoặc điện thoại, dữ liệu sẽ <b>TỰ ĐỘNG ĐỒNG BỘ THỜI GIAN THỰC</b> sang thiết bị còn lại.</small>
       </div>
 
       <div class="form-group">
@@ -618,10 +618,7 @@
 
       <div style="display: flex; gap: 8px; margin-top: 4px;">
         <button id="btn-sync-pull" class="btn-secondary" style="flex: 1; border-color: var(--green); color: var(--green); background: #e6f4ea;">
-          🔄 Tải từ Cloud về
-        </button>
-        <button id="btn-sync-push" class="btn-secondary" style="flex: 1; border-color: var(--primary); color: var(--primary); background: #e7f3ff;">
-          ⬆️ Đẩy lên Cloud
+          🔄 Kiểm tra đồng bộ ngay
         </button>
       </div>
 
@@ -978,7 +975,7 @@ function applyPronouns(text, toi, khach) {
       }
     };
 
-    // FIREBASE SYNC ENGINE
+    // FIREBASE SYNC ENGINE (HỖ TRỢ REALTIME SERVER-SENT EVENTS)
     const FirebaseSync = {
       getEndpoint: function (url, auth) {
         if (!url) return null;
@@ -1004,20 +1001,52 @@ function applyPronouns(text, toi, khach) {
       pushData: async function (url, auth, data) {
         const endpoint = this.getEndpoint(url, auth);
         if (!endpoint) return false;
+        const payload = {
+          ...data,
+          lastUpdated: Date.now(),
+          client: "iPhone Mobile Web App"
+        };
         const res = await fetch(endpoint, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...data,
-            lastUpdated: Date.now(),
-            client: "iPhone Mobile Web App"
-          })
+          body: JSON.stringify(payload)
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           throw new Error(err?.error || `Lỗi lưu Firebase (${res.status})`);
         }
+        appState.lastUpdated = payload.lastUpdated;
+        AppStorage.set("lastUpdated", appState.lastUpdated);
         return true;
+      },
+
+      listenRealtime: function (url, auth, onDataChange) {
+        const endpoint = this.getEndpoint(url, auth);
+        if (!endpoint || typeof EventSource === "undefined") return null;
+
+        try {
+          const source = new EventSource(endpoint);
+          source.addEventListener("put", (e) => {
+            try {
+              const parsed = JSON.parse(e.data);
+              if (parsed && parsed.data) {
+                onDataChange(parsed.data);
+              }
+            } catch (err) {}
+          });
+          source.addEventListener("patch", (e) => {
+            try {
+              const parsed = JSON.parse(e.data);
+              if (parsed && parsed.data) {
+                onDataChange(parsed.data);
+              }
+            } catch (err) {}
+          });
+          return source;
+        } catch (err) {
+          console.warn("Mobile EventSource error:", err);
+          return null;
+        }
       }
     };
 
@@ -1032,7 +1061,9 @@ function applyPronouns(text, toi, khach) {
       firebaseAuth: AppStorage.get("firebaseAuth", ""),
       customKnowledge: AppStorage.get("customKnowledge", DEFAULT_DRIVING_SCHOOL_KNOWLEDGE),
       templates: AppStorage.get("templates", [...DEFAULT_FAST_TEMPLATES]),
-      currentFormImage: ""
+      lastUpdated: AppStorage.get("lastUpdated", 0),
+      currentFormImage: "",
+      isSyncing: false
     };
 
     const PRONOUN_PRESETS = [
@@ -1044,6 +1075,63 @@ function applyPronouns(text, toi, khach) {
       { label: "Em / Bạn", toi: "em", khach: "bạn" }
     ];
 
+    let mobileSse = null;
+
+    function initMobileRealtimeSync() {
+      if (mobileSse) {
+        try { mobileSse.close(); } catch(e) {}
+        mobileSse = null;
+      }
+
+      if (appState.firebaseUrl) {
+        mobileSse = FirebaseSync.listenRealtime(appState.firebaseUrl, appState.firebaseAuth, (newData) => {
+          if (!newData) return;
+          if (newData.lastUpdated && newData.lastUpdated > appState.lastUpdated) {
+            appState.lastUpdated = newData.lastUpdated;
+            AppStorage.set("lastUpdated", appState.lastUpdated);
+            if (newData.fastTemplates && Array.isArray(newData.fastTemplates)) {
+              appState.templates = newData.fastTemplates;
+              AppStorage.set("templates", appState.templates);
+              renderTemplatesList();
+            }
+            if (newData.customKnowledge) {
+              appState.customKnowledge = newData.customKnowledge;
+              AppStorage.set("customKnowledge", appState.customKnowledge);
+              document.getElementById("knowledge-textarea").value = appState.customKnowledge;
+            }
+            showToast("☁️ Đã tự động cập nhật dữ liệu mới từ Máy tính!");
+          }
+        });
+      }
+    }
+
+    async function autoCheckSyncMobile() {
+      if (!appState.firebaseUrl || appState.isSyncing) return;
+      appState.isSyncing = true;
+      try {
+        const cloudData = await FirebaseSync.pullData(appState.firebaseUrl, appState.firebaseAuth);
+        if (cloudData && cloudData.lastUpdated && cloudData.lastUpdated > (appState.lastUpdated || 0)) {
+          appState.lastUpdated = cloudData.lastUpdated;
+          AppStorage.set("lastUpdated", appState.lastUpdated);
+          if (cloudData.fastTemplates && Array.isArray(cloudData.fastTemplates)) {
+            appState.templates = cloudData.fastTemplates;
+            AppStorage.set("templates", appState.templates);
+            renderTemplatesList();
+          }
+          if (cloudData.customKnowledge) {
+            appState.customKnowledge = cloudData.customKnowledge;
+            AppStorage.set("customKnowledge", appState.customKnowledge);
+            document.getElementById("knowledge-textarea").value = appState.customKnowledge;
+          }
+          console.log("[Mobile App] Đã tự động kéo dữ liệu mới nhất từ Firebase.");
+        }
+      } catch (e) {
+        console.warn("Mobile auto check sync error:", e);
+      } finally {
+        appState.isSyncing = false;
+      }
+    }
+
     function showToast(msg) {
       const t = document.getElementById("app-toast");
       t.innerText = msg;
@@ -1052,7 +1140,74 @@ function applyPronouns(text, toi, khach) {
     }
 
     function openZaloApp() {
-      window.location.href = "zalo://";
+      const ua = navigator.userAgent || "";
+      const isAndroid = /Android/i.test(ua);
+
+      if (isAndroid) {
+        // Android Intent URI tương thích chuẩn 100% với Chrome, Samsung Internet
+        const intentUrl = "intent://#Intent;scheme=zalo;package=com.zing.zalo;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end";
+        const link = document.createElement("a");
+        link.href = intentUrl;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          try { document.body.removeChild(link); } catch (e) {}
+        }, 400);
+
+        // Dự phòng bằng custom scheme
+        setTimeout(() => {
+          window.location.href = "zalo://";
+        }, 300);
+      } else {
+        // iOS Safari & Desktop
+        window.location.href = "zalo://";
+      }
+    }
+
+    function syncTemplatesWithKnowledgeBase(templates, kbText) {
+      if (!templates || !Array.isArray(templates) || !kbText) return templates;
+
+      const bWeekdayMatch = kbText.match(/Hạng B.*?Thứ 2 - Thứ 6\)?:\s*([0-9.,]+đ?)/i);
+      const bWeekendMatch = kbText.match(/Hạng B.*?Thứ 2 - Chủ Nhật\)?:\s*([0-9.,]+đ?)/i);
+      const c1WeekdayMatch = kbText.match(/Hạng C1.*?Thứ 2 - Thứ 6\)?:\s*([0-9.,]+đ?)/i);
+      const c1WeekendMatch = kbText.match(/Hạng C1.*?Thứ 2 - Chủ Nhật\)?:\s*([0-9.,]+đ?)/i);
+      const deadlineMatch = kbText.match(/Chậm nhất\s*([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4})/i);
+      const birthdayMatch = kbText.match(/Giảm ngay\s*([0-9.,]+đ?)/i);
+
+      const feeBWeekday = bWeekdayMatch ? bWeekdayMatch[1] : null;
+      const feeBWeekend = bWeekendMatch ? bWeekendMatch[1] : null;
+      const feeC1Weekday = c1WeekdayMatch ? c1WeekdayMatch[1] : null;
+      const feeC1Weekend = c1WeekendMatch ? c1WeekendMatch[1] : null;
+      const deadline = deadlineMatch ? deadlineMatch[1] : null;
+      const birthdayPromo = birthdayMatch ? birthdayMatch[1] : null;
+
+      return templates.map(tpl => {
+        let content = tpl.content || "";
+        const titleUpper = (tpl.title || "").toUpperCase();
+        const contentUpper = content.toUpperCase();
+
+        if (titleUpper.includes("HẠNG B") || contentUpper.includes("HẠNG B")) {
+          if (feeBWeekday) content = content.replace(/(Thứ 2 - Thứ 6\)?:\s*)[0-9.,]+đ?/gi, `$1${feeBWeekday}`);
+          if (feeBWeekend) content = content.replace(/(Thứ 2 - Chủ Nhật\)?:\s*)[0-9.,]+đ?/gi, `$1${feeBWeekend}`);
+        }
+
+        if (titleUpper.includes("HẠNG C1") || titleUpper.includes("C1")) {
+          if (feeC1Weekday) content = content.replace(/(Thứ 2 - Thứ 6\)?:\s*)[0-9.,]+đ?/gi, `$1${feeC1Weekday}`);
+          if (feeC1Weekend) content = content.replace(/(Thứ 2 - Chủ Nhật\)?:\s*)[0-9.,]+đ?/gi, `$1${feeC1Weekend}`);
+        }
+
+        if (deadline) {
+          content = content.replace(/(Chậm nhất\s*)[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gi, `$1${deadline}`);
+          content = content.replace(/(trước\s*)[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gi, `$1${deadline}`);
+        }
+
+        if (birthdayPromo && contentUpper.includes("SINH NHẬT")) {
+          content = content.replace(/(Giảm ngay\s*)[0-9.,]+đ?/gi, `$1${birthdayPromo}`);
+        }
+
+        return { ...tpl, content };
+      });
     }
 
     async function copyToClipboard(text) {
@@ -1151,7 +1306,7 @@ function applyPronouns(text, toi, khach) {
         card.querySelector(".btn-use-zalo").addEventListener("click", async () => {
           await copyToClipboard(formattedContent);
           showToast("✓ Đã copy! Đang mở ứng dụng Zalo...");
-          setTimeout(openZaloApp, 400);
+          openZaloApp();
         });
 
         if (hasImage) {
@@ -1159,7 +1314,7 @@ function applyPronouns(text, toi, khach) {
             try {
               await copyImageToClipboard(tpl.image);
               showToast("✓ Đã copy ảnh! Đang mở ứng dụng Zalo...");
-              setTimeout(openZaloApp, 400);
+              openZaloApp();
             } catch (e) {
               showToast("✕ Không thể copy ảnh vào Clipboard.");
             }
@@ -1229,6 +1384,8 @@ function applyPronouns(text, toi, khach) {
         FirebaseSync.pushData(appState.firebaseUrl, appState.firebaseAuth, {
           fastTemplates: appState.templates,
           customKnowledge: appState.customKnowledge
+        }).then(() => {
+          showToast("☁️ Đã tự động đồng bộ sang Laptop!");
         }).catch(e => console.warn("Firebase push error:", e));
       }
     }
@@ -1284,23 +1441,14 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
       renderTemplatesList();
       document.getElementById("knowledge-textarea").value = appState.customKnowledge;
 
-      if (appState.firebaseUrl) {
-        try {
-          const cloudData = await FirebaseSync.pullData(appState.firebaseUrl, appState.firebaseAuth);
-          if (cloudData) {
-            if (cloudData.fastTemplates) {
-              appState.templates = cloudData.fastTemplates;
-              AppStorage.set("templates", appState.templates);
-              renderTemplatesList();
-            }
-            if (cloudData.customKnowledge) {
-              appState.customKnowledge = cloudData.customKnowledge;
-              AppStorage.set("customKnowledge", appState.customKnowledge);
-              document.getElementById("knowledge-textarea").value = appState.customKnowledge;
-            }
-          }
-        } catch (e) {}
-      }
+      initMobileRealtimeSync();
+      autoCheckSyncMobile();
+
+      window.addEventListener("focus", autoCheckSyncMobile);
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) autoCheckSyncMobile();
+      });
+      setInterval(autoCheckSyncMobile, 15000);
 
       document.querySelectorAll(".tab-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -1339,8 +1487,8 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
       document.getElementById("btn-ai-copy-zalo").addEventListener("click", async () => {
         const text = document.getElementById("ai-result-text").value;
         await copyToClipboard(text);
-        showToast("✓ Đã copy! Đang chuyển sang Zalo...");
-        setTimeout(openZaloApp, 400);
+        showToast("✓ Đã copy! Đang mở ứng dụng Zalo...");
+        openZaloApp();
       });
 
       document.getElementById("btn-ai-copy-only").addEventListener("click", async () => {
@@ -1441,7 +1589,13 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
         if (!kb) { alert("Tri thức không được để trống."); return; }
         appState.customKnowledge = kb;
         AppStorage.set("customKnowledge", kb);
-        showToast("✓ Đã lưu tri thức mới cho AI!");
+
+        // Tự động đồng bộ các thông số mới vào toàn bộ mẫu tin nhắn
+        appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, kb);
+        AppStorage.set("templates", appState.templates);
+        renderTemplatesList();
+
+        showToast("✓ Đã lưu tri thức & tự động cập nhật các mẫu tin nhắn!");
         syncPushToFirebase();
       });
 
@@ -1480,6 +1634,8 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
         AppStorage.set("firebaseAuth", appState.firebaseAuth);
 
         settingsModal.style.display = "none";
+        initMobileRealtimeSync();
+        autoCheckSyncMobile();
         showToast("✓ Đã lưu cài đặt AI & Firebase!");
       });
 
@@ -1488,7 +1644,7 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
         const auth = document.getElementById("set-firebase-auth").value.trim();
         if (!url) { alert("Vui lòng nhập Firebase URL."); return; }
         const btn = document.getElementById("btn-sync-pull");
-        btn.disabled = true; btn.innerText = "⏳ Đang tải...";
+        btn.disabled = true; btn.innerText = "⏳ Đang kiểm tra...";
         try {
           const cloudData = await FirebaseSync.pullData(url, auth);
           if (cloudData) {
@@ -1502,6 +1658,8 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
               AppStorage.set("customKnowledge", appState.customKnowledge);
               document.getElementById("knowledge-textarea").value = appState.customKnowledge;
             }
+            appState.lastUpdated = cloudData.lastUpdated || Date.now();
+            AppStorage.set("lastUpdated", appState.lastUpdated);
             showToast("✓ Đã đồng bộ từ Firebase về điện thoại!");
           } else {
             showToast("Firebase chưa có dữ liệu.");
@@ -1509,26 +1667,7 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
         } catch (e) {
           alert("Lỗi tải Firebase: " + e.message);
         } finally {
-          btn.disabled = false; btn.innerText = "🔄 Tải từ Cloud về";
-        }
-      });
-
-      document.getElementById("btn-sync-push").addEventListener("click", async () => {
-        const url = document.getElementById("set-firebase-url").value.trim();
-        const auth = document.getElementById("set-firebase-auth").value.trim();
-        if (!url) { alert("Vui lòng nhập Firebase URL."); return; }
-        const btn = document.getElementById("btn-sync-push");
-        btn.disabled = true; btn.innerText = "⏳ Đang đẩy...";
-        try {
-          await FirebaseSync.pushData(url, auth, {
-            fastTemplates: appState.templates,
-            customKnowledge: appState.customKnowledge
-          });
-          showToast("✓ Đã đẩy dữ liệu lên Firebase thành công!");
-        } catch (e) {
-          alert("Lỗi đẩy Firebase: " + e.message);
-        } finally {
-          btn.disabled = false; btn.innerText = "⬆️ Đẩy lên Cloud";
+          btn.disabled = false; btn.innerText = "🔄 Kiểm tra đồng bộ ngay";
         }
       });
     });
