@@ -664,10 +664,11 @@
         <label>🔵 Google Gemini API (Streaming):</label>
         <input type="password" id="set-gemini-key" class="form-input" placeholder="Dán mã AIzaSy...">
         <select id="set-model-select" class="form-input" style="margin-top: 4px;">
-          <option value="gemini-1.5-flash">gemini-1.5-flash (Khuyên dùng - Siêu tốc & Miễn phí)</option>
+          <option value="gemini-2.5-flash">gemini-2.5-flash (Khuyên dùng - Siêu tốc & Miễn phí)</option>
           <option value="gemini-2.0-flash">gemini-2.0-flash (Thế hệ 2.0)</option>
-          <option value="gemini-1.5-pro">gemini-1.5-pro (Thông minh cao cấp)</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro (Thông minh cao cấp)</option>
         </select>
+        <small style="font-size: 10.5px; color: #888;">Ứng dụng sẽ tự động dò model khác nếu model bạn chọn bị Google gỡ bỏ.</small>
       </div>
 
       <div class="form-group">
@@ -1176,7 +1177,8 @@ function applyPronouns(text, toi, khach) {
       khach: "anh",
       activeTab: "tab-ai",
       geminiKey: AppStorage.get("geminiKey", ""),
-      modelName: AppStorage.get("modelName", "gemini-1.5-flash"),
+      modelName: AppStorage.get("modelName", "gemini-2.5-flash"),
+      geminiAutoModel: AppStorage.get("geminiAutoModel", ""),
       openaiKey: AppStorage.get("openaiKey", ""),
       openaiModel: AppStorage.get("openaiModel", "gpt-4o-mini"),
       deepseekKey: AppStorage.get("deepseekKey", ""),
@@ -1685,6 +1687,32 @@ window.switchMobileTab = function(tabId) {
       return `${providerLabel}: ${raw}`;
     }
 
+    // Dò tìm 1 model Gemini còn khả dụng cho đúng API Key này (phòng khi Google đổi tên/khai tử model cũ)
+    async function discoverGeminiModel(apiKey) {
+      const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {}, 15000);
+      if (!res.ok) throw new Error(`Không lấy được danh sách model (HTTP ${res.status})`);
+      const data = await res.json();
+      const models = Array.isArray(data.models) ? data.models : [];
+      const usable = models.filter(m =>
+        Array.isArray(m.supportedGenerationMethods) &&
+        m.supportedGenerationMethods.includes("generateContent") &&
+        !/embedding|vision|aqa|tts|image|imagen|veo/i.test(m.name)
+      );
+      if (!usable.length) throw new Error("API Key này không có quyền dùng model nào hỗ trợ generateContent.");
+      // Ưu tiên bản flash mới nhất (nhanh, rẻ) trước, rồi tới pro
+      const rank = (name) => {
+        if (/flash-latest/i.test(name)) return 0;
+        if (/2\.5.*flash/i.test(name)) return 1;
+        if (/2\.0.*flash/i.test(name)) return 2;
+        if (/flash/i.test(name)) return 3;
+        if (/pro-latest/i.test(name)) return 4;
+        if (/pro/i.test(name)) return 5;
+        return 9;
+      };
+      usable.sort((a, b) => rank(a.name) - rank(b.name));
+      return usable[0].name.replace(/^models\//, "");
+    }
+
     async function generateAIResponse(question, onChunk) {
       const hasKey = Boolean(appState.geminiKey || appState.openaiKey || appState.deepseekKey);
       if (!hasKey) {
@@ -1733,17 +1761,19 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       const primary = appState.primaryAi || "gemini";
 
       // Hàm gọi Gemini Streaming
-            // Hàm gọi Gemini Streaming (Tự động thử các model ổn định: 2.5-flash, 1.5-flash)
       async function tryGeminiStream() {
         if (!appState.geminiKey) throw new Error("Chưa có Gemini API Key");
-        const modelsToTry = [
-          appState.modelName || "gemini-2.5-flash",
+        const candidates = [
+          appState.geminiAutoModel,
+          appState.modelName,
           "gemini-2.5-flash",
           "gemini-2.0-flash",
-          "gemini-1.5-flash"
-        ];
+          "gemini-flash-latest"
+        ].filter(Boolean);
+        const modelsToTry = [...new Set(candidates)];
 
         let lastErr = null;
+        let allNotFound = true;
         for (const m of modelsToTry) {
           try {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse&key=${appState.geminiKey}`;
@@ -1768,6 +1798,7 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
               });
 
               if (res.ok) {
+                allNotFound = false;
                 const reader = res.body.getReader();
                 const decoder = new TextDecoder("utf-8");
                 let doneReading = false;
@@ -1804,15 +1835,23 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
                 }
                 if (fullText) streamOk = true;
               } else {
+                if (res.status !== 404) allNotFound = false;
                 const errBody = await res.json().catch(() => ({}));
                 lastErr = new Error(`Gemini Stream HTTP ${res.status}: ${errBody?.error?.message || "Lỗi API"}`);
               }
             } catch (eStream) {
               console.warn("Gemini stream error, thử sang standard REST fetch:", eStream);
               lastErr = eStream;
+              allNotFound = false;
             }
 
-            if (streamOk && fullText) return fullText;
+            if (streamOk && fullText) {
+              if (appState.geminiAutoModel !== m) {
+                appState.geminiAutoModel = m;
+                AppStorage.set("geminiAutoModel", m);
+              }
+              return fullText;
+            }
 
             // Fallback: Standard REST generateContent (hỗ trợ CORS 100% trên WebKit / Safari)
             const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${appState.geminiKey}`;
@@ -1823,22 +1862,69 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
             });
 
             if (restRes.ok) {
+              allNotFound = false;
               const data = await restRes.json();
               const parts = data.candidates?.[0]?.content?.parts || [];
               const text = parts.map(p => p.text || "").join("");
               if (text) {
                 fullText = text.replace(/\*/g, "");
                 if (onChunk) onChunk(fullText);
+                if (appState.geminiAutoModel !== m) {
+                  appState.geminiAutoModel = m;
+                  AppStorage.set("geminiAutoModel", m);
+                }
                 return fullText;
               }
             } else {
+              if (restRes.status !== 404) allNotFound = false;
               const errData = await restRes.json().catch(() => ({}));
               lastErr = new Error(`Gemini HTTP ${restRes.status}: ${errData?.error?.message || "Lỗi API"}`);
             }
           } catch (ex) {
             lastErr = ex;
+            allNotFound = false;
           }
         }
+
+        // Nếu TẤT CẢ model đoán trước đều báo "không tồn tại" (Google đã đổi tên/khai tử model),
+        // tự động dò danh sách model thật sự khả dụng cho API Key này và thử lại 1 lần.
+        if (allNotFound) {
+          try {
+            const discovered = await discoverGeminiModel(appState.geminiKey);
+            if (discovered && !modelsToTry.includes(discovered)) {
+              const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${discovered}:generateContent?key=${appState.geminiKey}`;
+              const payload = {
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: contents,
+                generationConfig: { temperature: 0.65, topP: 0.95, maxOutputTokens: 4096 }
+              };
+              const restRes = await fetchWithTimeout(restUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              });
+              if (restRes.ok) {
+                const data = await restRes.json();
+                const parts = data.candidates?.[0]?.content?.parts || [];
+                const text = parts.map(p => p.text || "").join("");
+                if (text) {
+                  fullText = text.replace(/\*/g, "");
+                  if (onChunk) onChunk(fullText);
+                  appState.geminiAutoModel = discovered;
+                  AppStorage.set("geminiAutoModel", discovered);
+                  showToast(`✓ Đã tự động chuyển sang model Gemini khả dụng: ${discovered}`);
+                  return fullText;
+                }
+              } else {
+                const errData = await restRes.json().catch(() => ({}));
+                lastErr = new Error(`Gemini HTTP ${restRes.status} (model tự dò "${discovered}"): ${errData?.error?.message || "Lỗi API"}`);
+              }
+            }
+          } catch (exDiscover) {
+            lastErr = new Error(`Không có model Gemini nào khả dụng cho API Key này: ${exDiscover.message}`);
+          }
+        }
+
         if (lastErr) throw lastErr;
         return fullText;
       }
@@ -1972,7 +2058,17 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
           },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error(`OpenAI HTTP ${res.status}`);
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const apiMsg = errData?.error?.message || "";
+          if (res.status === 429) {
+            throw new Error(`OpenAI HTTP 429 (Hết hạn mức/Vượt giới hạn tốc độ). ${apiMsg || "Tài khoản OpenAI của bạn có thể đã hết credit dùng thử hoặc chưa gắn thẻ thanh toán. Kiểm tra tại platform.openai.com/account/billing."}`);
+          }
+          if (res.status === 401) {
+            throw new Error(`OpenAI HTTP 401 (Sai API Key). ${apiMsg}`);
+          }
+          throw new Error(`OpenAI HTTP ${res.status}: ${apiMsg || "Lỗi API"}`);
+        }
 
         try {
           const reader = res.body.getReader();
@@ -2460,12 +2556,17 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
 
         if (gKey) {
           try {
-            const r = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models?key=${gKey}`, {}, 15000);
+            const model = await discoverGeminiModel(gKey);
+            const r = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${gKey}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "ping" }] }] })
+            }, 15000);
             if (r.ok) {
-              lines.push("🔵 Gemini: ✅ Kết nối & API Key hợp lệ.");
+              lines.push(`🔵 Gemini: ✅ Key hợp lệ, đã gọi thử thành công với model "${model}".`);
             } else {
               const j = await r.json().catch(() => ({}));
-              lines.push(`🔵 Gemini: ❌ HTTP ${r.status} - ${j?.error?.message || "API Key sai hoặc bị giới hạn."}`);
+              lines.push(`🔵 Gemini: ❌ HTTP ${r.status} với model "${model}" - ${j?.error?.message || "Lỗi API"}`);
             }
           } catch (e) {
             lines.push("🔵 " + describeConnError("Gemini", e));
@@ -2474,28 +2575,36 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
 
         if (oKey) {
           try {
-            const r = await fetchWithTimeout("https://api.openai.com/v1/models", {
-              headers: { "Authorization": `Bearer ${oKey}` }
+            const r = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${oKey}` },
+              body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: "ping" }], max_tokens: 5 })
             }, 15000);
             if (r.ok) {
-              lines.push("🟢 OpenAI: ✅ Kết nối & API Key hợp lệ.");
+              lines.push("🟢 OpenAI: ✅ Kết nối & gọi thử thành công.");
             } else {
-              lines.push(`🟢 OpenAI: ❌ HTTP ${r.status} - Key sai hoặc hết hạn mức.`);
+              const j = await r.json().catch(() => ({}));
+              lines.push(`🟢 OpenAI: ❌ HTTP ${r.status} - ${j?.error?.message || "Key sai hoặc hết hạn mức/credit."}`);
             }
           } catch (e) {
-            lines.push("🟢 " + describeConnError("OpenAI", e) + " (Lưu ý: OpenAI thường CHẶN gọi trực tiếp từ trình duyệt/điện thoại vì lý do bảo mật - đây là giới hạn từ phía OpenAI, không phải lỗi ứng dụng. Nên ưu tiên dùng Gemini hoặc DeepSeek làm AI chính.)");
+            lines.push("🟢 " + describeConnError("OpenAI", e));
           }
         }
 
         if (dKey) {
           try {
-            const r = await fetchWithTimeout("https://api.deepseek.com/models", {
-              headers: { "Authorization": `Bearer ${dKey}` }
+            const r = await fetchWithTimeout("https://api.deepseek.com/chat/completions", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${dKey}` },
+              body: JSON.stringify({ model: "deepseek-chat", messages: [{ role: "user", content: "ping" }], max_tokens: 5 })
             }, 15000);
             if (r.ok) {
-              lines.push("🟣 DeepSeek: ✅ Kết nối & API Key hợp lệ.");
+              lines.push("🟣 DeepSeek: ✅ Kết nối & gọi thử thành công.");
+            } else if (r.status === 402) {
+              lines.push("🟣 DeepSeek: ❌ HTTP 402 - Tài khoản chưa nạp tiền tại platform.deepseek.com.");
             } else {
-              lines.push(`🟣 DeepSeek: ❌ HTTP ${r.status} - Key sai hoặc chưa nạp tiền.`);
+              const t = await r.text().catch(() => "");
+              lines.push(`🟣 DeepSeek: ❌ HTTP ${r.status} - ${t || "Lỗi API"}`);
             }
           } catch (e) {
             lines.push("🟣 " + describeConnError("DeepSeek", e));
