@@ -14,16 +14,15 @@
 
   <style>
     :root {
-      --primary: #0068FF;
-      --primary-dark: #0052CC;
-      --bg: #EEF2F6;
-      --card-bg: #FFFFFF;
-      --text: #0F172A;
-      --text-muted: #64748B;
-      --border: #E2E8F0;
-      --green: #16A34A;
-      --red: #DC2626;
-      --accent-light: #EEF4FF;
+      --primary: #1877f2;
+      --primary-dark: #0052cc;
+      --bg: #f2f4f7;
+      --card-bg: #ffffff;
+      --text: #1c1e21;
+      --text-muted: #65676b;
+      --border: #e4e6eb;
+      --green: #0b8043;
+      --red: #d93025;
     }
 
     * {
@@ -45,15 +44,15 @@
       flex-direction: column;
     }
 
-    /* App Header - Clean White Mockup Style */
+    /* App Header */
     header {
-      background: #FFFFFF;
-      color: #0F172A;
-      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 10px rgba(0, 82, 204, 0.2);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -70,15 +69,14 @@
     }
 
     .header-title h1 {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
-      color: #0F172A;
       letter-spacing: -0.2px;
     }
 
     .header-title p {
       font-size: 11px;
-      color: var(--text-muted);
+      opacity: 0.88;
     }
 
     .header-actions {
@@ -87,23 +85,22 @@
     }
 
     .icon-btn {
-      background: #F8FAFC;
-      border: 1px solid var(--border);
-      color: #334155;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.22);
+      border: none;
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
+      font-size: 16px;
       cursor: pointer;
       transition: background 0.15s;
     }
 
     .icon-btn:active {
-      background: var(--accent-light);
-      color: var(--primary);
+      background: rgba(255, 255, 255, 0.4);
     }
 
     /* Main Container */
@@ -144,10 +141,10 @@
     }
 
     .pronoun-chip {
-      background: #FFFFFF;
-      border: 1px solid var(--border);
-      color: #334155;
-      padding: 7px 4px;
+      background: #f0f2f5;
+      border: 1px solid #d8dadf;
+      color: var(--text);
+      padding: 8px 4px;
       border-radius: 8px;
       font-size: 12px;
       font-weight: 600;
@@ -157,43 +154,39 @@
     }
 
     .pronoun-chip.active {
-      background: #0068FF;
-      border-color: #0068FF;
-      color: #FFFFFF;
-      box-shadow: 0 2px 4px rgba(0, 104, 255, 0.2);
+      background: #e7f3ff;
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary);
     }
 
-    /* Tabs - Clean Mockup Underline Style */
+    /* Tabs */
     .tab-bar {
       display: flex;
-      background: transparent;
-      border-bottom: 1.5px solid var(--border);
-      padding: 0;
-      gap: 8px;
+      background: #e4e6eb;
+      padding: 3px;
+      border-radius: 10px;
+      gap: 3px;
     }
 
     .tab-btn {
       flex: 1;
-      padding: 8px 4px 10px 4px;
+      padding: 9px 2px;
       border: none;
       background: transparent;
       font-size: 12.5px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text-muted);
+      border-radius: 8px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1.5px;
-      transition: all 0.15s ease;
+      transition: all 0.2s;
+      text-align: center;
     }
 
     .tab-btn.active {
+      background: #fff;
       color: var(--primary);
-      border-bottom: 2.5px solid var(--primary);
-      font-weight: 700;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     }
 
     /* Tab Contents */
@@ -488,18 +481,17 @@
 </head>
 <body>
 
-  <!-- Header Chuẩn 100% Mockup 11112.jpg -->
+  <!-- Header -->
   <header>
     <div class="header-brand">
-      <button id="btn-open-settings" class="icon-btn" style="border:none; background:transparent; font-size:18px; width:auto; height:auto; padding:4px;" title="Cài đặt">☰</button>
-      <span class="header-logo" style="font-size: 20px; color: #0068FF;">🚗</span>
+      <span class="header-logo">🚗</span>
       <div class="header-title">
-        <h1>THÀNH CÔNG AI</h1>
-        <p>Trợ lý AI Lái Xe</p>
+        <h1>Trợ Lý AI Lái Xe Thành Công</h1>
+        <p>Phiên bản di động cho iPhone & Zalo</p>
       </div>
     </div>
     <div class="header-actions">
-      <button id="btn-pin-mobile" class="icon-btn" title="Ghim">📌</button>
+      <button id="btn-open-settings" class="icon-btn" title="Cài đặt API & Firebase">⚙️</button>
     </div>
   </header>
 
@@ -516,57 +508,43 @@
 
     <!-- Navigation Tabs -->
     <div class="tab-bar">
-      <button class="tab-btn active" data-tab="tab-ai">🤖 AI Tư vấn</button>
-      <button class="tab-btn" data-tab="tab-templates">📑 Mẫu tin nhắn</button>
-      <button class="tab-btn" data-tab="tab-knowledge">⚙️ Tri thức AI</button>
+      <button class="tab-btn active" data-tab="tab-ai">🤖 AI Trả Lời</button>
+      <button class="tab-btn" data-tab="tab-templates">📋 Mẫu Tin Nhắn</button>
+      <button class="tab-btn" data-tab="tab-knowledge">📚 Tri Thức AI</button>
     </div>
 
-    <!-- TAB 1: AI Chatbot (Chuẩn 100% Mockup 11112.jpg) -->
+    <!-- TAB 1: AI Chatbot -->
     <div class="tab-pane active" id="tab-ai">
-      <!-- 1. CARD CÂU HỎI KHÁCH -->
-      <div class="section-card" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 11.5px; font-weight: 700; color: #334155;">CÂU HỎI KHÁCH</span>
-          <div style="display: flex; gap: 4px;">
-            <button id="btn-mobile-chat-history" class="btn-secondary" style="padding: 2px 6px; font-size: 10.5px; background: transparent; border: none; color: var(--text-muted);">📜 Lịch sử</button>
-            <button id="btn-mobile-reset-chat" class="btn-secondary" style="padding: 2px 6px; font-size: 10.5px; background: transparent; border: none; color: var(--primary);">🔄 Khách mới</button>
-          </div>
+      <!-- Thanh trạng thái hội thoại đa lượt -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: #eef4ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 6px 10px; margin-bottom: 8px;">
+        <span id="mobile-chat-badge" style="font-size: 11.5px; font-weight: 700; color: var(--primary);">💬 Cuộc trò chuyện mới (Lượt 1)</span>
+        <div style="display: flex; gap: 4px;">
+          <button id="btn-mobile-chat-history" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;">📜 Lịch sử</button>
+          <button id="btn-mobile-reset-chat" class="btn-primary" style="padding: 4px 8px; font-size: 11px; background: #0068ff;">🔄 Khách mới</button>
         </div>
-        
-        <!-- Khung input có nút [ ⚡ Dán ] bên phải -->
-        <div style="display: flex; align-items: center; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; padding: 2px 6px;">
-          <textarea id="ai-customer-input" style="flex: 1; border: none; outline: none; font-size: 13px; font-family: inherit; resize: none; min-height: 48px; padding: 4px;" placeholder="Thì ở Quận 7 thi ở đâu?"></textarea>
-          <button id="btn-mobile-paste-clip" style="background: var(--accent-light); color: var(--primary); font-size: 11px; font-weight: 700; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; white-space: nowrap;">⚡ Dán</button>
-        </div>
+      </div>
 
-        <button id="btn-generate-ai" class="btn-primary" style="padding: 10px; border-radius: 8px; font-weight: 700; font-size: 13px; margin-top: 2px;">
-          <span>✦ AI TRẢ LỜI</span>
+      <div class="section-card" style="display: flex; flex-direction: column; gap: 8px;">
+        <label id="mobile-input-label" style="font-size: 12px; font-weight: 700; color: #444;">CÂU HỎI CỦA KHÁCH HÀNG:</label>
+        <textarea id="ai-customer-input" class="app-textarea" placeholder="Dán hoặc nhập câu hỏi của khách hàng (VD: Học phí B2 bao nhiêu em?)..." rows="3"></textarea>
+        <button id="btn-generate-ai" class="btn-primary">
+          <span>✨ AI Soạn Kịch Bản Trả Lời</span>
         </button>
       </div>
 
-      <!-- 2. CARD GỢI Ý TRẢ LỜI -->
-      <div class="section-card" id="ai-result-box" style="display: flex; flex-direction: column; gap: 8px; padding: 12px; margin-top: 2px;">
+      <!-- AI Result Box -->
+      <div class="result-card" id="ai-result-box" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 12px; font-weight: 700; color: #334155;">GỢI Ý TRẢ LỜI</span>
-          <div style="display: flex; gap: 6px;">
-            <button id="btn-ai-copy-top" style="background: var(--accent-light); color: var(--primary); border: none; border-radius: 6px; font-size: 11px; padding: 4px 8px; cursor: pointer;">📄 Sao chép</button>
-            <button id="btn-ai-edit-top" style="background: var(--accent-light); color: var(--primary); border: none; border-radius: 6px; font-size: 11px; padding: 4px 8px; cursor: pointer;">✏️ Chỉnh sửa</button>
-          </div>
+          <span style="font-size: 13px; font-weight: 700; color: var(--primary);">GỢI Ý CÂU TRẢ LỜI ĐẦY ĐỦ:</span>
+          <span style="font-size: 11px; color: var(--text-muted);">Có thể sửa trước khi gửi</span>
         </div>
-
-        <textarea id="ai-result-text" style="width: 100%; border: 1px solid var(--border); border-radius: 8px; min-height: 240px; font-size: 13px; line-height: 1.5; padding: 10px; font-family: inherit; outline: none; background: #FFFFFF; color: #0F172A;" placeholder="Câu trả lời của AI sẽ xuất hiện tại đây..."></textarea>
-
-        <!-- Action Bar chuẩn 100% Mockup: [ 📄 Sao chép ] [ 🔄 Tạo lại ] [ 💬 Gửi Zalo ] -->
-        <div style="display: flex; gap: 6px; align-items: center; margin-top: 2px;">
-          <button id="btn-ai-copy-only" style="background: #F1F5F9; color: #334155; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; padding: 9px 12px; cursor: pointer;">
-            📄 Sao chép
+        <textarea id="ai-result-text" class="result-textarea"></textarea>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+          <button id="btn-ai-copy-zalo" class="btn-zalo">
+            <span>🚀 Copy & Mở Zalo</span>
           </button>
-          <button id="btn-ai-regen" style="background: #F1F5F9; color: #334155; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; padding: 9px 10px; cursor: pointer;">
-            🔄 Tạo lại
-          </button>
-          <button id="btn-ai-copy-zalo" class="btn-primary" style="flex: 1; border-radius: 8px; font-size: 13px; font-weight: 700; padding: 9px 14px; background: #0068FF; display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <span style="background: #fff; color: #0068FF; font-size: 10px; font-weight: 800; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center;">Z</span>
-            <span>Gửi Zalo</span>
+          <button id="btn-ai-copy-only" class="btn-secondary">
+            <span>📋 Sao chép</span>
           </button>
         </div>
       </div>
@@ -1143,7 +1121,7 @@ function applyPronouns(text, toi, khach) {
       { label: "Anh / Em", toi: "anh", khach: "em" },
       { label: "Con / Cô", toi: "con", khach: "cô" },
       { label: "Con / Chú", toi: "con", khach: "chú" },
-      { label: "Mình / Bạn", toi: "mình", khach: "bạn" }
+      { label: "Em / Bạn", toi: "em", khach: "bạn" }
     ];
 
     let mobileSse = null;
@@ -1815,90 +1793,6 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         }
         alert(historyStr);
       });
-
-      const pasteBtn = document.getElementById("btn-mobile-paste-clip");
-      if (pasteBtn) {
-        pasteBtn.addEventListener("click", async () => {
-          try {
-            if (navigator.clipboard && navigator.clipboard.readText) {
-              const clipText = await navigator.clipboard.readText();
-              if (clipText) {
-                document.getElementById("ai-customer-input").value = clipText.trim();
-                showToast("✓ Đã dán câu hỏi!");
-              }
-            } else {
-              showToast("Vui lòng dán trực tiếp vào ô");
-            }
-          } catch (e) {
-            showToast("Vui lòng dán trực tiếp vào ô");
-          }
-        });
-      }
-
-      const regenBtn = document.getElementById("btn-ai-regen");
-      if (regenBtn) {
-        regenBtn.addEventListener("click", () => {
-          document.getElementById("btn-generate-ai").click();
-        });
-      }
-
-      const copyTopBtn = document.getElementById("btn-ai-copy-top");
-      if (copyTopBtn) {
-        copyTopBtn.addEventListener("click", async () => {
-          const text = document.getElementById("ai-result-text").value;
-          await copyToClipboard(text);
-          showToast("✓ Đã sao chép!");
-        });
-      }
-
-      const editTopBtn = document.getElementById("btn-ai-edit-top");
-      if (editTopBtn) {
-        editTopBtn.addEventListener("click", () => {
-          document.getElementById("ai-result-text").focus();
-        });
-      }
-
-            const pasteBtn = document.getElementById("btn-mobile-paste-clip");
-      if (pasteBtn) {
-        pasteBtn.addEventListener("click", async () => {
-          try {
-            if (navigator.clipboard && navigator.clipboard.readText) {
-              const clipText = await navigator.clipboard.readText();
-              if (clipText) {
-                document.getElementById("ai-customer-input").value = clipText.trim();
-                showToast("✓ Đã dán câu hỏi!");
-              }
-            } else {
-              showToast("Vui lòng dán trực tiếp vào ô");
-            }
-          } catch (e) {
-            showToast("Vui lòng dán trực tiếp vào ô");
-          }
-        });
-      }
-
-      const regenBtn = document.getElementById("btn-ai-regen");
-      if (regenBtn) {
-        regenBtn.addEventListener("click", () => {
-          document.getElementById("btn-generate-ai").click();
-        });
-      }
-
-      const copyTopBtn = document.getElementById("btn-ai-copy-top");
-      if (copyTopBtn) {
-        copyTopBtn.addEventListener("click", async () => {
-          const text = document.getElementById("ai-result-text").value;
-          await copyToClipboard(text);
-          showToast("✓ Đã sao chép!");
-        });
-      }
-
-      const editTopBtn = document.getElementById("btn-ai-edit-top");
-      if (editTopBtn) {
-        editTopBtn.addEventListener("click", () => {
-          document.getElementById("ai-result-text").focus();
-        });
-      }
 
       document.getElementById("btn-ai-copy-zalo").addEventListener("click", async () => {
         const text = document.getElementById("ai-result-text").value;
