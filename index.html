@@ -511,7 +511,14 @@
         <span>CẶP XƯNG HÔ (Tôi / Khách)</span>
         <span id="current-pronoun-label" style="color: var(--primary); font-weight: 700;">Em / Anh</span>
       </div>
-      <div class="pronoun-grid" id="pronoun-chips-container"></div>
+      <div class="pronoun-grid" id="pronoun-chips-container">
+        <div class="pronoun-chip active" data-toi="em" data-khach="anh">Em / Anh</div>
+        <div class="pronoun-chip" data-toi="em" data-khach="chị">Em / Chị</div>
+        <div class="pronoun-chip" data-toi="anh" data-khach="em">Anh / Em</div>
+        <div class="pronoun-chip" data-toi="con" data-khach="cô">Con / Cô</div>
+        <div class="pronoun-chip" data-toi="con" data-khach="chú">Con / Chú</div>
+        <div class="pronoun-chip" data-toi="mình" data-khach="bạn">Mình / Bạn</div>
+      </div>
     </div>
 
     <!-- Navigation Tabs -->
@@ -1797,7 +1804,9 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       return fullText.trim();
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
+    function initializeMobileApp() {
+      if (window._mobileAppInitialized) return;
+      window._mobileAppInitialized = true;
       renderPronounChips();
       // Tự động rà soát đồng bộ giá từ tri thức vào mẫu tin nhắn ngay khi mở web app
       if (appState.customKnowledge) {
@@ -1941,47 +1950,7 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         });
       }
 
-            const pasteBtn = document.getElementById("btn-mobile-paste-clip");
-      if (pasteBtn) {
-        pasteBtn.addEventListener("click", async () => {
-          try {
-            if (navigator.clipboard && navigator.clipboard.readText) {
-              const clipText = await navigator.clipboard.readText();
-              if (clipText) {
-                document.getElementById("ai-customer-input").value = clipText.trim();
-                showToast("✓ Đã dán câu hỏi!");
-              }
-            } else {
-              showToast("Vui lòng dán trực tiếp vào ô");
-            }
-          } catch (e) {
-            showToast("Vui lòng dán trực tiếp vào ô");
-          }
-        });
-      }
 
-      const regenBtn = document.getElementById("btn-ai-regen");
-      if (regenBtn) {
-        regenBtn.addEventListener("click", () => {
-          document.getElementById("btn-generate-ai").click();
-        });
-      }
-
-      const copyTopBtn = document.getElementById("btn-ai-copy-top");
-      if (copyTopBtn) {
-        copyTopBtn.addEventListener("click", async () => {
-          const text = document.getElementById("ai-result-text").value;
-          await copyToClipboard(text);
-          showToast("✓ Đã sao chép!");
-        });
-      }
-
-      const editTopBtn = document.getElementById("btn-ai-edit-top");
-      if (editTopBtn) {
-        editTopBtn.addEventListener("click", () => {
-          document.getElementById("ai-result-text").focus();
-        });
-      }
 
       document.getElementById("btn-ai-copy-zalo").addEventListener("click", async () => {
         const text = document.getElementById("ai-result-text").value;
@@ -2200,7 +2169,16 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
           btn.disabled = false; btn.innerText = "🔄 Kiểm tra đồng bộ ngay";
         }
       });
-    });
+    }
+
+    // Tự động kích hoạt ngay lập tức nếu DOM đã sẵn sàng (Khắc phục lỗi iOS Safari / WebKit)
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initializeMobileApp);
+    } else {
+      initializeMobileApp();
+    }
+    window.addEventListener("load", initializeMobileApp);
+    setTimeout(initializeMobileApp, 200);
 
   </script>
 </body>
