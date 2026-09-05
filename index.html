@@ -493,20 +493,6 @@
 </head>
 <body>
 
-  <!-- Cảnh báo khi mở trực tiếp file (file://) - nguyên nhân phổ biến nhất khiến AI không kết nối được trên mobile -->
-  <div id="file-protocol-banner" style="display:none; background:#fff3cd; color:#7a5b00; border-bottom:2px solid #ffc107; padding:10px 14px; font-size:12.5px; line-height:1.5; position:relative; z-index:9999;">
-    ⚠️ <b>Bạn đang mở file trực tiếp (file://)</b>, chưa qua địa chỉ web (http/https). Nhiều trình duyệt/webview trên điện thoại sẽ <b>chặn kết nối tới AI</b> khi mở kiểu này. Hãy tải file <code>index.html</code> lên hosting miễn phí (GitHub Pages, Netlify, Vercel...) rồi mở bằng đường link https:// để AI hoạt động ổn định.
-    <button onclick="document.getElementById('file-protocol-banner').style.display='none'" style="position:absolute; top:6px; right:8px; background:none; border:none; font-size:14px; color:#7a5b00; cursor:pointer;">✕</button>
-  </div>
-  <script>
-    if (location.protocol === "file:") {
-      document.addEventListener("DOMContentLoaded", () => {
-        const b = document.getElementById("file-protocol-banner");
-        if (b) b.style.display = "block";
-      });
-    }
-  </script>
-
   <!-- Header Chuẩn 100% Mockup 11112.jpg -->
   <header>
     <div class="header-brand">
@@ -650,9 +636,9 @@
       <div class="form-group" style="background: #eef4ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px;">
         <label style="color: var(--primary); font-weight: 700;">⚡ NHÀ CUNG CẤP AI CHÍNH:</label>
         <select id="set-primary-ai" class="form-input" style="font-weight: 600; margin-bottom: 6px;">
-          <option value="gemini">Google Gemini (Khuyên dùng - Siêu nhanh Streaming)</option>
-          <option value="openai">OpenAI ChatGPT (Dự phòng 1 - Ổn định)</option>
-          <option value="deepseek">DeepSeek AI (Dự phòng 2 - Thông minh, Siêu rẻ)</option>
+          <option value="gemini">Google Gemini (Khuyên dùng - Siêu nhanh)</option>
+          <option value="groq">Groq Llama 3.3 (Tốc độ siêu tốc - Miễn phí)</option>
+          <option value="cohere">Cohere Command R (Chuyên nghiệp - Ổn định)</option>
         </select>
         <label style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #0b8043; cursor: pointer;">
           <input type="checkbox" id="set-auto-failover" checked>
@@ -664,29 +650,31 @@
         <label>🔵 Google Gemini API (Streaming):</label>
         <input type="password" id="set-gemini-key" class="form-input" placeholder="Dán mã AIzaSy...">
         <select id="set-model-select" class="form-input" style="margin-top: 4px;">
-          <option value="gemini-2.5-flash">gemini-2.5-flash (Khuyên dùng - Siêu tốc & Miễn phí)</option>
-          <option value="gemini-2.0-flash">gemini-2.0-flash (Thế hệ 2.0)</option>
-          <option value="gemini-2.5-pro">gemini-2.5-pro (Thông minh cao cấp)</option>
-        </select>
-        <small style="font-size: 10.5px; color: #888;">Ứng dụng sẽ tự động dò model khác nếu model bạn chọn bị Google gỡ bỏ.</small>
-      </div>
-
-      <div class="form-group">
-        <label>🟢 OpenAI ChatGPT API (Dự Phòng):</label>
-        <input type="password" id="set-openai-key" class="form-input" placeholder="Dán mã sk-...">
-        <select id="set-openai-model" class="form-input" style="margin-top: 4px;">
-          <option value="gpt-4o-mini">gpt-4o-mini (Nhanh & tiết kiệm)</option>
-          <option value="gpt-4o">gpt-4o</option>
-          <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+          <option value="gemini-flash-latest">gemini-flash-latest (Khuyên dùng - Nhanh & Ổn định nhất)</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash (Chuẩn quốc tế - Ổn định cao)</option>
+          <option value="gemini-2.0-flash">gemini-2.0-flash (Thế hệ 2.0 mới)</option>
+          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label style="color: #7c3aed;">🟣 DeepSeek AI API (Dự Phòng 2 - Siêu Rẻ):</label>
-        <input type="password" id="set-deepseek-key" class="form-input" placeholder="Dán mã sk-...">
-        <select id="set-deepseek-model" class="form-input" style="margin-top: 4px;">
-          <option value="deepseek-chat">deepseek-chat (DeepSeek-V3)</option>
-          <option value="deepseek-reasoner">deepseek-reasoner (DeepSeek-R1)</option>
+        <label style="color: #ea580c; font-weight: 700;">🟠 Groq API (Dự Phòng 1 - Tốc Độ Ánh Sáng):</label>
+        <input type="password" id="set-groq-key" class="form-input" placeholder="Dán mã gsk_...">
+        <select id="set-groq-model" class="form-input" style="margin-top: 4px;">
+          <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile (Khuyên dùng - 70B Thông minh & Siêu tốc)</option>
+          <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Bản 8B nhẹ - Tốc độ cực nhanh)</option>
+          <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label style="color: #7c3aed; font-weight: 700;">🟣 Cohere API (Dự Phòng 2 - Chuyên Nghiệp):</label>
+        <input type="password" id="set-cohere-key" class="form-input" placeholder="Dán Cohere API Key...">
+        <select id="set-cohere-model" class="form-input" style="margin-top: 4px;">
+          <option value="command-r-08-2024">command-r-08-2024 (Khuyên dùng - Cân bằng tốc độ & chất lượng)</option>
+          <option value="command-r-plus-08-2024">command-r-plus-08-2024 (Thông minh cao cấp)</option>
+          <option value="command-r7b-12-2024">command-r7b-12-2024 (Bản 7B mới nhất)</option>
+          <option value="command-r">command-r (Bản tiêu chuẩn)</option>
         </select>
       </div>
 
@@ -716,7 +704,10 @@
       <button id="btn-test-ai-connection" class="btn-secondary" style="width: 100%; margin-top: 8px; padding: 10px; font-weight: 700; color: #b45309; border-color:#fcd34d; background:#fffbeb;">
         🔍 Kiểm Tra Kết Nối AI Ngay
       </button>
-      <div id="ai-test-result" style="display:none; margin-top:8px; padding:10px; border-radius:8px; background:#f5f5f5; font-size:12px; line-height:1.6; white-space:pre-wrap; max-height:220px; overflow-y:auto;"></div>
+      <div id="ai-test-result" style="display:none; margin-top:8px; padding:12px; border-radius:8px; background:#f8fafc; border:1px solid #cbd5e1; font-size:13px; line-height:1.6; white-space:pre-wrap; min-height:200px; max-height:400px; overflow-y:auto; user-select:text; -webkit-user-select:text; color:#0f172a;"></div>
+      <button id="btn-copy-ai-test-result" class="btn-secondary" style="width: 100%; margin-top: 6px; padding: 8px; font-weight: 700; color: #0068FF; background: #EEF4FF; border-color: #BFDBFE; display:none;">
+        📋 Sao Chép Toàn Bộ Báo Cáo Lỗi
+      </button>
     </div>
   </div>
 
@@ -1072,6 +1063,9 @@ function applyPronouns(text, toi, khach) {
     l = l.replace(/\{t[oô]i\}/gi, toiLower);
     l = l.replace(/\{kh[aá]ch\}/gi, khachLower);
 
+    // Xóa triệt để mọi dấu ngoặc nhọn {Con}, {Cô}, {Chú} còn sót
+    l = l.replace(/\{([A-Za-zÀ-ỹ]+)\}/g, "$1");
+
     processedLines.push(l);
   }
 
@@ -1177,12 +1171,12 @@ function applyPronouns(text, toi, khach) {
       khach: "anh",
       activeTab: "tab-ai",
       geminiKey: AppStorage.get("geminiKey", ""),
-      modelName: AppStorage.get("modelName", "gemini-2.5-flash"),
-      geminiAutoModel: AppStorage.get("geminiAutoModel", ""),
-      openaiKey: AppStorage.get("openaiKey", ""),
-      openaiModel: AppStorage.get("openaiModel", "gpt-4o-mini"),
-      deepseekKey: AppStorage.get("deepseekKey", ""),
-      deepseekModel: AppStorage.get("deepseekModel", "deepseek-chat"),
+      modelName: AppStorage.get("modelName", "gemini-1.5-flash"),
+      modelName: AppStorage.get("modelName", "gemini-flash-latest"),
+      groqKey: AppStorage.get("groqKey", ""),
+      groqModel: AppStorage.get("groqModel", "llama-3.1-8b-instant"),
+      cohereKey: AppStorage.get("cohereKey", ""),
+      cohereModel: AppStorage.get("cohereModel", "command-r-08-2024"),
       primaryAi: AppStorage.get("primaryAi", "gemini"),
       autoFailover: AppStorage.get("autoFailover", true),
       firebaseUrl: AppStorage.get("firebaseUrl", ""),
@@ -1389,27 +1383,48 @@ function applyPronouns(text, toi, khach) {
     function normalizeToPlaceholders(text, toi, khach) {
       if (!text) return "";
       let res = text;
-      if (res.includes("{tôi}") || res.includes("{khách}") || res.includes("{toi}") || res.includes("{khach}")) {
-        return res;
-      }
 
-      const isPeerOrOlder = (["anh", "mình", "minh"].includes(toi.toLowerCase()) && ["em", "bạn", "ban"].includes(khach.toLowerCase()));
-      if (isPeerOrOlder) {
-        res = res.replace(new RegExp("Chào\\s+" + khach + "\\s+nhé!\\s*🌸?", "gi"), "Dạ {tôi} chào {khách} ạ! 🌸");
-        res = res.replace(new RegExp("\\bnha\\s+" + khach + "\\b", "gi"), "ạ");
-        res = res.replace(new RegExp("\\bnhé\\s+" + khach + "\\b", "gi"), "ạ");
-        res = res.replace(/\\bha\\s+em\\b/gi, "ạ");
-      }
+      // Xóa mọi dấu ngoặc nhọn kép {{...}} hoặc ngoặc nhọn quanh danh xưng
+      res = res.replace(/\{\{\s*(tôi|toi|Tôi|Toi|TÔI|TOI)\s*\}\}/gi, "{tôi}");
+      res = res.replace(/\{\{\s*(khách|khach|Khách|Khach|KHÁCH|KHACH)\s*\}\}/gi, "{khách}");
+      res = res.replace(/\{([A-Za-zÀ-ỹ]+)\}/g, "$1");
 
-      // Khách
-      res = res.replace(new RegExp("\\b" + khach.charAt(0).toUpperCase() + khach.slice(1) + "\\b", "g"), "{Khách}");
-      res = res.replace(new RegExp("\\b" + khach.toUpperCase() + "\\b", "g"), "{KHÁCH}");
-      res = res.replace(new RegExp("\\b" + khach.toLowerCase() + "\\b", "g"), "{khách}");
+      res = res.replace(/Chào\s+(?:em|anh|chị|bạn|cô|chú)\s+nhé!\s*🌸?/gi, "Dạ {tôi} chào {khách} ạ! 🌸");
+      res = res.replace(/\bnha\s+(?:em|anh|chị|bạn|cô|chú)\b/gi, "ạ");
+      res = res.replace(/\bnhé\s+(?:em|anh|chị|bạn|cô|chú)\b/gi, "ạ");
+      res = res.replace(/\bha\s+(?:em|anh|chị|bạn|cô|chú)\b/gi, "ạ");
 
-      // Tôi
-      res = res.replace(new RegExp("\\b" + toi.charAt(0).toUpperCase() + toi.slice(1) + "\\b", "g"), "{Tôi}");
-      res = res.replace(new RegExp("\\b" + toi.toUpperCase() + "\\b", "g"), "{TÔI}");
-      res = res.replace(new RegExp("\\b" + toi.toLowerCase() + "\\b", "g"), "{tôi}");
+      res = res.replace(/\{TÔI\}/g, "___UPPER_TOI___");
+      res = res.replace(/\{Tôi\}/g, "___CAP_TOI___");
+      res = res.replace(/\{tôi\}/g, "___LOWER_TOI___");
+      res = res.replace(/\{KHÁCH\}/g, "___UPPER_KHACH___");
+      res = res.replace(/\{Khách\}/g, "___CAP_KHACH___");
+      res = res.replace(/\{khách\}/g, "___LOWER_KHACH___");
+
+      const allKhach = Array.from(new Set([khach.toLowerCase(), "anh", "chị", "cô", "chú", "bạn"])).filter(k => k && k !== "tôi");
+      allKhach.sort((a, b) => b.length - a.length);
+      const patternKhach = new RegExp("(?<![_\\w])(" + allKhach.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|") + ")(?![_\\w])", "gi");
+      res = res.replace(patternKhach, (m, word) => {
+        if (word === word.toUpperCase()) return "___UPPER_KHACH___";
+        if (word[0] === word[0].toUpperCase()) return "___CAP_KHACH___";
+        return "___LOWER_KHACH___";
+      });
+
+      const allToi = Array.from(new Set([toi.toLowerCase(), "tôi", "em", "con", "mình"])).filter(t => t);
+      allToi.sort((a, b) => b.length - a.length);
+      const patternToi = new RegExp("(?<![_\\w])(" + allToi.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|") + ")(?![_\\w])", "gi");
+      res = res.replace(patternToi, (m, word) => {
+        if (word === word.toUpperCase()) return "___UPPER_TOI___";
+        if (word[0] === word[0].toUpperCase()) return "___CAP_TOI___";
+        return "___LOWER_TOI___";
+      });
+
+      res = res.replace(/___UPPER_TOI___/g, "{TÔI}");
+      res = res.replace(/___CAP_TOI___/g, "{Tôi}");
+      res = res.replace(/___LOWER_TOI___/g, "{tôi}");
+      res = res.replace(/___UPPER_KHACH___/g, "{KHÁCH}");
+      res = res.replace(/___CAP_KHACH___/g, "{Khách}");
+      res = res.replace(/___LOWER_KHACH___/g, "{khách}");
 
       return res;
     }
@@ -1453,14 +1468,15 @@ function applyPronouns(text, toi, khach) {
       document.getElementById("set-auto-failover").checked = appState.autoFailover !== false;
       document.getElementById("set-gemini-key").value = appState.geminiKey || "";
       document.getElementById("set-model-select").value = appState.modelName || "gemini-2.5-flash";
-      document.getElementById("set-openai-key").value = appState.openaiKey || "";
-      document.getElementById("set-openai-model").value = appState.openaiModel || "gpt-4o-mini";
+      const groqKeyEl = document.getElementById("set-groq-key");
+      if (groqKeyEl) groqKeyEl.value = appState.groqKey || "";
+      const groqModEl = document.getElementById("set-groq-model");
+      if (groqModEl) groqModEl.value = appState.groqModel || "llama-3.3-70b-versatile";
       
-      const dsKeyEl = document.getElementById("set-deepseek-key");
-      if (dsKeyEl) dsKeyEl.value = appState.deepseekKey || "";
-      const dsModEl = document.getElementById("set-deepseek-model");
-      if (dsModEl) dsModEl.value = appState.deepseekModel || "deepseek-chat";
-      
+      const cohereKeyEl = document.getElementById("set-cohere-key");
+      if (cohereKeyEl) cohereKeyEl.value = appState.cohereKey || "";
+      const cohereModEl = document.getElementById("set-cohere-model");
+      if (cohereModEl) cohereModEl.value = appState.cohereModel || "command-r-08-2024";
       document.getElementById("set-firebase-url").value = appState.firebaseUrl || "";
       document.getElementById("set-firebase-auth").value = appState.firebaseAuth || "";
       modal.style.display = "flex";
@@ -1657,67 +1673,11 @@ window.switchMobileTab = function(tabId) {
       }
     }
 
-    // fetch có giới hạn thời gian chờ (timeout), tránh treo UI vô thời hạn khi mạng di động yếu/chập chờn
-    async function fetchWithTimeout(url, options, timeoutMs) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs || 25000);
-      try {
-        return await fetch(url, { ...(options || {}), signal: controller.signal });
-      } finally {
-        clearTimeout(timer);
-      }
-    }
-
-    // Diễn giải lỗi kỹ thuật (TypeError/CORS/timeout...) thành lời giải thích dễ hiểu cho người dùng
-    function describeConnError(providerLabel, e) {
-      const raw = (e && e.message) ? e.message : String(e || "Lỗi không xác định");
-      const isFileProtocol = (location.protocol === "file:");
-      const isAbort = e && (e.name === "AbortError");
-      const looksNetworkFail = /Failed to fetch|NetworkError|Load failed|TypeError/i.test(raw) && !/HTTP \d/.test(raw);
-
-      if (isAbort) {
-        return `${providerLabel}: Hết thời gian chờ phản hồi (quá 25 giây). Mạng di động có thể đang chập chờn hoặc bị chặn.`;
-      }
-      if (looksNetworkFail) {
-        if (isFileProtocol) {
-          return `${providerLabel}: Trình duyệt CHẶN kết nối vì bạn đang mở file HTML trực tiếp (file://) trên điện thoại, không phải qua địa chỉ web (http/https). Đây là nguyên nhân phổ biến nhất.`;
-        }
-        return `${providerLabel}: Không thể kết nối tới máy chủ AI (lỗi mạng hoặc bị chặn CORS/tường lửa/nhà mạng). Thử đổi sang Wi-Fi hoặc 4G khác.`;
-      }
-      return `${providerLabel}: ${raw}`;
-    }
-
-    // Dò tìm 1 model Gemini còn khả dụng cho đúng API Key này (phòng khi Google đổi tên/khai tử model cũ)
-    async function discoverGeminiModel(apiKey) {
-      const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {}, 15000);
-      if (!res.ok) throw new Error(`Không lấy được danh sách model (HTTP ${res.status})`);
-      const data = await res.json();
-      const models = Array.isArray(data.models) ? data.models : [];
-      const usable = models.filter(m =>
-        Array.isArray(m.supportedGenerationMethods) &&
-        m.supportedGenerationMethods.includes("generateContent") &&
-        !/embedding|vision|aqa|tts|image|imagen|veo/i.test(m.name)
-      );
-      if (!usable.length) throw new Error("API Key này không có quyền dùng model nào hỗ trợ generateContent.");
-      // Ưu tiên bản flash mới nhất (nhanh, rẻ) trước, rồi tới pro
-      const rank = (name) => {
-        if (/flash-latest/i.test(name)) return 0;
-        if (/2\.5.*flash/i.test(name)) return 1;
-        if (/2\.0.*flash/i.test(name)) return 2;
-        if (/flash/i.test(name)) return 3;
-        if (/pro-latest/i.test(name)) return 4;
-        if (/pro/i.test(name)) return 5;
-        return 9;
-      };
-      usable.sort((a, b) => rank(a.name) - rank(b.name));
-      return usable[0].name.replace(/^models\//, "");
-    }
-
     async function generateAIResponse(question, onChunk) {
-      const hasKey = Boolean(appState.geminiKey || appState.openaiKey || appState.deepseekKey);
+      const hasKey = Boolean(appState.geminiKey || appState.groqKey || appState.cohereKey);
       if (!hasKey) {
         openSettingsModal();
-        throw new Error("Chưa cài đặt API Key trên điện thoại! Vui lòng nhập Gemini, ChatGPT hoặc DeepSeek API Key trong mục Cài đặt vừa mở.");
+        throw new Error("Chưa cài đặt API Key trên điện thoại! Vui lòng bấm Cài đặt ⚙️ để nhập ít nhất 1 API Key (Gemini, Groq hoặc Cohere).");
       }
 
       const isOlder = (appState.toi.toLowerCase() === "anh" && appState.khach.toLowerCase() === "em");
@@ -1736,7 +1696,10 @@ YÊU CẦU TƯ VẤN NGẮN GỌN, TRỌNG TÂM, TINH TẾ & TĂNG TƯƠNG TÁC 
 1. XƯNG HÔ: Bản thân xưng là "${appState.toi}", gọi khách là "${appState.khach}".
 ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu bằng "Chào em nhé! 🌸" hoặc "Anh gửi em...", kết thúc bằng "nha em", "nhé em".' : '- Mở đầu lịch sự: "Dạ em chào {khách} ạ! 🌸"'}
 
-2. ĐI SÂU TRỌNG TÂM - TINH TẾ (TUYỆT ĐỐI KHÔNG HỎI THỪA & KHÔNG GOM HẾT NỘI DUNG):
+2. ĐI SÂU TRỌNG TÂM & TƯ VẤN HỌC PHÍ MINH BẠCH (BẮT BUỘC BÁO KÈM CHI PHÍ CHƯA BAO GỒM):
+   - Khi tư vấn học phí (Hạng B, C1, Xe máy): BẮT BUỘC BÁO ĐẦY ĐỦ VÀ MINH BẠCH cả học phí trọn gói đào tạo (chia 3 đợt, đợt 1 chỉ 5 triệu giữ suất, 1 kèm 1, xe đời mới, tặng 5h xe chip) VÀ NÊU RÕ RÀNG, KHÉO LÉO phần chi phí chưa bao gồm:
+     • Khám sức khỏe lái xe: dự trù ~300.000đ.
+     • Lệ phí thi sát hạch + cấp bằng: 645.000đ (Công an cấp mã QR thanh toán trước thi).
 ${isSpecificManual ? '- KHÁCH ĐANG HỎI B2 / SỐ SÀN: Khách ĐÃ XÁC ĐỊNH học bằng số sàn cơ khí! TUYỆT ĐỐI KHÔNG ĐƯỢC hỏi lại "Bạn muốn học B cơ khí hay B tự động?". Báo thẳng học phí Hạng B cơ khí (22.3M ngày thường / 24.3M cuối tuần, đợt 1 chỉ 5 triệu giữ suất, 1 kèm 1, tặng 5h xe chip). Hỏi mở xem khách tiện học ngày thường hay cuối tuần, hoặc sau này có ý định nâng lên hạng C lái xe tải không.' : ''}
 ${isSpecificAuto ? '- KHÁCH ĐANG HỎI B1 / SỐ TỰ ĐỘNG: Khách ĐÃ XÁC ĐỊNH học số tự động! TUYỆT ĐỐI KHÔNG hỏi lại số sàn hay tự động. Báo thẳng học phí B tự động và hỏi thời gian học hoặc điểm đón gần nhà.' : ''}
 ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐI TIẾP: TUYỆT ĐỐI KHÔNG lặp lại học phí hay các thông tin đã trả lời ở các câu hỏi trước đó trong đoạn chat. Chỉ tập trung giải đáp câu hỏi mới này.' : ''}
@@ -1761,19 +1724,17 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       const primary = appState.primaryAi || "gemini";
 
       // Hàm gọi Gemini Streaming
+            // Hàm gọi Gemini Streaming (Tự động thử các model ổn định: 2.5-flash, 1.5-flash)
       async function tryGeminiStream() {
         if (!appState.geminiKey) throw new Error("Chưa có Gemini API Key");
-        const candidates = [
-          appState.geminiAutoModel,
-          appState.modelName,
+        const modelsToTry = [
+          appState.modelName || "gemini-2.5-flash",
           "gemini-2.5-flash",
           "gemini-2.0-flash",
-          "gemini-flash-latest"
-        ].filter(Boolean);
-        const modelsToTry = [...new Set(candidates)];
+          "gemini-1.5-flash"
+        ];
 
         let lastErr = null;
-        let allNotFound = true;
         for (const m of modelsToTry) {
           try {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse&key=${appState.geminiKey}`;
@@ -1791,14 +1752,13 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
 
             let streamOk = false;
             try {
-              const res = await fetchWithTimeout(url, {
+              const res = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
               });
 
               if (res.ok) {
-                allNotFound = false;
                 const reader = res.body.getReader();
                 const decoder = new TextDecoder("utf-8");
                 let doneReading = false;
@@ -1835,104 +1795,49 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
                 }
                 if (fullText) streamOk = true;
               } else {
-                if (res.status !== 404) allNotFound = false;
                 const errBody = await res.json().catch(() => ({}));
                 lastErr = new Error(`Gemini Stream HTTP ${res.status}: ${errBody?.error?.message || "Lỗi API"}`);
               }
             } catch (eStream) {
               console.warn("Gemini stream error, thử sang standard REST fetch:", eStream);
               lastErr = eStream;
-              allNotFound = false;
             }
 
-            if (streamOk && fullText) {
-              if (appState.geminiAutoModel !== m) {
-                appState.geminiAutoModel = m;
-                AppStorage.set("geminiAutoModel", m);
-              }
-              return fullText;
-            }
+            if (streamOk && fullText) return fullText;
 
             // Fallback: Standard REST generateContent (hỗ trợ CORS 100% trên WebKit / Safari)
             const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${appState.geminiKey}`;
-            const restRes = await fetchWithTimeout(restUrl, {
+            const restRes = await fetch(restUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload)
             });
 
             if (restRes.ok) {
-              allNotFound = false;
               const data = await restRes.json();
               const parts = data.candidates?.[0]?.content?.parts || [];
               const text = parts.map(p => p.text || "").join("");
               if (text) {
                 fullText = text.replace(/\*/g, "");
                 if (onChunk) onChunk(fullText);
-                if (appState.geminiAutoModel !== m) {
-                  appState.geminiAutoModel = m;
-                  AppStorage.set("geminiAutoModel", m);
-                }
                 return fullText;
               }
             } else {
-              if (restRes.status !== 404) allNotFound = false;
               const errData = await restRes.json().catch(() => ({}));
               lastErr = new Error(`Gemini HTTP ${restRes.status}: ${errData?.error?.message || "Lỗi API"}`);
             }
           } catch (ex) {
             lastErr = ex;
-            allNotFound = false;
           }
         }
-
-        // Nếu TẤT CẢ model đoán trước đều báo "không tồn tại" (Google đã đổi tên/khai tử model),
-        // tự động dò danh sách model thật sự khả dụng cho API Key này và thử lại 1 lần.
-        if (allNotFound) {
-          try {
-            const discovered = await discoverGeminiModel(appState.geminiKey);
-            if (discovered && !modelsToTry.includes(discovered)) {
-              const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${discovered}:generateContent?key=${appState.geminiKey}`;
-              const payload = {
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                contents: contents,
-                generationConfig: { temperature: 0.65, topP: 0.95, maxOutputTokens: 4096 }
-              };
-              const restRes = await fetchWithTimeout(restUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-              });
-              if (restRes.ok) {
-                const data = await restRes.json();
-                const parts = data.candidates?.[0]?.content?.parts || [];
-                const text = parts.map(p => p.text || "").join("");
-                if (text) {
-                  fullText = text.replace(/\*/g, "");
-                  if (onChunk) onChunk(fullText);
-                  appState.geminiAutoModel = discovered;
-                  AppStorage.set("geminiAutoModel", discovered);
-                  showToast(`✓ Đã tự động chuyển sang model Gemini khả dụng: ${discovered}`);
-                  return fullText;
-                }
-              } else {
-                const errData = await restRes.json().catch(() => ({}));
-                lastErr = new Error(`Gemini HTTP ${restRes.status} (model tự dò "${discovered}"): ${errData?.error?.message || "Lỗi API"}`);
-              }
-            }
-          } catch (exDiscover) {
-            lastErr = new Error(`Không có model Gemini nào khả dụng cho API Key này: ${exDiscover.message}`);
-          }
-        }
-
         if (lastErr) throw lastErr;
         return fullText;
       }
 
-      async function tryDeepSeekStream() {
-        if (!appState.deepseekKey) throw new Error("Chưa có DeepSeek API Key");
-        const model = appState.deepseekModel || "deepseek-chat";
-        const url = "https://api.deepseek.com/chat/completions";
+      async function tryGroqStream() {
+        if (!appState.groqKey) throw new Error("Chưa có Groq API Key");
+        const model = appState.groqModel || "llama-3.3-70b-versatile";
+        const url = "https://api.groq.com/openai/v1/chat/completions";
 
         const messages = [{ role: "system", content: systemPrompt }];
         if (appState.chatHistory && Array.isArray(appState.chatHistory)) {
@@ -1956,16 +1861,14 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${appState.deepseekKey}`
+            "Authorization": `Bearer ${appState.groqKey}`
           },
           body: JSON.stringify(payload)
-        });
+        }, 25000);
+
         if (!res.ok) {
-          if (res.status === 402) {
-            throw new Error("DeepSeek HTTP 402 (Hết số dư / Chưa nạp tiền). Tài khoản DeepSeek của bạn chưa nạp tiền trên platform.deepseek.com. Hãy đổi AI chính sang Google Gemini (hoàn toàn miễn phí) để sử dụng bình thường!");
-          }
-          const errText = await res.text().catch(() => "");
-          throw new Error(`DeepSeek HTTP ${res.status}: ${errText || "Lỗi API"}`);
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(`Groq HTTP ${res.status}: ${errData?.error?.message || "Lỗi máy chủ Groq"}`);
         }
 
         try {
@@ -2001,18 +1904,18 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
               }
             }
           }
-        } catch (dsStreamErr) {
-          console.warn("DeepSeek streaming read failed, trying REST fallback:", dsStreamErr);
+        } catch (sEx) {
+          console.warn("Groq streaming read failed, trying REST fallback:", sEx);
           if (!fullText) {
             payload.stream = false;
             const restRes = await fetchWithTimeout(url, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${appState.deepseekKey}`
+                "Authorization": `Bearer ${appState.groqKey}`
               },
               body: JSON.stringify(payload)
-            });
+            }, 25000);
             if (restRes.ok) {
               const data = await restRes.json();
               const text = data?.choices?.[0]?.message?.content || "";
@@ -2026,11 +1929,11 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         return fullText;
       }
 
-      // Hàm gọi OpenAI Streaming
-      async function tryOpenAIStream() {
-        if (!appState.openaiKey) throw new Error("Chưa có OpenAI API Key");
-        const model = appState.openaiModel || "gpt-4o-mini";
-        const url = "https://api.openai.com/v1/chat/completions";
+      // Hàm gọi Cohere Streaming & REST Fallback (Chuyên nghiệp)
+      async function tryCohereStream() {
+        if (!appState.cohereKey) throw new Error("Chưa có Cohere API Key");
+        const model = appState.cohereModel || "command-r-08-2024";
+        const url = "https://api.cohere.com/v2/chat";
 
         const messages = [{ role: "system", content: systemPrompt }];
         if (appState.chatHistory && Array.isArray(appState.chatHistory)) {
@@ -2054,66 +1957,74 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${appState.openaiKey}`
+            "Authorization": `Bearer ${appState.cohereKey}`
           },
           body: JSON.stringify(payload)
-        });
+        }, 25000);
+
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          const apiMsg = errData?.error?.message || "";
-          if (res.status === 429) {
-            throw new Error(`OpenAI HTTP 429 (Hết hạn mức/Vượt giới hạn tốc độ). ${apiMsg || "Tài khoản OpenAI của bạn có thể đã hết credit dùng thử hoặc chưa gắn thẻ thanh toán. Kiểm tra tại platform.openai.com/account/billing."}`);
-          }
-          if (res.status === 401) {
-            throw new Error(`OpenAI HTTP 401 (Sai API Key). ${apiMsg}`);
-          }
-          throw new Error(`OpenAI HTTP ${res.status}: ${apiMsg || "Lỗi API"}`);
+          throw new Error(`Cohere HTTP ${res.status}: ${errData?.message || "Lỗi máy chủ Cohere"}`);
         }
 
         try {
           const reader = res.body.getReader();
           const decoder = new TextDecoder("utf-8");
-          let buffer = "";
+          let doneReading = false;
+          let sseBuffer = "";
 
-          while (true) {
+          while (!doneReading) {
             const { value, done } = await reader.read();
             if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop();
+            sseBuffer += decoder.decode(value, { stream: true });
+            const lines = sseBuffer.split("\n");
+            sseBuffer = lines.pop();
 
             for (const line of lines) {
-              const trimLine = line.trim();
-              if (trimLine.startsWith("data: ")) {
-                const jsonStr = trimLine.slice(6).trim();
-                if (!jsonStr || jsonStr === "[DONE]") continue;
+              const trimmed = line.trim();
+              if (trimmed.startsWith("data: ")) {
+                const dataStr = trimmed.slice(6).trim();
+                if (dataStr === "[DONE]") {
+                  doneReading = true;
+                  break;
+                }
                 try {
-                  const chunkObj = JSON.parse(jsonStr);
-                  const contentChunk = chunkObj?.choices?.[0]?.delta?.content || "";
-                  if (contentChunk) {
-                    const cleanT = contentChunk.replace(/\*/g, "");
-                    fullText += cleanT;
-                    if (onChunk) onChunk(cleanT);
+                  const parsed = JSON.parse(dataStr);
+                  // Cohere v2 format (content-delta)
+                  if (parsed.type === "content-delta") {
+                    const chunk = parsed.delta?.message?.content?.text || "";
+                    if (chunk) {
+                      const clean = chunk.replace(/\*/g, "");
+                      fullText += clean;
+                      if (onChunk) onChunk(clean);
+                    }
+                  }
+                  // Cohere compatibility / OpenAI format
+                  else if (parsed.choices?.[0]?.delta?.content) {
+                    const chunk = parsed.choices[0].delta.content;
+                    const clean = chunk.replace(/\*/g, "");
+                    fullText += clean;
+                    if (onChunk) onChunk(clean);
                   }
                 } catch (e) {}
               }
             }
           }
-        } catch (streamErr) {
-          console.warn("OpenAI streaming read failed, trying REST fallback:", streamErr);
+        } catch (cEx) {
+          console.warn("Cohere streaming read failed, trying REST fallback:", cEx);
           if (!fullText) {
             payload.stream = false;
             const restRes = await fetchWithTimeout(url, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${appState.openaiKey}`
+                "Authorization": `Bearer ${appState.cohereKey}`
               },
               body: JSON.stringify(payload)
-            });
+            }, 25000);
             if (restRes.ok) {
               const data = await restRes.json();
-              const text = data?.choices?.[0]?.message?.content || "";
+              const text = data?.message?.content?.[0]?.text || data?.choices?.[0]?.message?.content || "";
               if (text) {
                 fullText = text.replace(/\*/g, "");
                 if (onChunk) onChunk(fullText);
@@ -2123,16 +2034,16 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         }
         return fullText;
       }
-
-      // Danh sách thứ tự ưu tiên gọi AI
-      let seq = ["gemini", "openai", "deepseek"];
-      if (primary === "openai") seq = ["openai", "gemini", "deepseek"];
-      if (primary === "deepseek") seq = ["deepseek", "gemini", "openai"];
+// Danh sách thứ tự ưu tiên gọi AI
+            // Danh sách thứ tự ưu tiên gọi AI: Gemini <-> Groq <-> Cohere
+      let seq = ["gemini", "groq", "cohere"];
+      if (primary === "groq") seq = ["groq", "gemini", "cohere"];
+      if (primary === "cohere") seq = ["cohere", "gemini", "groq"];
       if (!appState.autoFailover) seq = [primary];
 
       let lastErrDetail = null;
-      const attempted = [];       // Các AI thực sự có Key và đã được gọi thử
-      const errorsByProvider = []; // Lời giải thích lỗi cụ thể cho từng AI đã thử
+      const attempted = [];
+      const errorsByProvider = [];
 
       for (const prov of seq) {
         if (prov === "gemini" && appState.geminiKey) {
@@ -2146,44 +2057,38 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
             lastErrDetail = e;
             errorsByProvider.push(describeConnError("Gemini", e));
           }
-        } else if (prov === "openai" && appState.openaiKey) {
-          attempted.push("OpenAI");
+        } else if (prov === "groq" && appState.groqKey) {
+          attempted.push("Groq");
           try {
             if (success) break;
-            if (seq.indexOf(prov) > 0) showToast("⚠️ Chuyển sang ChatGPT dự phòng...");
+            if (seq.indexOf(prov) > 0) showToast("⚠️ Chuyển sang Groq dự phòng...");
             fullText = "";
-            await tryOpenAIStream();
+            await tryGroqStream();
             if (fullText) { success = true; break; }
           } catch (e) {
-            console.warn("OpenAI error:", e);
+            console.warn("Groq error:", e);
             lastErrDetail = e;
-            errorsByProvider.push(describeConnError("OpenAI", e));
+            errorsByProvider.push(describeConnError("Groq", e));
           }
-        } else if (prov === "deepseek" && appState.deepseekKey) {
-          attempted.push("DeepSeek");
+        } else if (prov === "cohere" && appState.cohereKey) {
+          attempted.push("Cohere");
           try {
             if (success) break;
-            if (seq.indexOf(prov) > 0) showToast("⚠️ Chuyển sang DeepSeek dự phòng...");
+            if (seq.indexOf(prov) > 0) showToast("⚠️ Chuyển sang Cohere dự phòng...");
             fullText = "";
-            await tryDeepSeekStream();
+            await tryCohereStream();
             if (fullText) { success = true; break; }
           } catch (e) {
-            console.warn("DeepSeek error:", e);
+            console.warn("Cohere error:", e);
             lastErrDetail = e;
-            errorsByProvider.push(describeConnError("DeepSeek", e));
+            errorsByProvider.push(describeConnError("Cohere", e));
           }
         }
       }
 
       if (!success || !fullText) {
-        const triedLabel = attempted.length ? attempted.join(', ') : '(không có AI nào được cấu hình Key)';
-        let msg = `Không thể kết nối AI đã cấu hình: ${triedLabel}.\n\n${errorsByProvider.join('\n')}`;
-        if (location.protocol === "file:") {
-          msg += "\n\n📌 LƯU Ý QUAN TRỌNG: Bạn đang mở trực tiếp file index.html (file://) trên điện thoại. Nhiều trình duyệt/webview di động CHẶN kết nối Internet ra ngoài khi mở kiểu này. Hãy tải file này lên một dịch vụ hosting miễn phí (GitHub Pages, Netlify, Vercel...) và mở bằng đường link https:// thay vì mở file trực tiếp.";
-        }
-        if (lastErrDetail && String(lastErrDetail).includes("402")) {
-          msg += "\n\n👉 Gợi ý khắc phục: Tài khoản DeepSeek của bạn chưa nạp tiền. Bạn hãy bấm vào biểu tượng Cài đặt ⚙️ ở góc trên, chọn 'Nhà cung cấp AI chính' là 'Google Gemini' (hoàn toàn miễn phí) để AI trả lời ngay!";
-        }
+        let msg = `Không thể kết nối AI (${seq.join(', ')}).\n\nChi tiết: ${lastErrDetail?.message || 'Vui lòng kiểm tra API Key!'}`;
+        msg += "\n\n👉 Gợi ý: Hãy nhập thêm Groq Key hoặc Cohere Key trong Cài đặt ⚙️ để hệ thống tự động dự phòng khi Gemini quá tải!";
         throw new Error(msg);
       }
 
@@ -2487,12 +2392,14 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         document.getElementById("set-auto-failover").checked = appState.autoFailover !== false;
         document.getElementById("set-gemini-key").value = appState.geminiKey;
         document.getElementById("set-model-select").value = appState.modelName;
-        document.getElementById("set-openai-key").value = appState.openaiKey || "";
-        document.getElementById("set-openai-model").value = appState.openaiModel || "gpt-4o-mini";
-        const dsKeyEl = document.getElementById("set-deepseek-key");
-        if (dsKeyEl) dsKeyEl.value = appState.deepseekKey || "";
-        const dsModEl = document.getElementById("set-deepseek-model");
-        if (dsModEl) dsModEl.value = appState.deepseekModel || "deepseek-chat";
+        const groqKeyEl2 = document.getElementById("set-groq-key");
+        if (groqKeyEl2) groqKeyEl2.value = appState.groqKey || "";
+        const groqModEl2 = document.getElementById("set-groq-model");
+        if (groqModEl2) groqModEl2.value = appState.groqModel || "llama-3.3-70b-versatile";
+        const cohereKeyEl2 = document.getElementById("set-cohere-key");
+        if (cohereKeyEl2) cohereKeyEl2.value = appState.cohereKey || "";
+        const cohereModEl2 = document.getElementById("set-cohere-model");
+        if (cohereModEl2) cohereModEl2.value = appState.cohereModel || "command-r-08-2024";
         document.getElementById("set-firebase-url").value = appState.firebaseUrl;
         document.getElementById("set-firebase-auth").value = appState.firebaseAuth;
         settingsModal.style.display = "flex";
@@ -2507,14 +2414,15 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         appState.autoFailover = document.getElementById("set-auto-failover").checked;
         appState.geminiKey = document.getElementById("set-gemini-key").value.trim();
         appState.modelName = document.getElementById("set-model-select").value;
-        appState.openaiKey = document.getElementById("set-openai-key").value.trim();
-        appState.openaiModel = document.getElementById("set-openai-model").value;
-        const dsKeyElSave = document.getElementById("set-deepseek-key");
-        if (dsKeyElSave) appState.deepseekKey = dsKeyElSave.value.trim();
-        const dsModElSave = document.getElementById("set-deepseek-model");
-        if (dsModElSave) appState.deepseekModel = dsModElSave.value;
-        AppStorage.set("deepseekKey", appState.deepseekKey);
-        AppStorage.set("deepseekModel", appState.deepseekModel);
+        const groqKeyElSave2 = document.getElementById("set-groq-key");
+        if (groqKeyElSave2) appState.groqKey = groqKeyElSave2.value.trim();
+        const groqModElSave2 = document.getElementById("set-groq-model");
+        if (groqModElSave2) appState.groqModel = groqModElSave2.value;
+
+        const cohereKeyElSave2 = document.getElementById("set-cohere-key");
+        if (cohereKeyElSave2) appState.cohereKey = cohereKeyElSave2.value.trim();
+        const cohereModElSave2 = document.getElementById("set-cohere-model");
+        if (cohereModElSave2) appState.cohereModel = cohereModElSave2.value;
         appState.firebaseUrl = document.getElementById("set-firebase-url").value.trim();
         appState.firebaseAuth = document.getElementById("set-firebase-auth").value.trim();
 
@@ -2522,9 +2430,7 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         AppStorage.set("autoFailover", appState.autoFailover);
         AppStorage.set("geminiKey", appState.geminiKey);
         AppStorage.set("modelName", appState.modelName);
-        AppStorage.set("openaiKey", appState.openaiKey);
-        AppStorage.set("openaiModel", appState.openaiModel);
-        AppStorage.set("firebaseUrl", appState.firebaseUrl);
+                        AppStorage.set("firebaseUrl", appState.firebaseUrl);
         AppStorage.set("firebaseAuth", appState.firebaseAuth);
 
         settingsModal.style.display = "none";
@@ -2536,83 +2442,134 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       document.getElementById("btn-test-ai-connection").addEventListener("click", async () => {
         const btn = document.getElementById("btn-test-ai-connection");
         const box = document.getElementById("ai-test-result");
+        const copyBtn = document.getElementById("btn-copy-ai-test-result");
+        
         box.style.display = "block";
-        box.textContent = "⏳ Đang kiểm tra kết nối, vui lòng chờ...";
+        if (copyBtn) copyBtn.style.display = "none";
+        box.textContent = "⏳ Đang kiểm tra kết nối các máy chủ AI, vui lòng chờ trong giây lát...";
         btn.disabled = true;
 
         const gKey = document.getElementById("set-gemini-key").value.trim();
-        const oKey = document.getElementById("set-openai-key").value.trim();
-        const dsKeyEl2 = document.getElementById("set-deepseek-key");
-        const dKey = dsKeyEl2 ? dsKeyEl2.value.trim() : "";
+        const groqK = document.getElementById("set-groq-key") ? document.getElementById("set-groq-key").value.trim() : "";
+        const cohereK = document.getElementById("set-cohere-key") ? document.getElementById("set-cohere-key").value.trim() : "";
+        const selGemModel = document.getElementById("set-model-select").value || "gemini-flash-latest";
+        const selGroqModel = document.getElementById("set-groq-model") ? document.getElementById("set-groq-model").value : "llama-3.3-70b-versatile";
+        const selCohereModel = document.getElementById("set-cohere-model") ? document.getElementById("set-cohere-model").value : "command-r-08-2024";
 
         const lines = [];
-        lines.push(`Trang này đang chạy qua: ${location.protocol === "file:" ? "❌ FILE CỤC BỘ (file://) - đây rất có thể là nguyên nhân gây lỗi!" : "✅ Địa chỉ web (" + location.protocol + ")"}`);
-        lines.push(`Trạng thái mạng của máy: ${navigator.onLine ? "✅ Có kết nối Internet" : "❌ KHÔNG có kết nối Internet (đang offline)"}`);
-        lines.push("—".repeat(20));
+        lines.push("==========================================");
+        lines.push("BÁO CÁO KIỂM TRA KẾT NỐI AI");
+        lines.push("==========================================");
+        lines.push(`Môi trường chạy: ${location.protocol === "file:" ? "⚠️ File cục bộ (file://)" : "✅ Địa chỉ web (" + location.protocol + ")"}`);
+        lines.push(`Trạng thái mạng: ${navigator.onLine ? "✅ Đang có Internet" : "❌ Mất kết nối Internet"}`);
+        lines.push("------------------------------------------");
 
-        if (!gKey && !oKey && !dKey) {
-          lines.push("⚠️ Chưa nhập API Key nào để kiểm tra. Hãy dán Key vào ô tương ứng ở trên rồi bấm lại.");
+        if (!gKey && !groqK && !cohereK) {
+          lines.push("⚠️ Chưa nhập API Key nào! Hãy dán Key vào ô tương ứng ở trên rồi bấm lại.");
         }
 
+        // 1. Kiểm tra Gemini (Trực tiếp, không phụ thuộc discover endpoint)
         if (gKey) {
-          try {
-            const model = await discoverGeminiModel(gKey);
-            const r = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${gKey}`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "ping" }] }] })
-            }, 15000);
-            if (r.ok) {
-              lines.push(`🔵 Gemini: ✅ Key hợp lệ, đã gọi thử thành công với model "${model}".`);
-            } else {
-              const j = await r.json().catch(() => ({}));
-              lines.push(`🔵 Gemini: ❌ HTTP ${r.status} với model "${model}" - ${j?.error?.message || "Lỗi API"}`);
+          lines.push(`🔵 Đang thử Google Gemini (Model: ${selGemModel})...`);
+          const gemCandidates = [selGemModel, "gemini-flash-latest", "gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
+          const modelsToTest = [...new Set(gemCandidates)];
+          let geminiOk = false;
+          let geminiErr = null;
+
+          for (const m of modelsToTest) {
+            try {
+              const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${gKey}`;
+              const r = await fetchWithTimeout(pingUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "ping" }] }] })
+              }, 18000);
+
+              if (r.ok) {
+                geminiOk = true;
+                lines.push(`  --> ✅ Google Gemini: KẾT NỐI THÀNH CÔNG! (Model "${m}" hoạt động tốt).`);
+                break;
+              } else {
+                const j = await r.json().catch(() => ({}));
+                geminiErr = `HTTP ${r.status} (${m}): ${j?.error?.message || "Lỗi API"}`;
+                if (r.status !== 404) break;
+              }
+            } catch (e) {
+              geminiErr = describeConnError("Gemini", e);
             }
-          } catch (e) {
-            lines.push("🔵 " + describeConnError("Gemini", e));
+          }
+          if (!geminiOk) {
+            lines.push(`  --> ❌ Google Gemini: ${geminiErr || "Không thể kết nối"}`);
           }
         }
 
-        if (oKey) {
+        // 2. Kiểm tra Groq
+        if (groqK) {
+          lines.push(`🟠 Đang thử Groq (Model: ${selGroqModel})...`);
           try {
-            const r = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
+            const r = await fetchWithTimeout("https://api.groq.com/openai/v1/chat/completions", {
               method: "POST",
-              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${oKey}` },
-              body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: "ping" }], max_tokens: 5 })
-            }, 15000);
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${groqK}`
+              },
+              body: JSON.stringify({
+                model: selGroqModel,
+                messages: [{ role: "user", content: "ping" }],
+                max_tokens: 5
+              })
+            }, 18000);
+
             if (r.ok) {
-              lines.push("🟢 OpenAI: ✅ Kết nối & gọi thử thành công.");
+              lines.push(`  --> ✅ Groq: KẾT NỐI THÀNH CÔNG! (Tốc độ phản hồi cực nhanh).`);
             } else {
               const j = await r.json().catch(() => ({}));
-              lines.push(`🟢 OpenAI: ❌ HTTP ${r.status} - ${j?.error?.message || "Key sai hoặc hết hạn mức/credit."}`);
+              lines.push(`  --> ❌ Groq: HTTP ${r.status} - ${j?.error?.message || "Key không hợp lệ hoặc quá tải"}`);
             }
           } catch (e) {
-            lines.push("🟢 " + describeConnError("OpenAI", e));
+            lines.push("  --> ❌ " + describeConnError("Groq", e));
           }
         }
 
-        if (dKey) {
+        // 3. Kiểm tra Cohere
+        if (cohereK) {
+          lines.push(`🟣 Đang thử Cohere (Model: ${selCohereModel})...`);
           try {
-            const r = await fetchWithTimeout("https://api.deepseek.com/chat/completions", {
+            const r = await fetchWithTimeout("https://api.cohere.com/v2/chat", {
               method: "POST",
-              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${dKey}` },
-              body: JSON.stringify({ model: "deepseek-chat", messages: [{ role: "user", content: "ping" }], max_tokens: 5 })
-            }, 15000);
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${cohereK}`
+              },
+              body: JSON.stringify({
+                model: selCohereModel,
+                messages: [{ role: "user", content: "ping" }]
+              })
+            }, 18000);
+
             if (r.ok) {
-              lines.push("🟣 DeepSeek: ✅ Kết nối & gọi thử thành công.");
-            } else if (r.status === 402) {
-              lines.push("🟣 DeepSeek: ❌ HTTP 402 - Tài khoản chưa nạp tiền tại platform.deepseek.com.");
+              lines.push(`  --> ✅ Cohere: KẾT NỐI THÀNH CÔNG! (Model "${selCohereModel}" phản hồi tốt).`);
             } else {
-              const t = await r.text().catch(() => "");
-              lines.push(`🟣 DeepSeek: ❌ HTTP ${r.status} - ${t || "Lỗi API"}`);
+              const j = await r.json().catch(() => ({}));
+              lines.push(`  --> ❌ Cohere: HTTP ${r.status} - ${j?.message || "Key không hợp lệ hoặc lỗi máy chủ"}`);
             }
           } catch (e) {
-            lines.push("🟣 " + describeConnError("DeepSeek", e));
+            lines.push("  --> ❌ " + describeConnError("Cohere", e));
           }
         }
+
+        lines.push("------------------------------------------");
+        lines.push("💡 LỜI KHUYÊN: Bạn nên cấu hình ít nhất 2 AI (ví dụ Gemini + Groq) để hệ thống tự động dự phòng mượt mà khi một bên bị bận.");
 
         box.textContent = lines.join("\n");
         btn.disabled = false;
+        if (copyBtn) {
+          copyBtn.style.display = "block";
+          copyBtn.onclick = async () => {
+            await copyToClipboard(box.textContent);
+            showToast("✓ Đã sao chép toàn bộ báo cáo kết nối!");
+          };
+        }
       });
 
       document.getElementById("btn-sync-pull").addEventListener("click", async () => {
