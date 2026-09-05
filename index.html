@@ -650,9 +650,9 @@
         <label>🔵 Google Gemini API (Streaming):</label>
         <input type="password" id="set-gemini-key" class="form-input" placeholder="Dán mã AIzaSy...">
         <select id="set-model-select" class="form-input" style="margin-top: 4px;">
-          <option value="gemini-2.5-flash">gemini-2.5-flash (Khuyên dùng - Nhanh & chuẩn)</option>
-          <option value="gemini-1.5-flash">gemini-1.5-flash (Siêu tốc)</option>
-          <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash (Khuyên dùng - Siêu tốc & Miễn phí)</option>
+          <option value="gemini-2.0-flash">gemini-2.0-flash (Thế hệ 2.0)</option>
+          <option value="gemini-1.5-pro">gemini-1.5-pro (Thông minh cao cấp)</option>
         </select>
       </div>
 
@@ -1157,7 +1157,7 @@ function applyPronouns(text, toi, khach) {
       khach: "anh",
       activeTab: "tab-ai",
       geminiKey: AppStorage.get("geminiKey", ""),
-      modelName: AppStorage.get("modelName", "gemini-2.5-flash"),
+      modelName: AppStorage.get("modelName", "gemini-1.5-flash"),
       openaiKey: AppStorage.get("openaiKey", ""),
       openaiModel: AppStorage.get("openaiModel", "gpt-4o-mini"),
       deepseekKey: AppStorage.get("deepseekKey", ""),
@@ -1688,10 +1688,10 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       async function tryGeminiStream() {
         if (!appState.geminiKey) throw new Error("Chưa có Gemini API Key");
         const modelsToTry = [
-          (appState.modelName && appState.modelName !== "gemini-3.6-flash") ? appState.modelName : "gemini-2.5-flash",
+          appState.modelName || "gemini-2.5-flash",
           "gemini-2.5-flash",
-          "gemini-1.5-flash",
-          "gemini-2.0-flash"
+          "gemini-2.0-flash",
+          "gemini-1.5-flash"
         ];
 
         let lastErr = null;
@@ -1825,38 +1825,66 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
           },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error(`DeepSeek HTTP ${res.status}`);
+        if (!res.ok) {
+          if (res.status === 402) {
+            throw new Error("DeepSeek HTTP 402 (Hết số dư / Chưa nạp tiền). Tài khoản DeepSeek của bạn chưa nạp tiền trên platform.deepseek.com. Hãy đổi AI chính sang Google Gemini (hoàn toàn miễn phí) để sử dụng bình thường!");
+          }
+          const errText = await res.text().catch(() => "");
+          throw new Error(`DeepSeek HTTP ${res.status}: ${errText || "Lỗi API"}`);
+        }
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let doneReading = false;
-        let sseBuffer = "";
+        try {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+          let doneReading = false;
+          let sseBuffer = "";
 
-        while (!doneReading) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          sseBuffer += decoder.decode(value, { stream: true });
-          const lines = sseBuffer.split("\n");
-          sseBuffer = lines.pop();
+          while (!doneReading) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            sseBuffer += decoder.decode(value, { stream: true });
+            const lines = sseBuffer.split("\n");
+            sseBuffer = lines.pop();
 
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith("data: ")) {
-              const dataStr = trimmed.slice(6).trim();
-              if (dataStr === "[DONE]") {
-                doneReading = true;
-                break;
-              }
-              try {
-                const parsed = JSON.parse(dataStr);
-                const chunk = parsed.choices?.[0]?.delta?.content || "";
-                if (chunk) {
-                  const clean = chunk.replace(/\*/g, "");
-                  fullText += clean;
-                  resultTextarea.value = fullText;
-                  resultTextarea.scrollTop = resultTextarea.scrollHeight;
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith("data: ")) {
+                const dataStr = trimmed.slice(6).trim();
+                if (dataStr === "[DONE]") {
+                  doneReading = true;
+                  break;
                 }
-              } catch (e) {}
+                try {
+                  const parsed = JSON.parse(dataStr);
+                  const chunk = parsed.choices?.[0]?.delta?.content || "";
+                  if (chunk) {
+                    const clean = chunk.replace(/\*/g, "");
+                    fullText += clean;
+                    if (onChunk) onChunk(clean);
+                  }
+                } catch (e) {}
+              }
+            }
+          }
+        } catch (dsStreamErr) {
+          console.warn("DeepSeek streaming read failed, trying REST fallback:", dsStreamErr);
+          if (!fullText) {
+            payload.stream = false;
+            const restRes = await fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${appState.deepseekKey}`
+              },
+              body: JSON.stringify(payload)
+            });
+            if (restRes.ok) {
+              const data = await restRes.json();
+              const text = data?.choices?.[0]?.message?.content || "";
+              if (text) {
+                fullText = text.replace(/\*/g, "");
+                if (onChunk) onChunk(fullText);
+              }
             }
           }
         }
@@ -1897,31 +1925,54 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         });
         if (!res.ok) throw new Error(`OpenAI HTTP ${res.status}`);
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let buffer = "";
+        try {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+          let buffer = "";
 
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop();
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
 
-          for (const line of lines) {
-            const trimLine = line.trim();
-            if (trimLine.startsWith("data: ")) {
-              const jsonStr = trimLine.slice(6).trim();
-              if (!jsonStr || jsonStr === "[DONE]") continue;
-              try {
-                const chunkObj = JSON.parse(jsonStr);
-                const contentChunk = chunkObj?.choices?.[0]?.delta?.content || "";
-                if (contentChunk) {
-                  const cleanT = contentChunk.replace(/\*/g, "");
-                  fullText += cleanT;
-                  if (onChunk) onChunk(cleanT);
-                }
-              } catch (e) {}
+            for (const line of lines) {
+              const trimLine = line.trim();
+              if (trimLine.startsWith("data: ")) {
+                const jsonStr = trimLine.slice(6).trim();
+                if (!jsonStr || jsonStr === "[DONE]") continue;
+                try {
+                  const chunkObj = JSON.parse(jsonStr);
+                  const contentChunk = chunkObj?.choices?.[0]?.delta?.content || "";
+                  if (contentChunk) {
+                    const cleanT = contentChunk.replace(/\*/g, "");
+                    fullText += cleanT;
+                    if (onChunk) onChunk(cleanT);
+                  }
+                } catch (e) {}
+              }
+            }
+          }
+        } catch (streamErr) {
+          console.warn("OpenAI streaming read failed, trying REST fallback:", streamErr);
+          if (!fullText) {
+            payload.stream = false;
+            const restRes = await fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${appState.openaiKey}`
+              },
+              body: JSON.stringify(payload)
+            });
+            if (restRes.ok) {
+              const data = await restRes.json();
+              const text = data?.choices?.[0]?.message?.content || "";
+              if (text) {
+                fullText = text.replace(/\*/g, "");
+                if (onChunk) onChunk(fullText);
+              }
             }
           }
         }
@@ -1972,7 +2023,11 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       }
 
       if (!success || !fullText) {
-        throw new Error(`Không thể kết nối AI (${seq.join(', ')}). Lỗi: ${lastErrDetail?.message || 'Vui lòng kiểm tra API Key trong mục Cài đặt!'}`);
+        let msg = `Không thể kết nối AI (${seq.join(', ')}).\n\nChi tiết: ${lastErrDetail?.message || 'Vui lòng kiểm tra API Key!'}`;
+        if (lastErrDetail && String(lastErrDetail).includes("402")) {
+          msg += "\n\n👉 Gợi ý khắc phục: Tài khoản DeepSeek của bạn chưa nạp tiền. Bạn hãy bấm vào biểu tượng Cài đặt ⚙️ ở góc trên, chọn 'Nhà cung cấp AI chính' là 'Google Gemini' (hoàn toàn miễn phí) để AI trả lời ngay!";
+        }
+        throw new Error(msg);
       }
 
       return fullText.trim();
@@ -1981,6 +2036,7 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
     function initializeMobileApp() {
       if (window._mobileAppInitialized) return;
       window._mobileAppInitialized = true;
+
       renderPronounChips();
       // Tự động rà soát đồng bộ giá từ tri thức vào mẫu tin nhắn ngay khi mở web app
       if (appState.customKnowledge) {
