@@ -14,15 +14,16 @@
 
   <style>
     :root {
-      --primary: #1877f2;
-      --primary-dark: #0052cc;
-      --bg: #f2f4f7;
-      --card-bg: #ffffff;
-      --text: #1c1e21;
-      --text-muted: #65676b;
-      --border: #e4e6eb;
-      --green: #0b8043;
-      --red: #d93025;
+      --primary: #0068FF;
+      --primary-dark: #0052CC;
+      --bg: #EEF2F6;
+      --card-bg: #FFFFFF;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --green: #16A34A;
+      --red: #DC2626;
+      --accent-light: #EEF4FF;
     }
 
     * {
@@ -44,15 +45,15 @@
       flex-direction: column;
     }
 
-    /* App Header */
+    /* App Header - Clean White Mockup Style */
     header {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: #fff;
-      padding: 14px 16px;
+      background: #FFFFFF;
+      color: #0F172A;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0, 82, 204, 0.2);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -69,14 +70,15 @@
     }
 
     .header-title h1 {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
+      color: #0F172A;
       letter-spacing: -0.2px;
     }
 
     .header-title p {
       font-size: 11px;
-      opacity: 0.88;
+      color: var(--text-muted);
     }
 
     .header-actions {
@@ -85,22 +87,23 @@
     }
 
     .icon-btn {
-      background: rgba(255, 255, 255, 0.22);
-      border: none;
-      color: #fff;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      color: #334155;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
       transition: background 0.15s;
     }
 
     .icon-btn:active {
-      background: rgba(255, 255, 255, 0.4);
+      background: var(--accent-light);
+      color: var(--primary);
     }
 
     /* Main Container */
@@ -141,10 +144,10 @@
     }
 
     .pronoun-chip {
-      background: #f0f2f5;
-      border: 1px solid #d8dadf;
-      color: var(--text);
-      padding: 8px 4px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      color: #334155;
+      padding: 7px 4px;
       border-radius: 8px;
       font-size: 12px;
       font-weight: 600;
@@ -154,39 +157,43 @@
     }
 
     .pronoun-chip.active {
-      background: #e7f3ff;
-      border-color: var(--primary);
-      color: var(--primary);
-      box-shadow: 0 0 0 1px var(--primary);
+      background: #0068FF;
+      border-color: #0068FF;
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(0, 104, 255, 0.2);
     }
 
-    /* Tabs */
+    /* Tabs - Clean Mockup Underline Style */
     .tab-bar {
       display: flex;
-      background: #e4e6eb;
-      padding: 3px;
-      border-radius: 10px;
-      gap: 3px;
+      background: transparent;
+      border-bottom: 1.5px solid var(--border);
+      padding: 0;
+      gap: 8px;
     }
 
     .tab-btn {
       flex: 1;
-      padding: 9px 2px;
+      padding: 8px 4px 10px 4px;
       border: none;
       background: transparent;
       font-size: 12.5px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--text-muted);
-      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1.5px;
+      transition: all 0.15s ease;
     }
 
     .tab-btn.active {
-      background: #fff;
       color: var(--primary);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      border-bottom: 2.5px solid var(--primary);
+      font-weight: 700;
     }
 
     /* Tab Contents */
@@ -481,17 +488,18 @@
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Header Chuẩn 100% Mockup 11112.jpg -->
   <header>
     <div class="header-brand">
-      <span class="header-logo">🚗</span>
+      <button id="btn-open-settings" class="icon-btn" style="border:none; background:transparent; font-size:18px; width:auto; height:auto; padding:4px;" title="Cài đặt">☰</button>
+      <span class="header-logo" style="font-size: 20px; color: #0068FF;">🚗</span>
       <div class="header-title">
-        <h1>Trợ Lý AI Lái Xe Thành Công</h1>
-        <p>Phiên bản di động cho iPhone & Zalo</p>
+        <h1>THÀNH CÔNG AI</h1>
+        <p>Trợ lý AI Lái Xe</p>
       </div>
     </div>
     <div class="header-actions">
-      <button id="btn-open-settings" class="icon-btn" title="Cài đặt API & Firebase">⚙️</button>
+      <button id="btn-pin-mobile" class="icon-btn" title="Ghim">📌</button>
     </div>
   </header>
 
@@ -508,34 +516,57 @@
 
     <!-- Navigation Tabs -->
     <div class="tab-bar">
-      <button class="tab-btn active" data-tab="tab-ai">🤖 AI Trả Lời</button>
-      <button class="tab-btn" data-tab="tab-templates">📋 Mẫu Tin Nhắn</button>
-      <button class="tab-btn" data-tab="tab-knowledge">📚 Tri Thức AI</button>
+      <button class="tab-btn active" data-tab="tab-ai">🤖 AI Tư vấn</button>
+      <button class="tab-btn" data-tab="tab-templates">📑 Mẫu tin nhắn</button>
+      <button class="tab-btn" data-tab="tab-knowledge">⚙️ Tri thức AI</button>
     </div>
 
-    <!-- TAB 1: AI Chatbot -->
+    <!-- TAB 1: AI Chatbot (Chuẩn 100% Mockup 11112.jpg) -->
     <div class="tab-pane active" id="tab-ai">
-      <div class="section-card" style="display: flex; flex-direction: column; gap: 8px;">
-        <label style="font-size: 12px; font-weight: 700; color: #444;">CÂU HỎI CỦA KHÁCH HÀNG:</label>
-        <textarea id="ai-customer-input" class="app-textarea" placeholder="Dán hoặc nhập câu hỏi của khách hàng (VD: Học phí B1 bao nhiêu em? Lịch học thế nào?)..." rows="3"></textarea>
-        <button id="btn-generate-ai" class="btn-primary">
-          <span>✨ AI Soạn Kịch Bản Trả Lời</span>
+      <!-- 1. CARD CÂU HỎI KHÁCH -->
+      <div class="section-card" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11.5px; font-weight: 700; color: #334155;">CÂU HỎI KHÁCH</span>
+          <div style="display: flex; gap: 4px;">
+            <button id="btn-mobile-chat-history" class="btn-secondary" style="padding: 2px 6px; font-size: 10.5px; background: transparent; border: none; color: var(--text-muted);">📜 Lịch sử</button>
+            <button id="btn-mobile-reset-chat" class="btn-secondary" style="padding: 2px 6px; font-size: 10.5px; background: transparent; border: none; color: var(--primary);">🔄 Khách mới</button>
+          </div>
+        </div>
+        
+        <!-- Khung input có nút [ ⚡ Dán ] bên phải -->
+        <div style="display: flex; align-items: center; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; padding: 2px 6px;">
+          <textarea id="ai-customer-input" style="flex: 1; border: none; outline: none; font-size: 13px; font-family: inherit; resize: none; min-height: 48px; padding: 4px;" placeholder="Thì ở Quận 7 thi ở đâu?"></textarea>
+          <button id="btn-mobile-paste-clip" style="background: var(--accent-light); color: var(--primary); font-size: 11px; font-weight: 700; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; white-space: nowrap;">⚡ Dán</button>
+        </div>
+
+        <button id="btn-generate-ai" class="btn-primary" style="padding: 10px; border-radius: 8px; font-weight: 700; font-size: 13px; margin-top: 2px;">
+          <span>✦ AI TRẢ LỜI</span>
         </button>
       </div>
 
-      <!-- AI Result Box -->
-      <div class="result-card" id="ai-result-box" style="display: none;">
+      <!-- 2. CARD GỢI Ý TRẢ LỜI -->
+      <div class="section-card" id="ai-result-box" style="display: flex; flex-direction: column; gap: 8px; padding: 12px; margin-top: 2px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 13px; font-weight: 700; color: var(--primary);">GỢI Ý CÂU TRẢ LỜI ĐẦY ĐỦ:</span>
-          <span style="font-size: 11px; color: var(--text-muted);">Có thể sửa trước khi gửi</span>
+          <span style="font-size: 12px; font-weight: 700; color: #334155;">GỢI Ý TRẢ LỜI</span>
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-ai-copy-top" style="background: var(--accent-light); color: var(--primary); border: none; border-radius: 6px; font-size: 11px; padding: 4px 8px; cursor: pointer;">📄 Sao chép</button>
+            <button id="btn-ai-edit-top" style="background: var(--accent-light); color: var(--primary); border: none; border-radius: 6px; font-size: 11px; padding: 4px 8px; cursor: pointer;">✏️ Chỉnh sửa</button>
+          </div>
         </div>
-        <textarea id="ai-result-text" class="result-textarea"></textarea>
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
-          <button id="btn-ai-copy-zalo" class="btn-zalo">
-            <span>🚀 Copy & Mở Zalo</span>
+
+        <textarea id="ai-result-text" style="width: 100%; border: 1px solid var(--border); border-radius: 8px; min-height: 240px; font-size: 13px; line-height: 1.5; padding: 10px; font-family: inherit; outline: none; background: #FFFFFF; color: #0F172A;" placeholder="Câu trả lời của AI sẽ xuất hiện tại đây..."></textarea>
+
+        <!-- Action Bar chuẩn 100% Mockup: [ 📄 Sao chép ] [ 🔄 Tạo lại ] [ 💬 Gửi Zalo ] -->
+        <div style="display: flex; gap: 6px; align-items: center; margin-top: 2px;">
+          <button id="btn-ai-copy-only" style="background: #F1F5F9; color: #334155; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; padding: 9px 12px; cursor: pointer;">
+            📄 Sao chép
           </button>
-          <button id="btn-ai-copy-only" class="btn-secondary">
-            <span>📋 Sao chép</span>
+          <button id="btn-ai-regen" style="background: #F1F5F9; color: #334155; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; padding: 9px 10px; cursor: pointer;">
+            🔄 Tạo lại
+          </button>
+          <button id="btn-ai-copy-zalo" class="btn-primary" style="flex: 1; border-radius: 8px; font-size: 13px; font-weight: 700; padding: 9px 14px; background: #0068FF; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span style="background: #fff; color: #0068FF; font-size: 10px; font-weight: 800; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center;">Z</span>
+            <span>Gửi Zalo</span>
           </button>
         </div>
       </div>
@@ -588,21 +619,35 @@
         <button id="btn-close-settings-modal" class="icon-btn" style="background: #f0f2f5; color: #333;">✕</button>
       </div>
 
-      <div class="form-group">
-        <label>1. Google Gemini API Key:</label>
-        <input type="password" id="set-gemini-key" class="form-input" placeholder="Dán mã AIzaSy...">
-        <small style="font-size: 11px; color: var(--primary);">
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: inherit;">👉 Lấy Gemini API Key miễn phí tại đây</a>
-        </small>
+      <div class="form-group" style="background: #eef4ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px;">
+        <label style="color: var(--primary); font-weight: 700;">⚡ NHÀ CUNG CẤP AI CHÍNH:</label>
+        <select id="set-primary-ai" class="form-input" style="font-weight: 600; margin-bottom: 6px;">
+          <option value="gemini">Google Gemini (Khuyên dùng - Siêu nhanh Streaming)</option>
+          <option value="openai">OpenAI ChatGPT (Dự phòng)</option>
+        </select>
+        <label style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #0b8043; cursor: pointer;">
+          <input type="checkbox" id="set-auto-failover" checked>
+          <span>Tự động chuyển đổi sang AI dự phòng khi một bên bị lỗi/quá tải</span>
+        </label>
       </div>
 
       <div class="form-group">
-        <label>2. Phiên bản Model AI:</label>
-        <select id="set-model-select" class="form-input">
-          <option value="gemini-3.6-flash">gemini-3.6-flash (Mới nhất, khuyên dùng)</option>
-          <option value="gemini-3.0-flash">gemini-3.0-flash</option>
-          <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+        <label>🔵 Google Gemini API (Streaming):</label>
+        <input type="password" id="set-gemini-key" class="form-input" placeholder="Dán mã AIzaSy...">
+        <select id="set-model-select" class="form-input" style="margin-top: 4px;">
+          <option value="gemini-3.6-flash">gemini-3.6-flash (Mới nhất, cực nhanh)</option>
+          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
           <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>🟢 OpenAI ChatGPT API (Dự Phòng):</label>
+        <input type="password" id="set-openai-key" class="form-input" placeholder="Dán mã sk-...">
+        <select id="set-openai-model" class="form-input" style="margin-top: 4px;">
+          <option value="gpt-4o-mini">gpt-4o-mini (Nhanh & tiết kiệm)</option>
+          <option value="gpt-4o">gpt-4o</option>
+          <option value="gpt-4.1-mini">gpt-4.1-mini</option>
         </select>
       </div>
 
@@ -695,13 +740,42 @@ QUY TẮC XƯNG HÔ BẮT BUỘC:
   + Dùng từ ngữ thân thiện của người đi trước: "Chào em nhé! 🌸", "Anh gửi em...", "nha em", "nhé em", "nha!", "nhé!".
 - KHI XƯNG EM/ANH, EM/CHỊ, CON/CÔ, CON/CHÚ: Dùng kính ngữ "Dạ...", "...ạ!" lịch sự, ân cần.
 
-PHONG CÁCH TƯ VẤN:
+PHONG CÁCH TƯ VẤN (TƯƠNG TÁC TỪNG BƯỚC - NGẮN GỌN, TRỌNG TÂM & TINH TẾ):
+- NGẮN GỌN, SÚC TÍCH, ĐI SÂU ĐÚNG TRỌNG TÂM (khoảng 80 - 150 từ). Khách hỏi nội dung nào thì tập trung giải đáp sâu và rõ nội dung đó.
+- TUYỆT ĐỐI KHÔNG GOM HẾT tất cả các thông tin học phí, lịch học, điểm đón, thủ tục vào một tin nhắn nếu khách chưa hỏi đến (tránh làm khách bị ngợp thông tin và lười đọc).
+- KẾ THỪA NGỮ CẢNH HỘI THOẠI ĐA LƯỢT: Nếu khách hỏi tiếp câu thứ 2, thứ 3... TUYỆT ĐỐI KHÔNG LẶP LẠI những nội dung hay học phí đã trả lời ở câu trước. Chỉ giải đáp đúng thắc mắc mới.
+
+QUY TẮC PHÂN TÍCH HẠNG BẰNG TINH TẾ (TRÁNH HỎI THỪA & THIẾU CHUYÊN NGHIỆP):
+1. KHI KHÁCH HỎI "B2" HOẶC "SỐ SÀN":
+- Khách ĐÃ XÁC ĐỊNH muốn học xe số sàn cơ khí!
+- TUYỆT ĐỐI KHÔNG hỏi lại câu: "Bạn muốn học B cơ khí hay B số tự động?" (Câu này rất thừa và thiếu tinh tế vì B2 chính là bằng số sàn cơ khí).
+- Báo thẳng học phí Hạng B cơ khí: 22.300.000đ ngày thường / 24.300.000đ cuối tuần, đợt 1 chỉ 5 triệu giữ suất, kèm 1 Thầy 1 Trò, xe đời mới và tặng 05 GIỜ XE CHIP CẢM ỨNG chấm thi.
+- ĐẶT CÂU HỎI MỞ PHÙ HỢP:
+  + "Hiện tại {khách} đang tiện học vào ngày trong tuần hay cuối tuần để {tôi} kiểm tra lịch giáo viên kèm riêng cho mình nha?"
+  + HOẶC: "Sau này {khách} học để chạy xe gia đình hay có dự định nâng lên hạng C lái xe tải kinh doanh không ạ?"
+2. KHI KHÁCH HỎI "B1" HOẶC "SỐ TỰ ĐỘNG":
+- Khách ĐÃ XÁC ĐỊNH học số tự động! TUYỆT ĐỐI KHÔNG hỏi lại số sàn hay tự động. Báo thẳng học phí B số tự động và hỏi thời gian học hoặc điểm đón gần nhà.
+3. KHI KHÁCH HỎI CHUNG CHUNG ("Học bằng B", "Học lái xe 4-7 chỗ", "Học lái ô tô hết bao nhiêu"):
+- Lúc này mới giải thích ngắn gọn 2 loại bằng và khéo léo hỏi: "{Khách} đang muốn học xe số tự động chạy gia đình hay học số sàn cơ khí để sau này nâng bằng ạ?".
+
+- Luôn kết thúc bằng đúng 1 CÂU HỎI MỞ THÔNG MINH, khéo léo để khơi gợi tương tác 2 chiều.
 - Tự nhiên, vui tươi, chân thành, phân đoạn ngắn gọn, XUỐNG DÒNG RÕ RÀNG giữa các ý.
-- Sử dụng IN HOA các tiêu đề, số tiền kết hợp emoji màu sắc (🌸, 🚗, 🚚, 💰, ⏰, 📍, 📌, 🔹, 🔴, ➊, ➋, ➌) để làm nổi bật thông tin.
+- Sử dụng IN HOA các tiêu đề, số tiền kết hợp emoji màu sắc (🌸, 🚗, 💰, ⏰, 📍, 📌, 🔴, ➊, ➋, ➌).
 - TUYỆT ĐỐI KHÔNG DÙNG dấu sao markdown *...* quanh từ ngữ.
-- Kết thúc bằng 1 câu hỏi mở để chốt hẹn hoặc tiếp tục tư vấn.
 
 THÔNG TIN CHI TIẾT KHÓA HỌC:
+0. QUY ĐỊNH VỀ ĐỘ TUỔI (BẰNG XE MÁY A1/A2 & Ô TÔ B/C1) & HỌC SINH LỚP 12:
+- QUY ĐỊNH BẮT BUỘC VỀ ĐỘ TUỔI:
+  + Học viên cần phải ĐỦ TRÒN 18 TUỔI (tính chính xác từng ngày, tháng, năm sinh ghi trên CCCD gốc đến đúng ngày thi sát hạch).
+- HƯỚNG DẪN THỦ TỤC NỘP HỒ SƠ SỚM (HỌC SINH LỚP 12 HOẶC CHƯA ĐỦ 18 TUỔI):
+  + Học viên VẪN CÓ THỂ NỘP HỒ SƠ ĐĂNG KÝ TRƯỚC để {tôi} làm thủ tục giữ suất, phát sách giáo trình và cấp tài khoản app ôn tập lý thuyết dần cho vững vàng.
+  + ĐIỀU KIỆN KHÁM SỨC KHỎE: Phải đến đúng ngày sinh nhật đủ tròn 18 tuổi thì học viên mới đủ điều kiện pháp lý để đi khám sức khỏe lái xe bổ sung hoàn thiện hồ sơ. Khi có giấy khám sức khỏe hợp lệ thì trường mới đăng ký được lịch thi chính thức với Bộ Công An.
+- ĐỊNH HƯỚNG TƯ VẤN KHÉO LÉO & CHỐT HẸN:
+  + Do đó học viên có thể cân nhắc đăng ký luôn đợt này để nhận tài liệu học và tài khoản app ôn tập trước, hoặc đợi đến gần ngày sinh nhật đủ 18 tuổi ghé văn phòng đăng ký cũng hoàn toàn được ạ.
+- HỌC PHÍ BẰNG LÁI XE MÁY A1:
+  + Phí hồ sơ đăng ký trọn gói + tập xe: ~650.000đ (Xe thi: tự chọn thi xe tay ga Vision hoặc xe số Wave rất dễ đậu).
+  + Sân thi sát hạch: Sân Nguyễn Bình (Nhà Bè) hoặc Sân Dương Quảng Hàm (Gò Vấp).
+
 1. PHÂN LOẠI HẠNG BẰNG THEO LUẬT MỚI:
 - Hạng B số tự động: Lái ô tô 4-9 chỗ, tải đến 3.5 tấn số tự động. Chạy DAT 710km đường trường. Dễ học, thi dễ đậu, phù hợp lái xe gia đình.
 - Hạng B cơ khí: Lái được cả số sàn và số tự động (4-9 chỗ, tải đến 3.5 tấn). Chạy DAT 810km đường trường. Sau 2 năm nâng lên hạng C được.
@@ -904,7 +978,7 @@ Khi tới {khách} chỉ cần mang theo CCCD gốc, vào quầy báo gặp Anh 
 // Hàm thay thế xưng hô thông minh - HỖ TRỢ CẢ CÓ DẤU VÀ KHÔNG DẤU: {tôi}, {toi}, {khách}, {khach}
 function applyPronouns(text, toi, khach) {
   if (!text) return "";
-  const isOlder = (toi.toLowerCase() === "anh" && khach.toLowerCase() === "em");
+  const isPeerOrOlder = (["anh", "mình", "minh"].includes(toi.toLowerCase()) && ["em", "bạn", "ban"].includes(khach.toLowerCase()));
   
   const lines = text.split("\n");
   const processedLines = [];
@@ -919,7 +993,7 @@ function applyPronouns(text, toi, khach) {
   for (let i = 0; i < lines.length; i++) {
     let l = lines[i];
 
-    if (isOlder) {
+    if (isPeerOrOlder) {
       // Khi xưng Anh/Em: Xóa kính ngữ Dạ, ạ
       l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*ạ![ \t]*(?:🌸)?/gi, "Chào {khách} nhé! 🌸");
       l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*nha![ \t]*(?:🌸)?/gi, "Chào {khách} nhé! 🌸");
@@ -1060,13 +1134,28 @@ function applyPronouns(text, toi, khach) {
       activeTab: "tab-ai",
       geminiKey: AppStorage.get("geminiKey", ""),
       modelName: AppStorage.get("modelName", "gemini-3.6-flash"),
+      openaiKey: AppStorage.get("openaiKey", ""),
+      openaiModel: AppStorage.get("openaiModel", "gpt-4o-mini"),
+      deepseekKey: AppStorage.get("deepseekKey", ""),
+      deepseekModel: AppStorage.get("deepseekModel", "deepseek-chat"),
+      primaryAi: AppStorage.get("primaryAi", "gemini"),
+      autoFailover: AppStorage.get("autoFailover", true),
       firebaseUrl: AppStorage.get("firebaseUrl", ""),
       firebaseAuth: AppStorage.get("firebaseAuth", ""),
-      customKnowledge: AppStorage.get("customKnowledge", DEFAULT_DRIVING_SCHOOL_KNOWLEDGE),
+      customKnowledge: (() => {
+        let k = AppStorage.get("customKnowledge", "");
+        if (!k || !k.includes("QUY ĐỊNH VỀ ĐỘ TUỔI")) {
+          k = DEFAULT_DRIVING_SCHOOL_KNOWLEDGE;
+          AppStorage.set("customKnowledge", k);
+        }
+        return k;
+      })(),
       templates: AppStorage.get("templates", [...DEFAULT_FAST_TEMPLATES]),
       lastUpdated: AppStorage.get("lastUpdated", 0),
       currentFormImage: "",
-      isSyncing: false
+      isSyncing: false,
+      chatHistory: [], // Lưu các lượt hỏi đáp đa lượt
+      rawAiResponse: "" // Lưu trữ dạng placeholder để chuyển đổi xưng hô tức thì
     };
 
     const PRONOUN_PRESETS = [
@@ -1075,7 +1164,7 @@ function applyPronouns(text, toi, khach) {
       { label: "Anh / Em", toi: "anh", khach: "em" },
       { label: "Con / Cô", toi: "con", khach: "cô" },
       { label: "Con / Chú", toi: "con", khach: "chú" },
-      { label: "Em / Bạn", toi: "em", khach: "bạn" }
+      { label: "Mình / Bạn", toi: "mình", khach: "bạn" }
     ];
 
     let mobileSse = null;
@@ -1252,6 +1341,34 @@ function applyPronouns(text, toi, khach) {
       await navigator.clipboard.write([item]);
     }
 
+    function normalizeToPlaceholders(text, toi, khach) {
+      if (!text) return "";
+      let res = text;
+      if (res.includes("{tôi}") || res.includes("{khách}") || res.includes("{toi}") || res.includes("{khach}")) {
+        return res;
+      }
+
+      const isPeerOrOlder = (["anh", "mình", "minh"].includes(toi.toLowerCase()) && ["em", "bạn", "ban"].includes(khach.toLowerCase()));
+      if (isPeerOrOlder) {
+        res = res.replace(new RegExp("Chào\\s+" + khach + "\\s+nhé!\\s*🌸?", "gi"), "Dạ {tôi} chào {khách} ạ! 🌸");
+        res = res.replace(new RegExp("\\bnha\\s+" + khach + "\\b", "gi"), "ạ");
+        res = res.replace(new RegExp("\\bnhé\\s+" + khach + "\\b", "gi"), "ạ");
+        res = res.replace(/\\bha\\s+em\\b/gi, "ạ");
+      }
+
+      // Khách
+      res = res.replace(new RegExp("\\b" + khach.charAt(0).toUpperCase() + khach.slice(1) + "\\b", "g"), "{Khách}");
+      res = res.replace(new RegExp("\\b" + khach.toUpperCase() + "\\b", "g"), "{KHÁCH}");
+      res = res.replace(new RegExp("\\b" + khach.toLowerCase() + "\\b", "g"), "{khách}");
+
+      // Tôi
+      res = res.replace(new RegExp("\\b" + toi.charAt(0).toUpperCase() + toi.slice(1) + "\\b", "g"), "{Tôi}");
+      res = res.replace(new RegExp("\\b" + toi.toUpperCase() + "\\b", "g"), "{TÔI}");
+      res = res.replace(new RegExp("\\b" + toi.toLowerCase() + "\\b", "g"), "{tôi}");
+
+      return res;
+    }
+
     function renderPronounChips() {
       const container = document.getElementById("pronoun-chips-container");
       container.innerHTML = "";
@@ -1260,12 +1377,26 @@ function applyPronouns(text, toi, khach) {
         chip.className = `pronoun-chip ${appState.toi === preset.toi && appState.khach === preset.khach ? 'active' : ''}`;
         chip.innerText = preset.label;
         chip.addEventListener("click", () => {
+          const oldToi = appState.toi;
+          const oldKhach = appState.khach;
           appState.toi = preset.toi;
           appState.khach = preset.khach;
           document.getElementById("current-pronoun-label").innerText = preset.label;
           document.querySelectorAll(".pronoun-chip").forEach(c => c.classList.remove("active"));
           chip.classList.add("active");
           renderTemplatesList();
+
+          // TỰ ĐỘNG CHUYỂN ĐỔI XƯNG HÔ CỦA CÂU TRẢ LỜI AI HIỆN TẠI (TỨC THÌ TRONG 0.01 GIÂY)
+          const aiBox = document.getElementById("ai-result-text");
+          const curText = aiBox ? aiBox.value.trim() : "";
+          if (curText) {
+            if (!appState.rawAiResponse) {
+              appState.rawAiResponse = normalizeToPlaceholders(curText, oldToi, oldKhach);
+            }
+            const newRendered = applyPronouns(appState.rawAiResponse, appState.toi, appState.khach);
+            aiBox.value = newRendered;
+            showToast(`✓ Đã tức thì đổi xưng hô sang: ${preset.label}!`);
+          }
         });
         container.appendChild(chip);
       });
@@ -1405,42 +1536,265 @@ function applyPronouns(text, toi, khach) {
       const isOlder = (appState.toi.toLowerCase() === "anh" && appState.khach.toLowerCase() === "em");
       const systemPrompt = applyPronouns(appState.customKnowledge || DEFAULT_DRIVING_SCHOOL_KNOWLEDGE, appState.toi, appState.khach);
 
+      // Phát hiện B2 / số sàn cụ thể
+      const qLower = question.toLowerCase();
+      const isSpecificManual = qLower.includes("b2") || qLower.includes("số sàn") || qLower.includes("so san");
+      const isSpecificAuto = qLower.includes("b1") || qLower.includes("số tự động") || qLower.includes("tu dong");
+
       const userPrompt = `
 Khách hàng vừa hỏi:
 "${question}"
 
-HÃY SOẠN MỘT CÂU TRẢ LỜI TƯ VẤN CHỐT SALE ĐẦY ĐỦ, HOÀN CHỈNH TỪ ĐẦU ĐẾN CUỐI:
+YÊU CẦU TƯ VẤN NGẮN GỌN, TRỌNG TÂM, TINH TẾ & TĂNG TƯƠNG TÁC (TỐI ĐA 80 - 150 TỪ):
 1. XƯNG HÔ: Bản thân xưng là "${appState.toi}", gọi khách là "${appState.khach}".
 ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu bằng "Chào em nhé! 🌸" hoặc "Anh gửi em...", kết thúc bằng "nha em", "nhé em".' : '- Mở đầu lịch sự: "Dạ em chào {khách} ạ! 🌸"'}
-2. NỘI DUNG: Trả lời thẳng vào câu hỏi, nêu rõ học phí ngày thường / cuối tuần, ưu điểm 1 kèm 1, xe 2022-2025, đủ km DAT, 05 GIỜ XE CHIP CẢM ỨNG chấm thi, chính sách chia 3 đợt đóng (Đợt 1 chỉ 5 TRIỆU giữ suất).
-3. TRÌNH BÀY: Xuống dòng tách bạch, IN HOA tiêu đề và số tiền, dùng emoji màu sắc (🌸, 🚗, 💰, ⏰, 📍, 📌, 🔴, ➊, ➋, ➌). TUYỆT ĐỐI KHÔNG dùng dấu sao markdown *...*.
-4. Kết thúc bằng 1 câu hỏi mở thân thiện chốt lịch hoặc hồ sơ.
+
+2. ĐI SÂU TRỌNG TÂM - TINH TẾ (TUYỆT ĐỐI KHÔNG HỎI THỪA & KHÔNG GOM HẾT NỘI DUNG):
+${isSpecificManual ? '- KHÁCH ĐANG HỎI B2 / SỐ SÀN: Khách ĐÃ XÁC ĐỊNH học bằng số sàn cơ khí! TUYỆT ĐỐI KHÔNG ĐƯỢC hỏi lại "Bạn muốn học B cơ khí hay B tự động?". Báo thẳng học phí Hạng B cơ khí (22.3M ngày thường / 24.3M cuối tuần, đợt 1 chỉ 5 triệu giữ suất, 1 kèm 1, tặng 5h xe chip). Hỏi mở xem khách tiện học ngày thường hay cuối tuần, hoặc sau này có ý định nâng lên hạng C lái xe tải không.' : ''}
+${isSpecificAuto ? '- KHÁCH ĐANG HỎI B1 / SỐ TỰ ĐỘNG: Khách ĐÃ XÁC ĐỊNH học số tự động! TUYỆT ĐỐI KHÔNG hỏi lại số sàn hay tự động. Báo thẳng học phí B tự động và hỏi thời gian học hoặc điểm đón gần nhà.' : ''}
+${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐI TIẾP: TUYỆT ĐỐI KHÔNG lặp lại học phí hay các thông tin đã trả lời ở các câu hỏi trước đó trong đoạn chat. Chỉ tập trung giải đáp câu hỏi mới này.' : ''}
+
+3. CÂU HỎI MỞ TƯƠNG TÁC HỢP LÝ:
+   - Kết thúc bằng đúng 1 câu hỏi mở khéo léo để khách dễ phản hồi và dẫn dắt sang bước đăng ký hồ sơ.
+4. TRÌNH BÀY: Xuống dòng tách bạch, IN HOA tiêu đề và số tiền, dùng emoji màu sắc sinh động. TUYỆT ĐỐI KHÔNG dùng dấu sao markdown *...*.
 `;
 
-      const model = appState.modelName || "gemini-3.6-flash";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${appState.geminiKey}`;
+      const contents = [];
+      if (appState.chatHistory && Array.isArray(appState.chatHistory)) {
+        for (const turn of appState.chatHistory) {
+          if (turn.role && turn.text) {
+            contents.push({ role: turn.role, parts: [{ text: turn.text }] });
+          }
+        }
+      }
+      contents.push({ role: "user", parts: [{ text: userPrompt }] });
 
-      const payload = {
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-        generationConfig: { temperature: 0.7, topP: 0.95, maxOutputTokens: 4096 }
-      };
+      let fullText = "";
+      let success = false;
+      const primary = appState.primaryAi || "gemini";
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      // Hàm gọi Gemini Streaming
+      async function tryGeminiStream() {
+        if (!appState.geminiKey) throw new Error("Chưa có Gemini API Key");
+        const model = appState.modelName || "gemini-3.6-flash";
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${appState.geminiKey}`;
+        const payload = {
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: contents,
+          generationConfig: { temperature: 0.65, topP: 0.95, maxOutputTokens: 4096 }
+        };
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error?.message || `Lỗi API (${res.status})`);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            const trimLine = line.trim();
+            if (trimLine.startsWith("data: ")) {
+              const jsonStr = trimLine.slice(6).trim();
+              if (!jsonStr) continue;
+              try {
+                const chunkObj = JSON.parse(jsonStr);
+                const parts = chunkObj?.candidates?.[0]?.content?.parts || [];
+                for (const p of parts) {
+                  if (p.text && !p.thought) {
+                    const cleanT = p.text.replace(/\*/g, "");
+                    fullText += cleanT;
+                    if (onChunk) onChunk(cleanT);
+                  }
+                }
+              } catch (e) {}
+            }
+          }
+        }
+        return fullText;
       }
 
-      const data = await res.json();
-      const parts = data?.candidates?.[0]?.content?.parts || [];
-      let text = parts.map(p => p.text || "").join("").trim();
-      return text.replace(/\*/g, "").trim();
+      // Hàm gọi DeepSeek Streaming
+      async function tryDeepSeekStream() {
+        if (!appState.deepseekKey) throw new Error("Chưa có DeepSeek API Key");
+        const model = appState.deepseekModel || "deepseek-chat";
+        const url = "https://api.deepseek.com/chat/completions";
+
+        const messages = [{ role: "system", content: systemPrompt }];
+        if (appState.chatHistory && Array.isArray(appState.chatHistory)) {
+          for (const turn of appState.chatHistory) {
+            messages.push({
+              role: turn.role === "user" ? "user" : "assistant",
+              content: turn.text || ""
+            });
+          }
+        }
+        messages.push({ role: "user", content: userPrompt });
+
+        const payload = {
+          model: model,
+          messages: messages,
+          temperature: 0.65,
+          stream: true
+        };
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${appState.deepseekKey}`
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(`DeepSeek HTTP ${res.status}`);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let doneReading = false;
+        let sseBuffer = "";
+
+        while (!doneReading) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split("\n");
+          sseBuffer = lines.pop();
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("data: ")) {
+              const dataStr = trimmed.slice(6).trim();
+              if (dataStr === "[DONE]") {
+                doneReading = true;
+                break;
+              }
+              try {
+                const parsed = JSON.parse(dataStr);
+                const chunk = parsed.choices?.[0]?.delta?.content || "";
+                if (chunk) {
+                  const clean = chunk.replace(/\*/g, "");
+                  fullText += clean;
+                  resultTextarea.value = fullText;
+                  resultTextarea.scrollTop = resultTextarea.scrollHeight;
+                }
+              } catch (e) {}
+            }
+          }
+        }
+        return fullText;
+      }
+
+      // Hàm gọi OpenAI Streaming
+      async function tryOpenAIStream() {
+        if (!appState.openaiKey) throw new Error("Chưa có OpenAI API Key");
+        const model = appState.openaiModel || "gpt-4o-mini";
+        const url = "https://api.openai.com/v1/chat/completions";
+
+        const messages = [{ role: "system", content: systemPrompt }];
+        if (appState.chatHistory && Array.isArray(appState.chatHistory)) {
+          for (const turn of appState.chatHistory) {
+            messages.push({
+              role: turn.role === "user" ? "user" : "assistant",
+              content: turn.text || ""
+            });
+          }
+        }
+        messages.push({ role: "user", content: userPrompt });
+
+        const payload = {
+          model: model,
+          messages: messages,
+          temperature: 0.65,
+          stream: true
+        };
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${appState.openaiKey}`
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(`OpenAI HTTP ${res.status}`);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            const trimLine = line.trim();
+            if (trimLine.startsWith("data: ")) {
+              const jsonStr = trimLine.slice(6).trim();
+              if (!jsonStr || jsonStr === "[DONE]") continue;
+              try {
+                const chunkObj = JSON.parse(jsonStr);
+                const contentChunk = chunkObj?.choices?.[0]?.delta?.content || "";
+                if (contentChunk) {
+                  const cleanT = contentChunk.replace(/\*/g, "");
+                  fullText += cleanT;
+                  if (onChunk) onChunk(cleanT);
+                }
+              } catch (e) {}
+            }
+          }
+        }
+        return fullText;
+      }
+
+      // Danh sách thứ tự ưu tiên gọi AI
+      let seq = ["gemini", "openai", "deepseek"];
+      if (primary === "openai") seq = ["openai", "gemini", "deepseek"];
+      if (primary === "deepseek") seq = ["deepseek", "gemini", "openai"];
+      if (!appState.autoFailover) seq = [primary];
+
+      for (const prov of seq) {
+        if (prov === "gemini" && appState.geminiKey) {
+          try {
+            fullText = "";
+            await tryGeminiStream();
+            if (fullText) { success = true; break; }
+          } catch (e) { console.warn("Gemini error:", e); }
+        } else if (prov === "openai" && appState.openaiKey) {
+          try {
+            if (success) break;
+            if (seq.indexOf(prov) > 0) showToast("⚠️ Chuyển sang ChatGPT dự phòng...");
+            fullText = "";
+            await tryOpenAIStream();
+            if (fullText) { success = true; break; }
+          } catch (e) { console.warn("OpenAI error:", e); }
+        } else if (prov === "deepseek" && appState.deepseekKey) {
+          try {
+            if (success) break;
+            if (seq.indexOf(prov) > 0) showToast("⚠️ Chuyển sang DeepSeek dự phòng...");
+            fullText = "";
+            await tryDeepSeekStream();
+            if (fullText) { success = true; break; }
+          } catch (e) { console.warn("DeepSeek error:", e); }
+        }
+      }
+
+      if (!success || !fullText) {
+        throw new Error("Không thể kết nối AI. Vui lòng kiểm tra lại API Key hoặc mạng internet!");
+      }
+
+      return fullText.trim();
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -1483,18 +1837,151 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
         btnGenAI.disabled = true;
         btnGenAI.innerHTML = `<span>⏳ Đang phân tích và soạn câu trả lời...</span>`;
 
+        const resultBox = document.getElementById("ai-result-box");
+        const resultText = document.getElementById("ai-result-text");
+        resultText.value = "";
+        resultBox.style.display = "flex";
+
         try {
-          const reply = await generateAIResponse(input);
-          document.getElementById("ai-result-text").value = reply;
-          document.getElementById("ai-result-box").style.display = "flex";
-          showToast("✓ Đã soạn câu trả lời hoàn chỉnh!");
+          const reply = await generateAIResponse(input, (chunk) => {
+            resultText.value += chunk;
+            resultText.scrollTop = resultText.scrollHeight;
+          });
+
+          appState.rawAiResponse = normalizeToPlaceholders(reply, appState.toi, appState.khach);
+          const renderedReply = applyPronouns(appState.rawAiResponse, appState.toi, appState.khach);
+
+          appState.chatHistory.push({ role: "user", text: input });
+          appState.chatHistory.push({ role: "model", text: renderedReply });
+
+          document.getElementById("ai-customer-input").value = "";
+          resultText.value = renderedReply;
+
+          const turns = appState.chatHistory.length / 2;
+          document.getElementById("mobile-chat-badge").innerText = `💬 Đang chat liên tục (Đã lưu ${turns} lượt)`;
+          document.getElementById("mobile-chat-badge").style.color = "#0b8043";
+          document.getElementById("mobile-input-label").innerText = `CÂU HỎI TIẾP THEO CỦA KHÁCH (LƯỢT ${turns + 1}):`;
+          btnGenAI.innerHTML = `<span>✨ AI Trả Lời Câu Tiếp Theo (Lượt ${turns + 1})</span>`;
+
+          showToast(`⚡ Đã phản hồi lượt ${turns} (Streaming)! Sẵn sàng nhận câu tiếp.`);
         } catch (err) {
           alert("Lỗi AI: " + err.message);
         } finally {
           btnGenAI.disabled = false;
-          btnGenAI.innerHTML = `<span>✨ AI Soạn Kịch Bản Trả Lời</span>`;
         }
       });
+
+      document.getElementById("btn-mobile-reset-chat").addEventListener("click", () => {
+        appState.chatHistory = [];
+        appState.rawAiResponse = "";
+        document.getElementById("ai-customer-input").value = "";
+        document.getElementById("ai-result-text").value = "";
+        document.getElementById("mobile-chat-badge").innerText = "💬 Cuộc trò chuyện mới (Lượt 1)";
+        document.getElementById("mobile-chat-badge").style.color = "var(--primary)";
+        document.getElementById("mobile-input-label").innerText = "CÂU HỎI CỦA KHÁCH HÀNG:";
+        btnGenAI.innerHTML = `<span>✨ AI Soạn Kịch Bản Trả Lời</span>`;
+        showToast("✓ Đã làm mới đoạn chat! Sẵn sàng tư vấn khách mới.");
+      });
+
+      document.getElementById("btn-mobile-chat-history").addEventListener("click", () => {
+        if (!appState.chatHistory || appState.chatHistory.length === 0) {
+          alert("Chưa có lượt hỏi-đáp nào trong cuộc trò chuyện hiện tại.");
+          return;
+        }
+        let historyStr = "📜 LỊCH SỬ TRAO ĐỔI VỚI KHÁCH:\n\n";
+        let turnIdx = 1;
+        for (let i = 0; i < appState.chatHistory.length; i += 2) {
+          const q = appState.chatHistory[i].text;
+          const a = appState.chatHistory[i+1] ? appState.chatHistory[i+1].text : "";
+          historyStr += `[LƯỢT ${turnIdx}]\n👤 Khách: ${q}\n🤖 Trợ lý Duy: ${a}\n\n`;
+          turnIdx++;
+        }
+        alert(historyStr);
+      });
+
+      const pasteBtn = document.getElementById("btn-mobile-paste-clip");
+      if (pasteBtn) {
+        pasteBtn.addEventListener("click", async () => {
+          try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+              const clipText = await navigator.clipboard.readText();
+              if (clipText) {
+                document.getElementById("ai-customer-input").value = clipText.trim();
+                showToast("✓ Đã dán câu hỏi!");
+              }
+            } else {
+              showToast("Vui lòng dán trực tiếp vào ô");
+            }
+          } catch (e) {
+            showToast("Vui lòng dán trực tiếp vào ô");
+          }
+        });
+      }
+
+      const regenBtn = document.getElementById("btn-ai-regen");
+      if (regenBtn) {
+        regenBtn.addEventListener("click", () => {
+          document.getElementById("btn-generate-ai").click();
+        });
+      }
+
+      const copyTopBtn = document.getElementById("btn-ai-copy-top");
+      if (copyTopBtn) {
+        copyTopBtn.addEventListener("click", async () => {
+          const text = document.getElementById("ai-result-text").value;
+          await copyToClipboard(text);
+          showToast("✓ Đã sao chép!");
+        });
+      }
+
+      const editTopBtn = document.getElementById("btn-ai-edit-top");
+      if (editTopBtn) {
+        editTopBtn.addEventListener("click", () => {
+          document.getElementById("ai-result-text").focus();
+        });
+      }
+
+            const pasteBtn = document.getElementById("btn-mobile-paste-clip");
+      if (pasteBtn) {
+        pasteBtn.addEventListener("click", async () => {
+          try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+              const clipText = await navigator.clipboard.readText();
+              if (clipText) {
+                document.getElementById("ai-customer-input").value = clipText.trim();
+                showToast("✓ Đã dán câu hỏi!");
+              }
+            } else {
+              showToast("Vui lòng dán trực tiếp vào ô");
+            }
+          } catch (e) {
+            showToast("Vui lòng dán trực tiếp vào ô");
+          }
+        });
+      }
+
+      const regenBtn = document.getElementById("btn-ai-regen");
+      if (regenBtn) {
+        regenBtn.addEventListener("click", () => {
+          document.getElementById("btn-generate-ai").click();
+        });
+      }
+
+      const copyTopBtn = document.getElementById("btn-ai-copy-top");
+      if (copyTopBtn) {
+        copyTopBtn.addEventListener("click", async () => {
+          const text = document.getElementById("ai-result-text").value;
+          await copyToClipboard(text);
+          showToast("✓ Đã sao chép!");
+        });
+      }
+
+      const editTopBtn = document.getElementById("btn-ai-edit-top");
+      if (editTopBtn) {
+        editTopBtn.addEventListener("click", () => {
+          document.getElementById("ai-result-text").focus();
+        });
+      }
 
       document.getElementById("btn-ai-copy-zalo").addEventListener("click", async () => {
         const text = document.getElementById("ai-result-text").value;
@@ -1632,8 +2119,16 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
 
       const settingsModal = document.getElementById("settings-modal");
       document.getElementById("btn-open-settings").addEventListener("click", () => {
+        document.getElementById("set-primary-ai").value = appState.primaryAi || "gemini";
+        document.getElementById("set-auto-failover").checked = appState.autoFailover !== false;
         document.getElementById("set-gemini-key").value = appState.geminiKey;
         document.getElementById("set-model-select").value = appState.modelName;
+        document.getElementById("set-openai-key").value = appState.openaiKey || "";
+        document.getElementById("set-openai-model").value = appState.openaiModel || "gpt-4o-mini";
+        const dsKeyEl = document.getElementById("set-deepseek-key");
+        if (dsKeyEl) dsKeyEl.value = appState.deepseekKey || "";
+        const dsModEl = document.getElementById("set-deepseek-model");
+        if (dsModEl) dsModEl.value = appState.deepseekModel || "deepseek-chat";
         document.getElementById("set-firebase-url").value = appState.firebaseUrl;
         document.getElementById("set-firebase-auth").value = appState.firebaseAuth;
         settingsModal.style.display = "flex";
@@ -1644,13 +2139,27 @@ ${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Mở đầu b�
       });
 
       document.getElementById("btn-save-settings").addEventListener("click", () => {
+        appState.primaryAi = document.getElementById("set-primary-ai").value;
+        appState.autoFailover = document.getElementById("set-auto-failover").checked;
         appState.geminiKey = document.getElementById("set-gemini-key").value.trim();
         appState.modelName = document.getElementById("set-model-select").value;
+        appState.openaiKey = document.getElementById("set-openai-key").value.trim();
+        appState.openaiModel = document.getElementById("set-openai-model").value;
+        const dsKeyElSave = document.getElementById("set-deepseek-key");
+        if (dsKeyElSave) appState.deepseekKey = dsKeyElSave.value.trim();
+        const dsModElSave = document.getElementById("set-deepseek-model");
+        if (dsModElSave) appState.deepseekModel = dsModElSave.value;
+        AppStorage.set("deepseekKey", appState.deepseekKey);
+        AppStorage.set("deepseekModel", appState.deepseekModel);
         appState.firebaseUrl = document.getElementById("set-firebase-url").value.trim();
         appState.firebaseAuth = document.getElementById("set-firebase-auth").value.trim();
 
+        AppStorage.set("primaryAi", appState.primaryAi);
+        AppStorage.set("autoFailover", appState.autoFailover);
         AppStorage.set("geminiKey", appState.geminiKey);
         AppStorage.set("modelName", appState.modelName);
+        AppStorage.set("openaiKey", appState.openaiKey);
+        AppStorage.set("openaiModel", appState.openaiModel);
         AppStorage.set("firebaseUrl", appState.firebaseUrl);
         AppStorage.set("firebaseAuth", appState.firebaseAuth);
 
