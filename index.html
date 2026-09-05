@@ -1459,13 +1459,16 @@ window.switchMobileTab = function(tabId) {
         }
       });
       document.querySelectorAll(".tab-pane").forEach(p => {
-        p.classList.remove("active");
-        p.style.display = "none";
+        if (p.id === tabId) {
+          p.classList.add("active");
+          p.style.display = "flex";
+        } else {
+          p.classList.remove("active");
+          p.style.display = "none";
+        }
       });
-      const target = document.getElementById(tabId);
-      if (target) {
-        target.classList.add("active");
-        target.style.display = "flex";
+      if (tabId === "tab-templates") {
+        renderTemplatesList();
       }
     };
 
@@ -1473,18 +1476,32 @@ window.switchMobileTab = function(tabId) {
       const container = document.getElementById("pronoun-chips-container");
       if (!container) return;
       
-      container.innerHTML = "";
-      PRONOUN_PRESETS.forEach(preset => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        const isActive = (appState.toi === preset.toi && appState.khach === preset.khach);
-        btn.className = "pronoun-chip " + (isActive ? "active" : "");
-        btn.setAttribute("data-toi", preset.toi);
-        btn.setAttribute("data-khach", preset.khach);
-        btn.innerText = preset.label;
-        btn.onclick = () => selectPronoun(preset.toi, preset.khach, preset.label);
-        container.appendChild(btn);
-      });
+      // Nếu container đã có 6 nút trong HTML, chỉ cập nhật class active
+      const existingBtns = container.querySelectorAll(".pronoun-chip");
+      if (existingBtns.length >= 6) {
+        existingBtns.forEach(btn => {
+          const t = btn.getAttribute("data-toi");
+          const k = btn.getAttribute("data-khach");
+          if (t === appState.toi && k === appState.khach) {
+            btn.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+      } else {
+        container.innerHTML = "";
+        PRONOUN_PRESETS.forEach(preset => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          const isActive = (appState.toi === preset.toi && appState.khach === preset.khach);
+          btn.className = "pronoun-chip " + (isActive ? "active" : "");
+          btn.setAttribute("data-toi", preset.toi);
+          btn.setAttribute("data-khach", preset.khach);
+          btn.innerText = preset.label;
+          btn.onclick = () => selectPronoun(preset.toi, preset.khach, preset.label);
+          container.appendChild(btn);
+        });
+      }
 
       const lbl = document.getElementById("current-pronoun-label");
       if (lbl) {
@@ -1692,63 +1709,91 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
                 { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
               ]
             };
-            const res = await fetch(url, {
+
+            let streamOk = false;
+            try {
+              const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              });
+
+              if (res.ok) {
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let doneReading = false;
+                let sseBuffer = "";
+
+                while (!doneReading) {
+                  const { value, done } = await reader.read();
+                  if (done) break;
+                  sseBuffer += decoder.decode(value, { stream: true });
+                  const lines = sseBuffer.split("\n");
+                  sseBuffer = lines.pop();
+
+                  for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (trimmed.startsWith("data: ")) {
+                      const dataStr = trimmed.slice(6).trim();
+                      if (dataStr === "[DONE]") {
+                        doneReading = true;
+                        break;
+                      }
+                      try {
+                        const parsed = JSON.parse(dataStr);
+                        const parts = parsed.candidates?.[0]?.content?.parts || [];
+                        for (const p of parts) {
+                          if (p.text && !p.thought) {
+                            const cleanT = p.text.replace(/\*/g, "");
+                            fullText += cleanT;
+                            if (onChunk) onChunk(cleanT);
+                          }
+                        }
+                      } catch (e) {}
+                    }
+                  }
+                }
+                if (fullText) streamOk = true;
+              } else {
+                const errBody = await res.json().catch(() => ({}));
+                lastErr = new Error(`Gemini Stream HTTP ${res.status}: ${errBody?.error?.message || "Lỗi API"}`);
+              }
+            } catch (eStream) {
+              console.warn("Gemini stream error, thử sang standard REST fetch:", eStream);
+              lastErr = eStream;
+            }
+
+            if (streamOk && fullText) return fullText;
+
+            // Fallback: Standard REST generateContent (hỗ trợ CORS 100% trên WebKit / Safari)
+            const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${appState.geminiKey}`;
+            const restRes = await fetch(restUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload)
             });
-            if (!res.ok) {
-              lastErr = new Error(`Gemini HTTP ${res.status}`);
-              continue;
-            }
 
-            const reader = res.body.getReader();
-            const decoder = new TextDecoder("utf-8");
-            let doneReading = false;
-            let sseBuffer = "";
-
-            while (!doneReading) {
-              const { value, done } = await reader.read();
-              if (done) break;
-              sseBuffer += decoder.decode(value, { stream: true });
-              const lines = sseBuffer.split("\n");
-              sseBuffer = lines.pop();
-
-              for (const line of lines) {
-                const trimmed = line.trim();
-                if (trimmed.startsWith("data: ")) {
-                  const dataStr = trimmed.slice(6).trim();
-                  if (!dataStr || dataStr === "[DONE]") {
-                    doneReading = true;
-                    break;
-                  }
-                  try {
-                    const parsed = JSON.parse(dataStr);
-                    const candidates = parsed.candidates || [];
-                    if (candidates.length > 0) {
-                      const parts = candidates[0].content?.parts || [];
-                      for (const p of parts) {
-                        if (p.text && !p.thought) {
-                          const cleanT = p.text.replace(/\*/g, "");
-                          fullText += cleanT;
-                          if (onChunk) onChunk(cleanT);
-                        }
-                      }
-                    }
-                  } catch (e) {}
-                }
+            if (restRes.ok) {
+              const data = await restRes.json();
+              const parts = data.candidates?.[0]?.content?.parts || [];
+              const text = parts.map(p => p.text || "").join("");
+              if (text) {
+                fullText = text.replace(/\*/g, "");
+                if (onChunk) onChunk(fullText);
+                return fullText;
               }
+            } else {
+              const errData = await restRes.json().catch(() => ({}));
+              lastErr = new Error(`Gemini HTTP ${restRes.status}: ${errData?.error?.message || "Lỗi API"}`);
             }
-            if (fullText) return fullText;
-          } catch (e) {
-            lastErr = e;
+          } catch (ex) {
+            lastErr = ex;
           }
         }
         if (lastErr) throw lastErr;
         return fullText;
       }
 
-      // Hàm gọi DeepSeek Streaming
       async function tryDeepSeekStream() {
         if (!appState.deepseekKey) throw new Error("Chưa có DeepSeek API Key");
         const model = appState.deepseekModel || "deepseek-chat";
@@ -1889,13 +1934,18 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       if (primary === "deepseek") seq = ["deepseek", "gemini", "openai"];
       if (!appState.autoFailover) seq = [primary];
 
+      let lastErrDetail = null;
+
       for (const prov of seq) {
         if (prov === "gemini" && appState.geminiKey) {
           try {
             fullText = "";
             await tryGeminiStream();
             if (fullText) { success = true; break; }
-          } catch (e) { console.warn("Gemini error:", e); }
+          } catch (e) {
+            console.warn("Gemini error:", e);
+            lastErrDetail = e;
+          }
         } else if (prov === "openai" && appState.openaiKey) {
           try {
             if (success) break;
@@ -1903,7 +1953,10 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
             fullText = "";
             await tryOpenAIStream();
             if (fullText) { success = true; break; }
-          } catch (e) { console.warn("OpenAI error:", e); }
+          } catch (e) {
+            console.warn("OpenAI error:", e);
+            lastErrDetail = e;
+          }
         } else if (prov === "deepseek" && appState.deepseekKey) {
           try {
             if (success) break;
@@ -1911,12 +1964,15 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
             fullText = "";
             await tryDeepSeekStream();
             if (fullText) { success = true; break; }
-          } catch (e) { console.warn("DeepSeek error:", e); }
+          } catch (e) {
+            console.warn("DeepSeek error:", e);
+            lastErrDetail = e;
+          }
         }
       }
 
       if (!success || !fullText) {
-        throw new Error("Không thể kết nối AI. Vui lòng kiểm tra lại API Key hoặc mạng internet!");
+        throw new Error(`Không thể kết nối AI (${seq.join(', ')}). Lỗi: ${lastErrDetail?.message || 'Vui lòng kiểm tra API Key trong mục Cài đặt!'}`);
       }
 
       return fullText.trim();
