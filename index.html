@@ -1157,7 +1157,7 @@ function applyPronouns(text, toi, khach) {
       khach: "anh",
       activeTab: "tab-ai",
       geminiKey: AppStorage.get("geminiKey", ""),
-      modelName: AppStorage.get("modelName", "gemini-3.6-flash"),
+      modelName: AppStorage.get("modelName", "gemini-2.5-flash"),
       openaiKey: AppStorage.get("openaiKey", ""),
       openaiModel: AppStorage.get("openaiModel", "gpt-4o-mini"),
       deepseekKey: AppStorage.get("deepseekKey", ""),
@@ -1458,21 +1458,34 @@ window.switchMobileTab = function(tabId) {
           btn.classList.remove("active");
         }
       });
-      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach(p => {
+        p.classList.remove("active");
+        p.style.display = "none";
+      });
       const target = document.getElementById(tabId);
-      if (target) target.classList.add("active");
+      if (target) {
+        target.classList.add("active");
+        target.style.display = "flex";
+      }
     };
 
     function renderPronounChips() {
-      document.querySelectorAll(".pronoun-chip").forEach(chip => {
-        const t = chip.getAttribute("data-toi");
-        const k = chip.getAttribute("data-khach");
-        if (t === appState.toi && k === appState.khach) {
-          chip.classList.add("active");
-        } else {
-          chip.classList.remove("active");
-        }
+      const container = document.getElementById("pronoun-chips-container");
+      if (!container) return;
+      
+      container.innerHTML = "";
+      PRONOUN_PRESETS.forEach(preset => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const isActive = (appState.toi === preset.toi && appState.khach === preset.khach);
+        btn.className = "pronoun-chip " + (isActive ? "active" : "");
+        btn.setAttribute("data-toi", preset.toi);
+        btn.setAttribute("data-khach", preset.khach);
+        btn.innerText = preset.label;
+        btn.onclick = () => selectPronoun(preset.toi, preset.khach, preset.label);
+        container.appendChild(btn);
       });
+
       const lbl = document.getElementById("current-pronoun-label");
       if (lbl) {
         const found = PRONOUN_PRESETS.find(p => p.toi === appState.toi && p.khach === appState.khach);
@@ -1606,9 +1619,11 @@ window.switchMobileTab = function(tabId) {
       }
     }
 
-    async function generateAIResponse(question) {
-      if (!appState.geminiKey) {
-        throw new Error("Chưa cài đặt Gemini API Key! Vui lòng bấm vào biểu tượng ⚙️ ở góc trên để nhập API Key.");
+    async function generateAIResponse(question, onChunk) {
+      const hasKey = Boolean(appState.geminiKey || appState.openaiKey || appState.deepseekKey);
+      if (!hasKey) {
+        openSettingsModal();
+        throw new Error("Chưa cài đặt API Key trên điện thoại! Vui lòng nhập Gemini, ChatGPT hoặc DeepSeek API Key trong mục Cài đặt vừa mở.");
       }
 
       const isOlder = (appState.toi.toLowerCase() === "anh" && appState.khach.toLowerCase() === "em");
@@ -1652,52 +1667,84 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       const primary = appState.primaryAi || "gemini";
 
       // Hàm gọi Gemini Streaming
+            // Hàm gọi Gemini Streaming (Tự động thử các model ổn định: 2.5-flash, 1.5-flash)
       async function tryGeminiStream() {
         if (!appState.geminiKey) throw new Error("Chưa có Gemini API Key");
-        const model = appState.modelName || "gemini-3.6-flash";
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${appState.geminiKey}`;
-        const payload = {
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: contents,
-          generationConfig: { temperature: 0.65, topP: 0.95, maxOutputTokens: 4096 }
-        };
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
+        const modelsToTry = [
+          (appState.modelName && appState.modelName !== "gemini-3.6-flash") ? appState.modelName : "gemini-2.5-flash",
+          "gemini-2.5-flash",
+          "gemini-1.5-flash",
+          "gemini-2.0-flash"
+        ];
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let buffer = "";
-
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop();
-
-          for (const line of lines) {
-            const trimLine = line.trim();
-            if (trimLine.startsWith("data: ")) {
-              const jsonStr = trimLine.slice(6).trim();
-              if (!jsonStr) continue;
-              try {
-                const chunkObj = JSON.parse(jsonStr);
-                const parts = chunkObj?.candidates?.[0]?.content?.parts || [];
-                for (const p of parts) {
-                  if (p.text && !p.thought) {
-                    const cleanT = p.text.replace(/\*/g, "");
-                    fullText += cleanT;
-                    if (onChunk) onChunk(cleanT);
-                  }
-                }
-              } catch (e) {}
+        let lastErr = null;
+        for (const m of modelsToTry) {
+          try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse&key=${appState.geminiKey}`;
+            const payload = {
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: contents,
+              generationConfig: { temperature: 0.65, topP: 0.95, maxOutputTokens: 4096 },
+              safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+              ]
+            };
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+              lastErr = new Error(`Gemini HTTP ${res.status}`);
+              continue;
             }
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let doneReading = false;
+            let sseBuffer = "";
+
+            while (!doneReading) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              sseBuffer += decoder.decode(value, { stream: true });
+              const lines = sseBuffer.split("\n");
+              sseBuffer = lines.pop();
+
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith("data: ")) {
+                  const dataStr = trimmed.slice(6).trim();
+                  if (!dataStr || dataStr === "[DONE]") {
+                    doneReading = true;
+                    break;
+                  }
+                  try {
+                    const parsed = JSON.parse(dataStr);
+                    const candidates = parsed.candidates || [];
+                    if (candidates.length > 0) {
+                      const parts = candidates[0].content?.parts || [];
+                      for (const p of parts) {
+                        if (p.text && !p.thought) {
+                          const cleanT = p.text.replace(/\*/g, "");
+                          fullText += cleanT;
+                          if (onChunk) onChunk(cleanT);
+                        }
+                      }
+                    }
+                  } catch (e) {}
+                }
+              }
+            }
+            if (fullText) return fullText;
+          } catch (e) {
+            lastErr = e;
           }
         }
+        if (lastErr) throw lastErr;
         return fullText;
       }
 
