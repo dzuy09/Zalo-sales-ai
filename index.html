@@ -385,26 +385,39 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 999;
+      width: 100vw;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.65);
+      z-index: 99999;
       display: none;
       align-items: flex-end;
       justify-content: center;
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      overflow-x: hidden;
+      overflow-y: hidden;
+      touch-action: none;
     }
 
     .modal-sheet {
-      background: #fff;
+      background: #FFFFFF;
       width: 100%;
-      max-width: 600px;
+      max-width: 520px;
+      box-sizing: border-box;
+      margin: 0 auto;
       border-radius: 20px 20px 0 0;
       padding: 18px 16px max(24px, env(safe-area-inset-bottom));
-      max-height: 88vh;
+      max-height: 85vh;
       overflow-y: auto;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       gap: 12px;
       animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      touch-action: pan-y;
+      overscroll-behavior-y: contain;
+      overscroll-behavior-x: none;
+      -webkit-overflow-scrolling: touch;
     }
 
     @keyframes slideUp {
@@ -439,6 +452,9 @@
     }
 
     .form-input {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
       padding: 10px 12px;
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -677,25 +693,25 @@
 
       
 
-      <div class="form-group">
-        <label style="color: #7c3aed; font-weight: 700;">🟣 2. Cohere API (Dự Phòng 1 - Chuyên Nghiệp):</label>
+      <div class="form-group" style="background: #eef4ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 10px;">
+        <label style="color: #0068FF; font-weight: 700;">🔵 1. Google Gemini API (CHÍNH - MẶC ĐỊNH SỐ 1):</label>
+        <input type="password" id="set-gemini-key" class="form-input" placeholder="Dán mã Gemini API Key (AIzaSy...)">
+        <select id="set-model-select" class="form-input" style="margin-top: 4px;">
+          <option value="gemini-1.5-flash">gemini-1.5-flash (Khuyên dùng - Ổn định tuyệt đối & Không 404)</option>
+          <option value="gemini-2.0-flash">gemini-2.0-flash (Thế hệ mới 2.0 siêu nhanh)</option>
+          <option value="gemini-2.5-flash">gemini-2.5-flash (Bản nâng cấp 2026)</option>
+          <option value="gemini-flash-latest">gemini-flash-latest (Bản tự cập nhật)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="background: #f5f3ff; border: 1.5px solid #ddd6fe; border-radius: 10px; padding: 10px;">
+        <label style="color: #7c3aed; font-weight: 700;">🟣 2. Cohere API (DỰ PHÒNG DUY NHẤT):</label>
         <input type="password" id="set-cohere-key" class="form-input" placeholder="Dán Cohere API Key vào đây...">
         <select id="set-cohere-model" class="form-input" style="margin-top: 4px;">
           <option value="command-r-08-2024">command-r-08-2024 (Khuyên dùng - Cân bằng tốc độ & chất lượng)</option>
           <option value="command-r-plus-08-2024">command-r-plus-08-2024 (Thông minh cao cấp)</option>
           <option value="command-r7b-12-2024">command-r7b-12-2024 (Bản 7B mới nhất)</option>
           <option value="command-r">command-r (Bản tiêu chuẩn)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label style="color: #0068FF; font-weight: 700;">🔵 3. Google Gemini API (Dự Phòng 2):</label>
-        <input type="password" id="set-gemini-key" class="form-input" placeholder="Dán mã Gemini (AIzaSy...) nếu dùng...">
-        <select id="set-model-select" class="form-input" style="margin-top: 4px;">
-          <option value="gemini-flash-latest">gemini-flash-latest (Khuyên dùng - Cập nhật mới nhất & Siêu tốc)</option>
-          <option value="gemini-2.5-flash">gemini-2.5-flash (Bản nâng cấp 2026)</option>
-          <option value="gemini-1.5-flash">gemini-1.5-flash (Bản ổn định 1.500 lượt/ngày)</option>
-          <option value="gemini-2.0-flash">gemini-2.0-flash (Thế hệ 2.0)</option>
         </select>
       </div>
 
@@ -725,7 +741,7 @@
       <button id="btn-test-ai-connection" class="btn-secondary" style="width: 100%; margin-top: 8px; padding: 10px; font-weight: 700; color: #b45309; border-color:#fcd34d; background:#fffbeb;">
         🔍 Kiểm Tra Kết Nối AI Ngay
       </button>
-      <div id="ai-test-result" style="display:none; margin-top:8px; padding:12px; border-radius:8px; background:#f8fafc; border:1px solid #cbd5e1; font-size:13px; line-height:1.6; white-space:pre-wrap; min-height:200px; max-height:400px; overflow-y:auto; user-select:text; -webkit-user-select:text; color:#0f172a;"></div>
+      <div id="ai-test-result" style="display:none; margin-top:8px; padding:12px; border-radius:8px; background:#f8fafc; border:1px solid #cbd5e1; font-size:13px; line-height:1.6; white-space:pre-wrap; min-height:200px; max-height:380px; overflow-y:auto; overflow-x:hidden; word-break:break-word; width:100%; box-sizing:border-box; user-select:text; -webkit-user-select:text; color:#0f172a;"></div>
       <button id="btn-copy-ai-test-result" class="btn-secondary" style="width: 100%; margin-top: 6px; padding: 8px; font-weight: 700; color: #0068FF; background: #EEF4FF; border-color: #BFDBFE; display:none;">
         📋 Sao Chép Toàn Bộ Báo Cáo Lỗi
       </button>
@@ -1581,11 +1597,13 @@ function applyPronouns(text, toi, khach) {
     window.openSettingsModal = function() {
       const modal = document.getElementById("settings-modal");
       if (!modal) return;
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
       document.getElementById("set-primary-ai").value = appState.primaryAi || "gemini";
       document.getElementById("set-auto-failover").checked = appState.autoFailover !== false;
       document.getElementById("set-gemini-key").value = appState.geminiKey || "";
       document.getElementById("set-model-select").value = appState.modelName || "gemini-1.5-flash";
-      
       
       const cohereKeyEl = document.getElementById("set-cohere-key");
       if (cohereKeyEl) cohereKeyEl.value = appState.cohereKey || "";
@@ -1599,6 +1617,9 @@ function applyPronouns(text, toi, khach) {
     window.closeSettingsModal = function() {
       const modal = document.getElementById("settings-modal");
       if (modal) modal.style.display = "none";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
     };
 
 window.switchMobileTab = function(tabId) {
@@ -1785,6 +1806,16 @@ window.switchMobileTab = function(tabId) {
           showToast("☁️ Đã tự động đồng bộ sang Laptop!");
         }).catch(e => console.warn("Firebase push error:", e));
       }
+    }
+
+        function describeConnError(provider, err) {
+      if (!err) return `${provider}: Lỗi không xác định`;
+      const msg = err.message || String(err);
+      if (msg.includes("404")) return `${provider}: 404 (Không tìm thấy mô hình hoặc sai endpoint)`;
+      if (msg.includes("429")) return `${provider}: 429 (Đạt giới hạn lượt gọi hoặc quá tải tạm thời)`;
+      if (msg.includes("401") || msg.includes("403")) return `${provider}: ${msg.includes("401") ? "401" : "403"} (API Key không hợp lệ hoặc bị từ chối)`;
+      if (msg.includes("timeout") || msg.includes("timed out")) return `${provider}: Hết thời gian chờ kết nối (Timeout)`;
+      return `${provider}: ${msg}`;
     }
 
     async function generateAIResponse(question, onChunk) {
