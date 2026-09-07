@@ -2752,10 +2752,10 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
           const gemCandidates = [selGemModel, "gemini-3.6-flash", "gemini-flash-latest", "gemini-2.5-flash"];
           const modelsToTest = [...new Set(gemCandidates)];
           let geminiOk = false;
-          let geminiErr = null;
+          const geminiAttempts = []; // ghi lại lỗi CỦA TỪNG model/API version đã thử, không ghi đè lên nhau
 
           for (const m of modelsToTest) {
-            for (const apiVer of ["v1beta", "v1"]) {
+            for (const apiVer of ["v1beta"]) {
               try {
                 const pingUrl = `https://generativelanguage.googleapis.com/${apiVer}/models/${m}:generateContent?key=${cleanGKey}`;
                 const r = await fetchWithTimeout(pingUrl, {
@@ -2767,19 +2767,21 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
                 if (r.ok) {
                   geminiOk = true;
                   lines.push(`  --> ✅ Google Gemini: KẾT NỐI THÀNH CÔNG! (Model "${m}", API: ${apiVer}).`);
+                  if (m !== appState.geminiAutoModel) { appState.geminiAutoModel = m; AppStorage.set("geminiAutoModel", m); }
                   break;
                 } else {
                   const j = await r.json().catch(() => ({}));
-                  geminiErr = `HTTP ${r.status} (${m}): ${j?.error?.message || "Lỗi API"}`;
+                  geminiAttempts.push(`     - Model "${m}" (${apiVer}): HTTP ${r.status} - ${j?.error?.message || "Lỗi API"}`);
                 }
               } catch (e) {
-                geminiErr = describeConnError("Gemini", e);
+                geminiAttempts.push(`     - Model "${m}" (${apiVer}): ${describeConnError("Gemini", e)}`);
               }
             }
             if (geminiOk) break;
           }
           if (!geminiOk) {
-            lines.push(`  --> ❌ Google Gemini: ${geminiErr || "Không thể kết nối"}`);
+            lines.push(`  --> ❌ Google Gemini: Cả ${modelsToTest.length} model đều thất bại. Chi tiết từng model:`);
+            lines.push(...geminiAttempts);
           }
         }
 
@@ -2888,12 +2890,12 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
       // 1. Test Gemini
       if (gKey) {
         let gemOk = false;
-        let lastErr = "";
+        const attempts = [];
         const cleanGKey = gKey.trim().replace(/^["']|["']$/g, '');
         const m = appState.modelName || "gemini-3.6-flash";
         const testModels = Array.from(new Set([m, "gemini-3.6-flash", "gemini-flash-latest", "gemini-2.5-flash"]));
         for (const testM of testModels) {
-          for (const apiVer of ["v1beta", "v1"]) {
+          for (const apiVer of ["v1beta"]) {
             try {
               const url = `https://generativelanguage.googleapis.com/${apiVer}/models/${testM}:generateContent?key=${cleanGKey}`;
               const res = await fetch(url, {
@@ -2904,18 +2906,22 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
               if (res.ok) {
                 report.push(`🔵 Google Gemini (Chính): ✅ HOẠT ĐỘNG TỐT! (Model: ${testM}, API: ${apiVer})`);
                 gemOk = true;
+                if (testM !== appState.geminiAutoModel) { appState.geminiAutoModel = testM; AppStorage.set("geminiAutoModel", testM); }
                 break;
               } else {
                 const j = await res.json().catch(() => ({}));
-                lastErr = `HTTP ${res.status}: ${j?.error?.message || "Lỗi API"}`;
+                attempts.push(`     - ${testM}: HTTP ${res.status} - ${j?.error?.message || "Lỗi API"}`);
               }
             } catch (e) {
-              lastErr = e.message;
+              attempts.push(`     - ${testM}: ${e.message}`);
             }
           }
           if (gemOk) break;
         }
-        if (!gemOk) report.push(`🔵 Google Gemini (Chính): ❌ Lỗi (${lastErr})`);
+        if (!gemOk) {
+          report.push(`🔵 Google Gemini (Chính): ❌ Cả ${testModels.length} model đều lỗi. Chi tiết:`);
+          report.push(...attempts);
+        }
       }
 
       // 2. Test Cohere
