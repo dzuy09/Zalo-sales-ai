@@ -661,7 +661,7 @@
           <span id="kb-status-text">Đã lưu tri thức và sẵn sàng đồng bộ</span>
         </div>
 
-        <button id="btn-save-knowledge" class="btn-primary" style="margin-top: 6px;">
+        <button id="btn-save-knowledge" class="btn-primary" style="margin-top: 6px;" onclick="saveKnowledgeMobile()">
           💾 Lưu Tri Thức (Tự Động Đồng Bộ Lên Cloud)
         </button>
         <button id="btn-force-sync-tpl" class="btn-secondary" style="width: 100%; margin-top: 6px; padding: 10px; font-weight: 700; color: var(--primary);">
@@ -1052,109 +1052,115 @@ Khi tới {khách} chỉ cần mang theo CCCD gốc, vào quầy báo gặp Anh 
 // Hàm thay thế xưng hô thông minh - HỖ TRỢ CẢ CÓ DẤU VÀ KHÔNG DẤU: {tôi}, {toi}, {khách}, {khach}
 function applyPronouns(text, toi, khach) {
   if (!text) return "";
-  const isPeerOrOlder = (["anh", "mình", "minh"].includes(toi.toLowerCase()) && ["em", "bạn", "ban"].includes(khach.toLowerCase()));
-
   const tLow = toi.toLowerCase();
   const kLow = khach.toLowerCase();
   const tCap = toi.charAt(0).toUpperCase() + toi.slice(1);
   const kCap = khach.charAt(0).toUpperCase() + khach.slice(1);
+  const tUpper = toi.toUpperCase();
+  const kUpper = khach.toUpperCase();
+  const isPeerOrOlder = (["anh", "mình", "minh"].includes(tLow) && ["em", "bạn", "ban"].includes(kLow));
 
-  // Xử lý triệt để trường hợp AI nhầm lẫn xưng "khách"
+  // 1. Đảm bảo sau icon hoa/xe luôn có khoảng trắng (dùng /u flag để không tách surrogate pairs)
+  let res = text.replace(/([\p{Extended_Pictographic}•\-])\s*/gu, "$1 ");
+
+  // 2. Xử lý câu chào mở đầu
   if (isPeerOrOlder) {
-    text = text.replace(new RegExp("Dạ\\s+(?:" + tLow + "|tôi)\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "gi"), `Chào ${kLow} nhé! 🌸`);
-    text = text.replace(new RegExp("Chào\\s+(?:quý\\s+)?khách\\s+(?:ạ|nhé)!\\s*🌸?", "gi"), `Chào ${kLow} nhé! 🌸`);
+    res = res.replace(new RegExp("Dạ\\s+(?:" + tLow + "|tôi)\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "giu"), `Chào ${kLow} nhé! 🌸`);
+    res = res.replace(new RegExp("Chào\\s+(?:quý\\s+)?khách\\s+(?:ạ|nhé|nha)!\\s*🌸?", "giu"), `Chào ${kLow} nhé! 🌸`);
+    res = res.replace(new RegExp("Dạ\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "giu"), `Chào ${kLow} nhé! 🌸`);
   } else {
-    text = text.replace(new RegExp("Dạ\\s+(?:" + tLow + "|tôi)\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "gi"), `Dạ ${tLow} chào ${kLow} ạ! 🌸`);
-    text = text.replace(new RegExp("Chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "gi"), `Dạ ${tLow} chào ${kLow} ạ! 🌸`);
-    text = text.replace(new RegExp("Dạ\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "gi"), `Dạ ${tLow} chào ${kLow} ạ! 🌸`);
+    res = res.replace(new RegExp("Dạ\\s+(?:" + tLow + "|tôi)\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "giu"), `Dạ ${tLow} chào ${kLow} ạ! 🌸`);
+    res = res.replace(new RegExp("Chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "giu"), `Dạ ${tLow} chào ${kLow} ạ! 🌸`);
+    res = res.replace(new RegExp("Dạ\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "giu"), `Dạ ${tLow} chào ${kLow} ạ! 🌸`);
   }
 
-  text = text.replace(new RegExp("\\b(gửi|cho|của|với|hỏi|nhắn|báo)\\s+(?:quý\\s+)?khách\\b", "gi"), `$1 ${kLow}`);
-  text = text.replace(new RegExp("\\bKhách\\s+(đang|muốn|cần|tiện|ở|có|học|chọn|đăng ký)\\b", "g"), `${kCap} $1`);
-  text = text.replace(new RegExp("\\bkhách\\s+(đang|muốn|cần|tiện|ở|có|học|chọn|đăng ký)\\b", "g"), `${kLow} $1`);
+  // 3. Thay thế các từ 'khách' đứng sau động từ
+  res = res.replace(new RegExp("\\b(gửi|cho|của|với|hỏi|nhắn|báo|tư vấn cho)\\s+(?:quý\\s+)?khách\\b", "giu"), `$1 ${kLow}`);
+  res = res.replace(new RegExp("\\bKhách\\s+(đang|muốn|cần|tiện|ở|có|học|chọn|đăng ký)\\b", "gu"), `${kCap} $1`);
+  res = res.replace(new RegExp("\\bkhách\\s+(đang|muốn|cần|tiện|ở|có|học|chọn|đăng ký)\\b", "gu"), `${kLow} $1`);
 
-  const lines = text.split("\n");
+  const lines = res.split("\n");
   const processedLines = [];
-
-  const toiLower = toi.toLowerCase();
-  const khachLower = khach.toLowerCase();
-  const toiCap = toi.charAt(0).toUpperCase() + toi.slice(1);
-  const khachCap = khach.charAt(0).toUpperCase() + khach.slice(1);
-  const toiUpper = toi.toUpperCase();
-  const khachUpper = khach.toUpperCase();
 
   for (let i = 0; i < lines.length; i++) {
     let l = lines[i];
 
     if (isPeerOrOlder) {
-      // Khi xưng Anh/Em: Xóa kính ngữ Dạ, ạ
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*ạ![ \t]*(?:🌸)?/gi, "Chào {khách} nhé! 🌸");
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*nha![ \t]*(?:🌸)?/gi, "Chào {khách} nhé! 🌸");
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*gửi[ \t]*\{kh[aá]ch\}/gi, "{Tôi} gửi {khách}");
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chia sẻ/gi, "{Tôi} chia sẻ");
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}/gi, "{Tôi}");
-      l = l.replace(/Dạ[ \t]*\{kh[aá]ch\}/gi, "{Khách}");
-      l = l.replace(/Dạ[ \t]*về/gi, "Về");
-      if (l.startsWith("Dạ ")) {
-        l = l.substring(3);
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*ạ![ \t]*(?:🌸)?/giu, `Chào ${kLow} nhé! 🌸`);
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*nha![ \t]*(?:🌸)?/giu, `Chào ${kLow} nhé! 🌸`);
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*gửi[ \t]*\{kh[aá]ch\}/giu, "{Tôi} gửi {khách}");
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chia sẻ/giu, "{Tôi} chia sẻ");
+      l = l.replace(/Dạ[ \t]*\{t[oô]i\}/giu, "{Tôi}");
+      l = l.replace(/Dạ[ \t]*\{kh[aá]ch\}/giu, "{Khách}");
+      l = l.replace(/Dạ[ \t]*về/giu, "Về");
+      if (l.trim().startsWith("Dạ ")) {
+        l = l.replace(/(^|\n)\s*Dạ\s*/giu, "$1");
       }
-      l = l.replace(/[ \t]+ạ![ \t]*/gi, " nha! ");
-      l = l.replace(/[ \t]+ạ\.[ \t]*/gi, ". ");
-      l = l.replace(/[ \t]+ạ\?[ \t]*/gi, " ha em? ");
-      l = l.replace(/[ \t]+ạ,[ \t]*/gi, ", ");
-      l = l.replace(/[ \t]+ạ\b/gi, " nha");
+      l = l.replace(/[ \t]+ạ![ \t]*/giu, " nhé! ");
+      l = l.replace(/[ \t]+ạ\.[ \t]*/giu, ". ");
+      l = l.replace(/[ \t]+ạ\?[ \t]*/giu, ` ha ${kLow}? `);
+      l = l.replace(/[ \t]+ạ,[ \t]*/giu, ", ");
+      l = l.replace(/[ \t]+ạ\b/giu, ` nha ${kLow}`);
     }
 
-    // 1. Thay thế chữ IN HOA: {TÔI}, {TOI}, {KHÁCH}, {KHACH}
-    l = l.replace(/\{TÔI\}/g, toiUpper).replace(/\{TOI\}/g, toiUpper);
-    l = l.replace(/\{KHÁCH\}/g, khachUpper).replace(/\{KHACH\}/g, khachUpper);
+    l = l.replace(/\{TÔI\}/g, tUpper).replace(/\{TOI\}/g, tUpper);
+    l = l.replace(/\{KHÁCH\}/g, kUpper).replace(/\{KHACH\}/g, kUpper);
+    l = l.replace(/\{Tôi\}/g, tCap).replace(/\{Toi\}/g, tCap);
+    l = l.replace(/\{Khách\}/g, kCap).replace(/\{Khach\}/g, kCap);
+    l = l.replace(/\{tôi\}/g, tLow).replace(/\{toi\}/g, tLow);
+    l = l.replace(/\{khách\}/g, kLow).replace(/\{khach\}/g, kLow);
 
-    // 2. Thay thế chữ Viết hoa chữ cái đầu: {Tôi}, {Toi}, {Khách}, {Khach}
-    l = l.replace(/\{Tôi\}/g, toiCap).replace(/\{Toi\}/g, toiCap);
-    l = l.replace(/\{Khách\}/g, khachCap).replace(/\{Khach\}/g, khachCap);
+    l = l.replace(/\{t[oô]i\}/giu, tLow);
+    l = l.replace(/\{kh[aá]ch\}/giu, kLow);
+    l = l.replace(/\{([A-Za-zÀ-ỹ]+)\}/gu, "$1");
 
-    // 3. Thay thế chữ thường: {tôi}, {toi}, {khách}, {khach}
-    l = l.replace(/\{tôi\}/g, toiLower).replace(/\{toi\}/g, toiLower);
-    l = l.replace(/\{khách\}/g, khachLower).replace(/\{khach\}/g, khachLower);
+    if (isPeerOrOlder) {
+      // SỬA LỖI AI TỰ XƯNG "EM" KHI ĐANG ĐÓNG VAI NGƯỜI LỚN (ANH/CHỊ/CÔ/CHÚ)
+      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-])\\s*" + kLow + "\\s+(rất vui|hân hạnh|sẵn sàng|cảm ơn|cam kết|xin|sẽ|gửi|chia sẻ|hướng dẫn|tư vấn|hỗ trợ|chào)\\b", "giu"), (match, p1, p2) => p1 + " " + tCap + " " + p2);
+      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-])\\s*" + kLow + "\\s+hiện\\s+có\\b", "giu"), (match, p1) => p1 + " Bên " + tLow + " hiện có");
+      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-])\\s*" + kLow + "\\s+có\\s+(các\\s+văn\\s+phòng|văn\\s+phòng|sân\\s+tập|lớp|khóa|chương trình)\\b", "giu"), (match, p1, p2) => p1 + " Bên " + tLow + " có " + p2);
+      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-])\\s*" + kLow + "\\s+(chào|gửi|báo)\\s+" + kLow + "\\b", "giu"), (match, p1, p2) => p1 + " " + tCap + " " + p2 + " " + kLow);
 
-    // 4. Thay thế regex dự phòng cho mọi cách gõ hoa thường bất kỳ
-    l = l.replace(/\{t[oô]i\}/gi, toiLower);
-    l = l.replace(/\{kh[aá]ch\}/gi, khachLower);
+      l = l.replace(new RegExp("([.!?]\\s*(?:[\\p{Extended_Pictographic}•\\-])?\\s*)" + kLow + "\\s+(rất vui|hân hạnh|sẵn sàng|cảm ơn|cam kết|xin|sẽ|gửi|chia sẻ|hướng dẫn|tư vấn|hỗ trợ)\\b", "giu"), (match, p1, p2) => p1 + tCap + " " + p2);
+      l = l.replace(new RegExp("([.!?]\\s*(?:[\\p{Extended_Pictographic}•\\-])?\\s*)" + kLow + "\\s+hiện\\s+có\\b", "giu"), (match, p1) => p1 + "Bên " + tLow + " hiện có");
+      l = l.replace(new RegExp("([.!?]\\s*(?:[\\p{Extended_Pictographic}•\\-])?\\s*)" + kLow + "\\s+có\\s+(các\\s+văn\\s+phòng|văn\\s+phòng|sân\\s+tập|lớp|khóa|chương trình)\\b", "giu"), (match, p1, p2) => p1 + "Bên " + tLow + " có " + p2);
 
-    // Xóa triệt để mọi dấu ngoặc nhọn {Con}, {Cô}, {Chú} còn sót
-    l = l.replace(/\{([A-Za-zÀ-ỹ]+)\}/g, "$1");
+      l = l.replace(new RegExp("\\b(để|cho|khiến|giúp)\\s+" + kLow + "\\s+(tư vấn|hướng dẫn|kiểm tra|hỗ trợ|báo|gửi|sắp xếp|xếp lịch|làm hồ sơ|đồng hành|giải đáp)\\b", "giu"), "$1 " + tLow + " $2");
+      l = l.replace(new RegExp("\\bcho\\s+" + kLow + "\\s+(hỏi|biết|xin)\\b", "giu"), "cho " + tLow + " $1");
+      l = l.replace(new RegExp("\\bBên\\s+" + kLow + "\\b", "giu"), "Bên " + tLow);
+
+      l = l.replace(/\\bnhỉ\\?/giu, `nha ${kLow}?`);
+      l = l.replace(/\\bnhỉ!/giu, `nhé ${kLow}!`);
+    }
 
     processedLines.push(l);
   }
 
   let fullText = processedLines.join("\n").trim();
 
-  // QUY TẮC VIẾT HOA CHUẨN XÁC:
-  // 1. Hạ chữ thường cho mọi đại từ nhân xưng đứng ở giữa câu
-  const allPronouns = Array.from(new Set([toiLower, khachLower, "anh", "em", "chị", "bạn", "cô", "chú", "mình", "con"]));
+  // Hạ chữ thường giữa câu
+  const allPronouns = Array.from(new Set([tLow, kLow, "anh", "em", "chị", "bạn", "cô", "chú", "mình", "con"]));
   for (const p of allPronouns) {
     const r = new RegExp("(?<![\\p{L}\\p{N}])" + p + "(?![\\p{L}\\p{N}])", "giu");
     fullText = fullText.replace(r, p.toLowerCase());
   }
 
-  // 2. Viết hoa chữ đầu nếu đứng ở ĐẦU DÒNG
+  // Viết hoa đầu dòng
   for (const p of allPronouns) {
     const pCap = p.charAt(0).toUpperCase() + p.slice(1);
     const r = new RegExp("(^|\\n)(\\s*)" + p + "(?![\\p{L}\\p{N}])", "gu");
-    fullText = fullText.replace(r, (m, p1, p2) => p1 + p2 + pCap);
+    fullText = fullText.replace(r, (match, p1, p2) => p1 + p2 + pCap);
   }
 
-  // 3. Viết hoa chữ đầu nếu đứng ở ĐẦU CÂU (sau . ! ? kèm emoji/khoảng trắng)
+  // Viết hoa đầu câu (sau . ! ? kèm icon)
   for (const p of allPronouns) {
     const pCap = p.charAt(0).toUpperCase() + p.slice(1);
     const r = new RegExp("([.!?]\\s*(?:[^\\p{L}\\p{N}\\s]+\\s*)?)" + p + "(?![\\p{L}\\p{N}])", "gu");
-    fullText = fullText.replace(r, (m, p1) => p1 + pCap);
+    fullText = fullText.replace(r, (match, p1) => p1 + pCap);
   }
 
   return fullText;
 }
-
-
     // LOCAL STORAGE WRAPPER
     const AppStorage = {
       get: function(key, defaultVal) {
@@ -1363,7 +1369,15 @@ function applyPronouns(text, toi, khach) {
             if (newData.customKnowledge) {
               appState.customKnowledge = newData.customKnowledge;
               AppStorage.set("customKnowledge", appState.customKnowledge);
-              document.getElementById("knowledge-textarea").value = appState.customKnowledge;
+              mobileKbSections = splitKnowledgeSectionsMobile(appState.customKnowledge);
+              const kbArea = document.getElementById("knowledge-textarea");
+              if (kbArea && document.activeElement !== kbArea) {
+                if (currentMobileKbKey === "all") {
+                  kbArea.value = appState.customKnowledge;
+                } else {
+                  kbArea.value = mobileKbSections[currentMobileKbKey] || "";
+                }
+              }
               appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, appState.customKnowledge);
               AppStorage.set("templates", appState.templates);
               renderTemplatesList();
@@ -1390,7 +1404,25 @@ function applyPronouns(text, toi, khach) {
           if (cloudData.customKnowledge) {
             appState.customKnowledge = cloudData.customKnowledge;
             AppStorage.set("customKnowledge", appState.customKnowledge);
-            document.getElementById("knowledge-textarea").value = appState.customKnowledge;
+            mobileKbSections = splitKnowledgeSectionsMobile(appState.customKnowledge);
+            const kbArea = document.getElementById("knowledge-textarea");
+            if (kbArea && document.activeElement !== kbArea) {
+              if (currentMobileKbKey === "all") {
+                kbArea.value = appState.customKnowledge;
+              } else {
+                kbArea.value = mobileKbSections[currentMobileKbKey] || "";
+              }
+              const badge = document.getElementById("kb-status-badge");
+              const text = document.getElementById("kb-status-text");
+              const icon = document.getElementById("kb-status-icon");
+              if (badge && text && icon) {
+                badge.style.background = "#E6F4EA";
+                badge.style.color = "#137333";
+                badge.style.borderColor = "#CEEAD6";
+                icon.innerText = "✅";
+                text.innerText = "Đã lưu tri thức và đồng bộ mới nhất từ Cloud";
+              }
+            }
           }
           console.log("[Mobile App] Đã tự động kéo dữ liệu mới nhất từ Firebase.");
         }
@@ -1519,12 +1551,15 @@ function applyPronouns(text, toi, khach) {
       if (!text) return "";
       let res = text;
 
-      // Xóa mọi dấu ngoặc nhọn kép {{...}} hoặc ngoặc nhọn quanh danh xưng
       res = res.replace(/\{\{\s*(tôi|toi|Tôi|Toi|TÔI|TOI)\s*\}\}/gi, "{tôi}");
       res = res.replace(/\{\{\s*(khách|khach|Khách|Khach|KHÁCH|KHACH)\s*\}\}/gi, "{khách}");
       res = res.replace(/\{([A-Za-zÀ-ỹ]+)\}/g, "$1");
 
-      res = res.replace(/Chào\s+(?:em|anh|chị|bạn|cô|chú)\s+nhé!\s*🌸?/gi, "Dạ {tôi} chào {khách} ạ! 🌸");
+      const tLow = toi.toLowerCase();
+      const kLow = khach.toLowerCase();
+
+      res = res.replace(new RegExp("(?:Dạ\\s+)?(?:" + tLow + "|tôi)?\\s*chào\\s+(?:" + kLow + "|khách)\\s*(?:ạ|nhé|nha)?[!.]?\\s*🌸?", "gi"), "Dạ {tôi} chào {khách} ạ! 🌸");
+      res = res.replace(/Chào\s+(?:em|anh|chị|bạn|cô|chú)\s*(?:nhé|nha)?[!.]?\s*🌸?/gi, "Dạ {tôi} chào {khách} ạ! 🌸");
       res = res.replace(/\bnha\s+(?:em|anh|chị|bạn|cô|chú)\b/gi, "ạ");
       res = res.replace(/\bnhé\s+(?:em|anh|chị|bạn|cô|chú)\b/gi, "ạ");
       res = res.replace(/\bha\s+(?:em|anh|chị|bạn|cô|chú)\b/gi, "ạ");
@@ -1536,22 +1571,26 @@ function applyPronouns(text, toi, khach) {
       res = res.replace(/\{Khách\}/g, "___CAP_KHACH___");
       res = res.replace(/\{khách\}/g, "___LOWER_KHACH___");
 
-      const allKhach = Array.from(new Set([khach.toLowerCase(), "anh", "chị", "cô", "chú", "bạn"])).filter(k => k && k !== "tôi");
-      allKhach.sort((a, b) => b.length - a.length);
-      const patternKhach = new RegExp("(?<![_\\w])(" + allKhach.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|") + ")(?![_\\w])", "gi");
-      res = res.replace(patternKhach, (m, word) => {
-        if (word === word.toUpperCase()) return "___UPPER_KHACH___";
-        if (word[0] === word[0].toUpperCase()) return "___CAP_KHACH___";
-        return "___LOWER_KHACH___";
-      });
+      // BẢO VỆ TUYỆT ĐỐI: Danh sách khach CHỈ chứa từ chỉ khách, KHÔNG chứa tLow
+      const khachWords = Array.from(new Set(["quý khách", "khách", kLow])).filter(k => k && k !== tLow && k !== "tôi");
+      khachWords.sort((a, b) => b.length - a.length);
+      const patternKhach = new RegExp("(?<![_\\w])(" + khachWords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|") + ")(?![_\\w])", "gi");
 
-      const allToi = Array.from(new Set([toi.toLowerCase(), "tôi", "em", "con", "mình"])).filter(t => t);
-      allToi.sort((a, b) => b.length - a.length);
-      const patternToi = new RegExp("(?<![_\\w])(" + allToi.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|") + ")(?![_\\w])", "gi");
+      // BẢO VỆ TUYỆT ĐỐI: Danh sách toi CHỈ chứa từ chỉ bản thân, KHÔNG chứa kLow
+      const toiWords = Array.from(new Set(["bản thân", "tôi", tLow])).filter(t => t && t !== kLow && t !== "khách");
+      toiWords.sort((a, b) => b.length - a.length);
+      const patternToi = new RegExp("(?<![_\\w])(" + toiWords.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|") + ")(?![_\\w])", "gi");
+
       res = res.replace(patternToi, (m, word) => {
         if (word === word.toUpperCase()) return "___UPPER_TOI___";
         if (word[0] === word[0].toUpperCase()) return "___CAP_TOI___";
         return "___LOWER_TOI___";
+      });
+
+      res = res.replace(patternKhach, (m, word) => {
+        if (word === word.toUpperCase()) return "___UPPER_KHACH___";
+        if (word[0] === word[0].toUpperCase()) return "___CAP_KHACH___";
+        return "___LOWER_KHACH___";
       });
 
       res = res.replace(/___UPPER_TOI___/g, "{TÔI}");
@@ -1563,7 +1602,6 @@ function applyPronouns(text, toi, khach) {
 
       return res;
     }
-
     window.selectPronoun = function(toi, khach, label) {
       const oldToi = appState.toi;
       const oldKhach = appState.khach;
@@ -1841,10 +1879,16 @@ Khách hàng vừa hỏi:
 
 YÊU CẦU TƯ VẤN NGẮN GỌN, TRỌNG TÂM, TINH TẾ & TĂNG TƯƠNG TÁC (TỐI ĐA 80 - 150 TỪ):
 1. QUY TẮC XƯNG HÔ BẮT BUỘC:
-- Bản thân xưng là: "${appState.toi}"
-- Gọi khách hàng là: "${appState.khach}"
-- TUYỆT ĐỐI KHÔNG DÙNG từ "khách", "quý khách", "học viên"! Hãy gọi trực tiếp là "${appState.khach}" (Ví dụ: "${isOlder ? 'Chào ' + appState.khach + ' nhé! 🌸' : 'Dạ ' + appState.toi + ' chào ' + appState.khach + ' ạ! 🌸'}", "${appState.toi} gửi ${appState.khach}...", "${appState.khach} đang ở quận nào ạ?").
-${isOlder ? '- TUYỆT ĐỐI KHÔNG dùng "Dạ", "ạ", "ạ!". Dùng "nha", "nhé".' : '- Dùng kính ngữ Dạ... ạ! lịch sự, ân cần.'}
+- Bản thân tư vấn viên BẮT BUỘC xưng là: "${appState.toi}"
+- Gọi khách hàng BẮT BUỘC là: "${appState.khach}"
+${isOlder ? `- ⚠️ CẢNH BÁO TỐI QUAN TRỌNG VỀ ĐẢO LỘN XƯNG HÔ (BẠN LÀ NGƯỜI LỚN HƠN):
+  + Bản thân bạn đóng vai người lớn hơn (XƯNG "${appState.toi.toUpperCase()}").
+  + Khách hàng là người nhỏ hơn (GỌI LÀ "${appState.khach.toUpperCase()}").
+  + Từ "${appState.khach}" CHỈ DÙNG ĐỂ GỌI KHÁCH HÀNG! TUYỆT ĐỐI BẢN THÂN BẠN KHÔNG ĐƯỢC TỰ XƯNG LÀ "${appState.khach}"!
+  + KHÔNG BAO GIỜ nói "${appState.khach} rất vui...", "${appState.khach} có văn phòng...", "để ${appState.khach} tư vấn cho ${appState.khach}...".
+  + BẮT BUỘC NÓI: "${appState.toi.charAt(0).toUpperCase() + appState.toi.slice(1)} rất vui được hỗ trợ ${appState.khach}...", "Bên ${appState.toi} hiện có các văn phòng...", "để ${appState.toi} tư vấn cho ${appState.khach} nhé/nha!".
+  + TUYỆT ĐỐI KHÔNG DÙNG "Dạ", "ạ", "ạ!", "nhỉ?". Dùng "nha", "nhé", "ha ${appState.khach}?".` : `- Dùng kính ngữ Dạ... ạ! lịch sự, ân cần (Ví dụ: "Dạ ${appState.toi} chào ${appState.khach} ạ! 🌸", "${appState.toi.charAt(0).toUpperCase() + appState.toi.slice(1)} gửi ${appState.khach} bảng học phí...").`}
+- TUYỆT ĐỐI KHÔNG DÙNG từ "khách", "quý khách", "học viên"! Hãy gọi trực tiếp là "${appState.khach}".
 
 2. ĐI SÂU TRỌNG TÂM & TƯ VẤN HỌC PHÍ MINH BẠCH (BẮT BUỘC BÁO KÈM CHI PHÍ CHƯA BAO GỒM):
    - Khi tư vấn học phí (Hạng B, C1, Xe máy): BẮT BUỘC BÁO ĐẦY ĐỦ VÀ MINH BẠCH cả học phí trọn gói đào tạo (chia 3 đợt, đợt 1 chỉ 5 triệu giữ suất, 1 kèm 1, xe đời mới, tặng 5h xe chip) VÀ NÊU RÕ RÀNG, KHÉO LÉO phần chi phí chưa bao gồm:
@@ -2262,7 +2306,8 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
             resultText.scrollTop = resultText.scrollHeight;
           });
 
-          appState.rawAiResponse = normalizeToPlaceholders(reply, appState.toi, appState.khach);
+          const cleanedReply = applyPronouns(reply, appState.toi, appState.khach);
+          appState.rawAiResponse = normalizeToPlaceholders(cleanedReply, appState.toi, appState.khach);
           const renderedReply = applyPronouns(appState.rawAiResponse, appState.toi, appState.khach);
 
           appState.chatHistory.push({ role: "user", text: input });
@@ -2495,42 +2540,65 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         }
       });
 
-      document.getElementById("btn-save-knowledge").addEventListener("click", () => {
-        const curText = document.getElementById("knowledge-textarea").value.trim();
-        if (!curText) { alert("Nội dung tri thức không được để trống."); return; }
-        if (!mobileKbSections) mobileKbSections = splitKnowledgeSectionsMobile(appState.customKnowledge);
-        
-        let fullKb = "";
-        if (currentMobileKbKey === "all") {
-          fullKb = curText;
-          mobileKbSections = splitKnowledgeSectionsMobile(fullKb);
-        } else {
-          mobileKbSections[currentMobileKbKey] = curText;
-          fullKb = reassembleKnowledgeSectionsMobile(mobileKbSections);
+    window.saveKnowledgeMobile = async function() {
+      const textarea = document.getElementById("knowledge-textarea");
+      if (textarea) textarea.blur();
+      const curText = (textarea ? textarea.value : "").trim();
+      if (!curText) {
+        alert("Nội dung tri thức không được để trống.");
+        return;
+      }
+      if (!mobileKbSections) mobileKbSections = splitKnowledgeSectionsMobile(appState.customKnowledge);
+
+      let fullKb = "";
+      if (currentMobileKbKey === "all") {
+        fullKb = curText;
+        mobileKbSections = splitKnowledgeSectionsMobile(fullKb);
+      } else {
+        mobileKbSections[currentMobileKbKey] = curText;
+        fullKb = reassembleKnowledgeSectionsMobile(mobileKbSections);
+      }
+
+      appState.customKnowledge = fullKb;
+      AppStorage.set("customKnowledge", fullKb);
+
+      // Tự động đồng bộ các thông số mới vào toàn bộ mẫu tin nhắn
+      appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, fullKb);
+      AppStorage.set("templates", appState.templates);
+      renderTemplatesList();
+
+      const nowStr = new Date().toLocaleTimeString("vi-VN");
+      const badge = document.getElementById("kb-status-badge");
+      const text = document.getElementById("kb-status-text");
+      const icon = document.getElementById("kb-status-icon");
+
+      if (badge && text && icon) {
+        badge.style.background = "#E6F4EA";
+        badge.style.color = "#137333";
+        badge.style.borderColor = "#CEEAD6";
+        icon.innerText = "✅";
+        text.innerText = `✅ Đã lưu tri thức thành công lúc ${nowStr}!`;
+      }
+
+      if (appState.firebaseUrl) {
+        if (text) text.innerText = `⏳ Đang đồng bộ Cloud...`;
+        try {
+          await FirebaseSync.pushData(appState.firebaseUrl, appState.firebaseAuth, {
+            fastTemplates: appState.templates,
+            customKnowledge: appState.customKnowledge
+          });
+          if (text) text.innerText = `✅ Đã lưu & đồng bộ Cloud thành công lúc ${nowStr}!`;
+          showToast(`✅ Đã lưu & đồng bộ Cloud thành công lúc ${nowStr}!`);
+        } catch (e) {
+          if (text) text.innerText = `✅ Đã lưu máy cục bộ (Lỗi Cloud: ${e.message})`;
+          showToast(`⚠️ Đã lưu cục bộ. Lỗi Cloud: ${e.message}`);
         }
+      } else {
+        showToast(`✅ Đã lưu tri thức thành công lúc ${nowStr}!`);
+      }
+    };
 
-        appState.customKnowledge = fullKb;
-        AppStorage.set("customKnowledge", fullKb);
-
-        // Tự động đồng bộ các thông số mới vào toàn bộ mẫu tin nhắn
-        appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, fullKb);
-        AppStorage.set("templates", appState.templates);
-        renderTemplatesList();
-
-        const nowStr = new Date().toLocaleTimeString("vi-VN");
-        const badge = document.getElementById("kb-status-badge");
-        const text = document.getElementById("kb-status-text");
-        const icon = document.getElementById("kb-status-icon");
-        if (badge && text && icon) {
-          badge.style.background = "#E6F4EA";
-          badge.style.color = "#137333";
-          badge.style.borderColor = "#CEEAD6";
-          icon.innerText = "✅";
-          text.innerText = `Đã lưu tri thức và đồng bộ Cloud thành công lúc ${nowStr}!`;
-        }
-        showToast(`✅ Đã lưu tri thức và đồng bộ Cloud lúc ${nowStr}!`);
-        syncPushToFirebase();
-      });
+    document.getElementById("btn-save-knowledge").addEventListener("click", window.saveKnowledgeMobile);
 
       document.getElementById("btn-force-sync-tpl").addEventListener("click", () => {
         const kb = document.getElementById("knowledge-textarea").value.trim() || appState.customKnowledge;
