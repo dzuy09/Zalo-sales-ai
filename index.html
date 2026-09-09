@@ -629,9 +629,14 @@
       <div class="section-card" style="display: flex; flex-direction: column; gap: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="font-size: 13px; font-weight: 700; color: var(--primary);">📚 PHÂN LOẠI TRI THỨC AI</span>
-          <button id="btn-reset-knowledge" class="btn-secondary" style="font-size: 11px;">
-            🔄 Gốc
-          </button>
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-pull-cloud-kb" class="btn-secondary" onclick="pullCloudKnowledgeMobile()" style="font-size: 11px; color: #0284c7; background: #e0f2fe; border-color: #bae6fd; font-weight: 700;">
+              ☁️ Kéo từ Cloud
+            </button>
+            <button id="btn-reset-knowledge" class="btn-secondary" style="font-size: 11px;">
+              🔄 Gốc
+            </button>
+          </div>
         </div>
 
         <label style="font-size: 11.5px; font-weight: 700; color: #334155;">Chọn phân loại cần xem/sửa:</label>
@@ -1058,13 +1063,13 @@ function applyPronouns(text, toi, khach) {
   const kCap = khach.charAt(0).toUpperCase() + khach.slice(1);
   const tUpper = toi.toUpperCase();
   const kUpper = khach.toUpperCase();
-  const isPeerOrOlder = (["anh", "mình", "minh"].includes(tLow) && ["em", "bạn", "ban"].includes(kLow));
+  const isOlder = (["anh", "chị", "chi", "mình", "minh"].includes(tLow) && ["em", "bạn", "ban"].includes(kLow));
 
-  // 1. Đảm bảo sau icon hoa/xe luôn có khoảng trắng (dùng /u flag để không tách surrogate pairs)
-  let res = text.replace(/([\p{Extended_Pictographic}•\-])\s*/gu, "$1 ");
+  // 1. Đảm bảo sau icon hoa/xe luôn có khoảng trắng, nhưng KHÔNG nuốt dấu xuống dòng \n
+  let res = text.replace(/([\p{Extended_Pictographic}•\-])[ \t]*/gu, "$1 ");
 
   // 2. Xử lý câu chào mở đầu
-  if (isPeerOrOlder) {
+  if (isOlder) {
     res = res.replace(new RegExp("Dạ\\s+(?:" + tLow + "|tôi)\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "giu"), `Chào ${kLow} nhé! 🌸`);
     res = res.replace(new RegExp("Chào\\s+(?:quý\\s+)?khách\\s+(?:ạ|nhé|nha)!\\s*🌸?", "giu"), `Chào ${kLow} nhé! 🌸`);
     res = res.replace(new RegExp("Dạ\\s+chào\\s+(?:quý\\s+)?khách\\s+ạ!\\s*🌸?", "giu"), `Chào ${kLow} nhé! 🌸`);
@@ -1075,9 +1080,9 @@ function applyPronouns(text, toi, khach) {
   }
 
   // 3. Thay thế các từ 'khách' đứng sau động từ
-  res = res.replace(new RegExp("\\b(gửi|cho|của|với|hỏi|nhắn|báo|tư vấn cho)\\s+(?:quý\\s+)?khách\\b", "giu"), `$1 ${kLow}`);
-  res = res.replace(new RegExp("\\bKhách\\s+(đang|muốn|cần|tiện|ở|có|học|chọn|đăng ký)\\b", "gu"), `${kCap} $1`);
-  res = res.replace(new RegExp("\\bkhách\\s+(đang|muốn|cần|tiện|ở|có|học|chọn|đăng ký)\\b", "gu"), `${kLow} $1`);
+  res = res.replace(new RegExp("(?<![a-zA-ZÀ-ỹ])(gửi|cho|của|với|hỏi|nhắn|báo|tư vấn cho)\\s+(?:quý\\s+)?khách(?![a-zA-ZÀ-ỹ])", "giu"), `$1 ${kLow}`);
+  res = res.replace(new RegExp("(?<![a-zA-ZÀ-ỹ])Khách\\s+(đang|muốn|cần|tiện|ở|có|học|chọn|đăng ký)(?![a-zA-ZÀ-ỹ])", "gu"), `${kCap} $1`);
+  res = res.replace(new RegExp("(?<![a-zA-ZÀ-ỹ])khách\\s+(đang|muốn|cần|tiện|ở|có|học|chọn|đăng ký)(?![a-zA-ZÀ-ỹ])", "gu"), `${kLow} $1`);
 
   const lines = res.split("\n");
   const processedLines = [];
@@ -1085,17 +1090,26 @@ function applyPronouns(text, toi, khach) {
   for (let i = 0; i < lines.length; i++) {
     let l = lines[i];
 
-    if (isPeerOrOlder) {
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*ạ![ \t]*(?:🌸)?/giu, `Chào ${kLow} nhé! 🌸`);
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chào[ \t]*\{kh[aá]ch\}[ \t]*nha![ \t]*(?:🌸)?/giu, `Chào ${kLow} nhé! 🌸`);
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*gửi[ \t]*\{kh[aá]ch\}/giu, "{Tôi} gửi {khách}");
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}[ \t]*chia sẻ/giu, "{Tôi} chia sẻ");
-      l = l.replace(/Dạ[ \t]*\{t[oô]i\}/giu, "{Tôi}");
-      l = l.replace(/Dạ[ \t]*\{kh[aá]ch\}/giu, "{Khách}");
-      l = l.replace(/Dạ[ \t]*về/giu, "Về");
-      if (l.trim().startsWith("Dạ ")) {
-        l = l.replace(/(^|\n)\s*Dạ\s*/giu, "$1");
-      }
+    if (isOlder) {
+      const curTCap = (tLow === "chị" || tLow === "chi") ? "Chị" : "Anh";
+      const curTLow = (tLow === "chị" || tLow === "chi") ? "chị" : "anh";
+
+      // SỬA LỖI AI TỰ XƯNG "EM" KHI ĐANG ĐÓNG VAI NGƯỜI LỚN (ANH / CHỊ)
+      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-][ \\t]*|\\n[ \\t]*)(?:Em|em)\\s+(rất vui|hân hạnh|sẵn sàng|cảm ơn|cam kết|xin|sẽ|gửi|chia sẻ|hướng dẫn|tư vấn|hỗ trợ|chào)(?![a-zA-ZÀ-ỹ])", "giu"), (m, p1, p2) => p1 + curTCap + " " + p2);
+      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-][ \\t]*|\\n[ \\t]*)(?:Em|em)\\s+hiện\\s+có(?![a-zA-ZÀ-ỹ])", "giu"), (m, p1) => p1 + "Bên " + curTLow + " hiện có");
+      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-][ \\t]*|\\n[ \\t]*)(?:Em|em)\\s+có\\s+(các\\s+văn\\s+phòng|văn\\s+phòng|sân\\s+tập|lớp|khóa|chương trình)(?![a-zA-ZÀ-ỹ])", "giu"), (m, p1, p2) => p1 + "Bên " + curTLow + " có " + p2);
+
+      l = l.replace(new RegExp("([.!?]\\s*(?:[\\p{Extended_Pictographic}•\\-])?[ \\t]*)(?:Em|em)\\s+(rất vui|hân hạnh|sẵn sàng|cảm ơn|cam kết|xin|sẽ|gửi|chia sẻ|hướng dẫn|tư vấn|hỗ trợ)(?![a-zA-ZÀ-ỹ])", "giu"), (m, p1, p2) => p1 + curTCap + " " + p2);
+      l = l.replace(new RegExp("([.!?]\s*(?:[\\p{Extended_Pictographic}•\\-])?[ \\t]*)(?:Em|em)\\s+hiện\\s+có(?![a-zA-ZÀ-ỹ])", "giu"), (m, p1) => p1 + "Bên " + curTLow + " hiện có");
+      l = l.replace(new RegExp("([.!?]\s*(?:[\\p{Extended_Pictographic}•\\-])?[ \\t]*)(?:Em|em)\\s+có\\s+(các\\s+văn\\s+phòng|văn\\s+phòng|sân\\s+tập|lớp|khóa|chương trình)(?![a-zA-ZÀ-ỹ])", "giu"), (m, p1, p2) => p1 + "Bên " + curTLow + " có " + p2);
+
+      l = l.replace(new RegExp("(?<![a-zA-ZÀ-ỹ])(để|cho|khiến|giúp)\\s+(?:em|Em)\\s+(tư vấn|hướng dẫn|kiểm tra|hỗ trợ|báo|gửi|sắp xếp|xếp lịch|làm hồ sơ|đồng hành|giải đáp)(?![a-zA-ZÀ-ỹ])", "giu"), "$1 " + curTLow + " $2");
+      l = l.replace(new RegExp("(?<![a-zA-ZÀ-ỹ])cho\\s+(?:em|Em)\\s+(hỏi|biết|xin)(?![a-zA-ZÀ-ỹ])", "giu"), "cho " + curTLow + " $1");
+      l = l.replace(new RegExp("(?<![a-zA-ZÀ-ỹ])Bên\\s+em(?![a-zA-ZÀ-ỹ])", "giu"), "Bên " + curTLow);
+
+      l = l.replace(/(?<![a-zA-ZÀ-ỹ])nhỉ\?/giu, `nha ${kLow}?`);
+      l = l.replace(/(?<![a-zA-ZÀ-ỹ])nhỉ!/giu, `nhé ${kLow}!`);
+      l = l.replace(/(^|\n)\s*Dạ\s+/giu, "$1");
       l = l.replace(/[ \t]+ạ![ \t]*/giu, " nhé! ");
       l = l.replace(/[ \t]+ạ\.[ \t]*/giu, ". ");
       l = l.replace(/[ \t]+ạ\?[ \t]*/giu, ` ha ${kLow}? `);
@@ -1114,45 +1128,26 @@ function applyPronouns(text, toi, khach) {
     l = l.replace(/\{kh[aá]ch\}/giu, kLow);
     l = l.replace(/\{([A-Za-zÀ-ỹ]+)\}/gu, "$1");
 
-    if (isPeerOrOlder) {
-      // SỬA LỖI AI TỰ XƯNG "EM" KHI ĐANG ĐÓNG VAI NGƯỜI LỚN (ANH/CHỊ/CÔ/CHÚ)
-      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-])\\s*" + kLow + "\\s+(rất vui|hân hạnh|sẵn sàng|cảm ơn|cam kết|xin|sẽ|gửi|chia sẻ|hướng dẫn|tư vấn|hỗ trợ|chào)\\b", "giu"), (match, p1, p2) => p1 + " " + tCap + " " + p2);
-      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-])\\s*" + kLow + "\\s+hiện\\s+có\\b", "giu"), (match, p1) => p1 + " Bên " + tLow + " hiện có");
-      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-])\\s*" + kLow + "\\s+có\\s+(các\\s+văn\\s+phòng|văn\\s+phòng|sân\\s+tập|lớp|khóa|chương trình)\\b", "giu"), (match, p1, p2) => p1 + " Bên " + tLow + " có " + p2);
-      l = l.replace(new RegExp("(^|[\\p{Extended_Pictographic}•\\-])\\s*" + kLow + "\\s+(chào|gửi|báo)\\s+" + kLow + "\\b", "giu"), (match, p1, p2) => p1 + " " + tCap + " " + p2 + " " + kLow);
-
-      l = l.replace(new RegExp("([.!?]\\s*(?:[\\p{Extended_Pictographic}•\\-])?\\s*)" + kLow + "\\s+(rất vui|hân hạnh|sẵn sàng|cảm ơn|cam kết|xin|sẽ|gửi|chia sẻ|hướng dẫn|tư vấn|hỗ trợ)\\b", "giu"), (match, p1, p2) => p1 + tCap + " " + p2);
-      l = l.replace(new RegExp("([.!?]\\s*(?:[\\p{Extended_Pictographic}•\\-])?\\s*)" + kLow + "\\s+hiện\\s+có\\b", "giu"), (match, p1) => p1 + "Bên " + tLow + " hiện có");
-      l = l.replace(new RegExp("([.!?]\\s*(?:[\\p{Extended_Pictographic}•\\-])?\\s*)" + kLow + "\\s+có\\s+(các\\s+văn\\s+phòng|văn\\s+phòng|sân\\s+tập|lớp|khóa|chương trình)\\b", "giu"), (match, p1, p2) => p1 + "Bên " + tLow + " có " + p2);
-
-      l = l.replace(new RegExp("\\b(để|cho|khiến|giúp)\\s+" + kLow + "\\s+(tư vấn|hướng dẫn|kiểm tra|hỗ trợ|báo|gửi|sắp xếp|xếp lịch|làm hồ sơ|đồng hành|giải đáp)\\b", "giu"), "$1 " + tLow + " $2");
-      l = l.replace(new RegExp("\\bcho\\s+" + kLow + "\\s+(hỏi|biết|xin)\\b", "giu"), "cho " + tLow + " $1");
-      l = l.replace(new RegExp("\\bBên\\s+" + kLow + "\\b", "giu"), "Bên " + tLow);
-
-      l = l.replace(/\\bnhỉ\\?/giu, `nha ${kLow}?`);
-      l = l.replace(/\\bnhỉ!/giu, `nhé ${kLow}!`);
-    }
-
     processedLines.push(l);
   }
 
   let fullText = processedLines.join("\n").trim();
 
-  // Hạ chữ thường giữa câu
+  // Hạ chữ thường cho mọi đại từ nhân xưng đứng ở giữa câu
   const allPronouns = Array.from(new Set([tLow, kLow, "anh", "em", "chị", "bạn", "cô", "chú", "mình", "con"]));
   for (const p of allPronouns) {
     const r = new RegExp("(?<![\\p{L}\\p{N}])" + p + "(?![\\p{L}\\p{N}])", "giu");
     fullText = fullText.replace(r, p.toLowerCase());
   }
 
-  // Viết hoa đầu dòng
+  // Viết hoa chữ đầu nếu đứng ở ĐẦU DÒNG
   for (const p of allPronouns) {
     const pCap = p.charAt(0).toUpperCase() + p.slice(1);
     const r = new RegExp("(^|\\n)(\\s*)" + p + "(?![\\p{L}\\p{N}])", "gu");
     fullText = fullText.replace(r, (match, p1, p2) => p1 + p2 + pCap);
   }
 
-  // Viết hoa đầu câu (sau . ! ? kèm icon)
+  // Viết hoa chữ đầu nếu đứng ở ĐẦU CÂU (sau . ! ? kèm icon)
   for (const p of allPronouns) {
     const pCap = p.charAt(0).toUpperCase() + p.slice(1);
     const r = new RegExp("([.!?]\\s*(?:[^\\p{L}\\p{N}\\s]+\\s*)?)" + p + "(?![\\p{L}\\p{N}])", "gu");
@@ -1161,6 +1156,7 @@ function applyPronouns(text, toi, khach) {
 
   return fullText;
 }
+
     // LOCAL STORAGE WRAPPER
     const AppStorage = {
       get: function(key, defaultVal) {
@@ -1274,9 +1270,32 @@ function applyPronouns(text, toi, khach) {
       if (!content) content = DEFAULT_DRIVING_SCHOOL_KNOWLEDGE;
       const positions = [];
       for (const spec of MOBILE_SECTION_SPECS) {
+        if (spec.key === "extra") continue;
         const p = content.indexOf(spec.marker);
-        if (p !== -1) positions.append ? positions.push({ pos: p, key: spec.key, marker: spec.marker }) : positions.push({ pos: p, key: spec.key, marker: spec.marker });
+        if (p !== -1) positions.push({ pos: p, key: spec.key, marker: spec.marker });
       }
+
+      // Tìm marker linh hoạt cho Section 10 Extra
+      const extraMarkers = [
+        "8. THÔNG TIN BỔ SUNG & TRI THỨC MỚI:",
+        "8. THÔNG TIN BỔ SUNG",
+        "THÔNG TIN BỔ SUNG",
+        "TRI THỨC MỚI:"
+      ];
+      let extraPos = -1;
+      let foundExtraMarker = "";
+      for (const em of extraMarkers) {
+        const p = content.indexOf(em);
+        if (p !== -1) {
+          extraPos = p;
+          foundExtraMarker = em;
+          break;
+        }
+      }
+      if (extraPos !== -1) {
+        positions.push({ pos: extraPos, key: "extra", marker: foundExtraMarker });
+      }
+
       positions.sort((a, b) => a.pos - b.pos);
       const secs = {};
       for (let i = 0; i < positions.length; i++) {
@@ -1287,6 +1306,23 @@ function applyPronouns(text, toi, khach) {
       if (!secs.rules && positions.length > 0 && positions[0].pos > 0) {
         secs.rules = content.slice(0, positions[0].pos).trim();
       }
+
+      // Nếu không tìm thấy marker extra nhưng sau văn phòng có đoạn người dùng tự thêm
+      if (!secs.extra && secs.office) {
+        const officeText = secs.office;
+        const cutoff = officeText.indexOf("Dự kiến thi:");
+        if (cutoff !== -1) {
+          const lineEnd = officeText.indexOf("\n", cutoff);
+          if (lineEnd !== -1) {
+            const tail = officeText.slice(lineEnd).trim();
+            if (tail) {
+              secs.office = officeText.slice(0, lineEnd).trim();
+              secs.extra = "8. THÔNG TIN BỔ SUNG & TRI THỨC MỚI:\n" + tail;
+            }
+          }
+        }
+      }
+
       if (!secs.extra) {
         secs.extra = "8. THÔNG TIN BỔ SUNG & TRI THỨC MỚI:\n- (Nhập thêm thông tin, chính sách hoặc ghi chú mới tại đây để AI học...)";
       }
@@ -1297,9 +1333,15 @@ function applyPronouns(text, toi, khach) {
       const order = ["rules", "age", "license", "fee", "promo", "training", "schedule", "pickup", "office", "extra"];
       const parts = [];
       for (const k of order) {
-        const val = (secs[k] || "").trim();
+        let val = (secs[k] || "").trim();
         if (val) {
-          if (k === "extra" && val.includes("(Nhập thêm thông tin") && val.split("\n").length <= 2) continue;
+          if (k === "extra") {
+            if (val.includes("(Nhập thêm thông tin") && val.split("\n").length <= 2) continue;
+            // Đảm bảo Section 10 luôn có tiêu đề chuẩn để cả 2 thiết bị nhận diện 100%
+            if (!val.includes("THÔNG TIN BỔ SUNG") && !val.includes("TRI THỨC MỚI")) {
+              val = "8. THÔNG TIN BỔ SUNG & TRI THỨC MỚI:\n" + val;
+            }
+          }
           parts.push(val);
         }
       }
@@ -1322,6 +1364,8 @@ function applyPronouns(text, toi, khach) {
       autoFailover: AppStorage.get("autoFailover", true),
       firebaseUrl: AppStorage.get("firebaseUrl", ""),
       firebaseAuth: AppStorage.get("firebaseAuth", ""),
+      cloudinaryCloudName: AppStorage.get("cloudinaryCloudName", ""),
+      cloudinaryPreset: AppStorage.get("cloudinaryPreset", ""),
       customKnowledge: (() => {
         let k = AppStorage.get("customKnowledge", "");
         if (!k || !k.includes("QUY ĐỊNH VỀ ĐỘ TUỔI")) {
@@ -1370,13 +1414,23 @@ function applyPronouns(text, toi, khach) {
               appState.customKnowledge = newData.customKnowledge;
               AppStorage.set("customKnowledge", appState.customKnowledge);
               mobileKbSections = splitKnowledgeSectionsMobile(appState.customKnowledge);
-              const kbArea = document.getElementById("knowledge-textarea");
-              if (kbArea && document.activeElement !== kbArea) {
+              const kbTextarea = document.getElementById("knowledge-textarea");
+              if (kbTextarea) {
                 if (currentMobileKbKey === "all") {
-                  kbArea.value = appState.customKnowledge;
+                  kbTextarea.value = appState.customKnowledge;
                 } else {
-                  kbArea.value = mobileKbSections[currentMobileKbKey] || "";
+                  kbTextarea.value = mobileKbSections[currentMobileKbKey] || "";
                 }
+              }
+              const badge = document.getElementById("kb-status-badge");
+              const text = document.getElementById("kb-status-text");
+              const icon = document.getElementById("kb-status-icon");
+              if (badge && text && icon) {
+                badge.style.background = "#E6F4EA";
+                badge.style.color = "#137333";
+                badge.style.borderColor = "#CEEAD6";
+                icon.innerText = "✅";
+                text.innerText = "Đã đồng bộ tri thức mới nhất từ Máy tính!";
               }
               appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, appState.customKnowledge);
               AppStorage.set("templates", appState.templates);
@@ -1525,6 +1579,30 @@ function applyPronouns(text, toi, khach) {
       }
     }
 
+        async function uploadImageToCloudinary(fileOrBase64, cloudName, uploadPreset) {
+      if (!cloudName || !uploadPreset) {
+        throw new Error("Chưa cấu hình Cloud Name hoặc Upload Preset của Cloudinary.");
+      }
+      const url = `https://api.cloudinary.com/v1_1/${cloudName.trim()}/image/upload`;
+      const formData = new FormData();
+      formData.append("upload_preset", uploadPreset.trim());
+      formData.append("file", fileOrBase64);
+
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson?.error?.message || `Lỗi tải ảnh lên Cloudinary (${res.status})`);
+      }
+
+      const data = await res.json();
+      if (!data.secure_url) throw new Error("Cloudinary không trả về URL ảnh.");
+      return data.secure_url;
+    }
+
     async function copyImageToClipboard(base64DataUrl) {
       const img = new Image();
       img.crossOrigin = "anonymous";
@@ -1651,6 +1729,10 @@ function applyPronouns(text, toi, khach) {
       if (cohereModEl) cohereModEl.value = appState.cohereModel || "command-r-08-2024";
       document.getElementById("set-firebase-url").value = appState.firebaseUrl || "";
       document.getElementById("set-firebase-auth").value = appState.firebaseAuth || "";
+      const cldNameEl = document.getElementById("set-cloudinary-cloud-name");
+      if (cldNameEl) cldNameEl.value = appState.cloudinaryCloudName || "";
+      const cldPresetEl = document.getElementById("set-cloudinary-preset");
+      if (cldPresetEl) cldPresetEl.value = appState.cloudinaryPreset || "";
       modal.style.display = "flex";
     };
 
@@ -1878,17 +1960,12 @@ Khách hàng vừa hỏi:
 "${question}"
 
 YÊU CẦU TƯ VẤN NGẮN GỌN, TRỌNG TÂM, TINH TẾ & TĂNG TƯƠNG TÁC (TỐI ĐA 80 - 150 TỪ):
-1. QUY TẮC XƯNG HÔ BẮT BUỘC:
-- Bản thân tư vấn viên BẮT BUỘC xưng là: "${appState.toi}"
-- Gọi khách hàng BẮT BUỘC là: "${appState.khach}"
-${isOlder ? `- ⚠️ CẢNH BÁO TỐI QUAN TRỌNG VỀ ĐẢO LỘN XƯNG HÔ (BẠN LÀ NGƯỜI LỚN HƠN):
-  + Bản thân bạn đóng vai người lớn hơn (XƯNG "${appState.toi.toUpperCase()}").
-  + Khách hàng là người nhỏ hơn (GỌI LÀ "${appState.khach.toUpperCase()}").
-  + Từ "${appState.khach}" CHỈ DÙNG ĐỂ GỌI KHÁCH HÀNG! TUYỆT ĐỐI BẢN THÂN BẠN KHÔNG ĐƯỢC TỰ XƯNG LÀ "${appState.khach}"!
-  + KHÔNG BAO GIỜ nói "${appState.khach} rất vui...", "${appState.khach} có văn phòng...", "để ${appState.khach} tư vấn cho ${appState.khach}...".
-  + BẮT BUỘC NÓI: "${appState.toi.charAt(0).toUpperCase() + appState.toi.slice(1)} rất vui được hỗ trợ ${appState.khach}...", "Bên ${appState.toi} hiện có các văn phòng...", "để ${appState.toi} tư vấn cho ${appState.khach} nhé/nha!".
-  + TUYỆT ĐỐI KHÔNG DÙNG "Dạ", "ạ", "ạ!", "nhỉ?". Dùng "nha", "nhé", "ha ${appState.khach}?".` : `- Dùng kính ngữ Dạ... ạ! lịch sự, ân cần (Ví dụ: "Dạ ${appState.toi} chào ${appState.khach} ạ! 🌸", "${appState.toi.charAt(0).toUpperCase() + appState.toi.slice(1)} gửi ${appState.khach} bảng học phí...").`}
-- TUYỆT ĐỐI KHÔNG DÙNG từ "khách", "quý khách", "học viên"! Hãy gọi trực tiếp là "${appState.khach}".
+1. QUY TẮC XƯNG HÔ BẮT BUỘC (CỰC KỲ QUAN TRỌNG):
+- Bản thân xưng là: "${appState.toi}" (Ví dụ đúng: "${appState.toi.charAt(0).toUpperCase() + appState.toi.slice(1)} rất vui được hỗ trợ...", "Bên ${appState.toi.toLowerCase()} hiện có các văn phòng...", "Để ${appState.toi.toLowerCase()} tư vấn cho ${appState.khach.toLowerCase()} nhé!").
+${isOlder ? `- BẠN LÀ NGƯỜI LỚN HƠN (XƯNG LÀ "${appState.toi.toUpperCase()}")! TUYỆT ĐỐI KHÔNG BAO GIỜ TỰ XƯNG LÀ "Em" VỚI KHÁCH! CẤM các câu như: "Em rất vui được hỗ trợ em", "Em có các văn phòng", "để em tư vấn cho em"!
+- TUYỆT ĐỐI KHÔNG dùng kính ngữ người dưới như "Dạ", "ạ", "ạ!". Dùng ngữ khí thân tình của người đi trước: "Chào ${appState.khach.toLowerCase()} nhé! 🌸", "nha", "nhé", "nha ${appState.khach.toLowerCase()}".` : '- Dùng kính ngữ Dạ... ạ! lịch sự, ân cần.'}
+- Gọi khách hàng là: "${appState.khach}" (Chỉ viết hoa khi đứng ở ĐẦU CÂU. Giữa câu viết thường "${appState.khach.toLowerCase()}").
+- TUYỆT ĐỐI KHÔNG DÙNG từ "khách", "quý khách", "học viên"! Gọi trực tiếp là "${appState.khach.toLowerCase()}".
 
 2. ĐI SÂU TRỌNG TÂM & TƯ VẤN HỌC PHÍ MINH BẠCH (BẮT BUỘC BÁO KÈM CHI PHÍ CHƯA BAO GỒM):
    - Khi tư vấn học phí (Hạng B, C1, Xe máy): BẮT BUỘC BÁO ĐẦY ĐỦ VÀ MINH BẠCH cả học phí trọn gói đào tạo (chia 3 đợt, đợt 1 chỉ 5 triệu giữ suất, 1 kèm 1, xe đời mới, tặng 5h xe chip) VÀ NÊU RÕ RÀNG, KHÉO LÉO phần chi phí chưa bao gồm:
@@ -2473,23 +2550,30 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         if (file) {
           const reader = new FileReader();
           reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-              const maxWidth = 1000, maxHeight = 1000;
-              let w = img.width, h = img.height;
-              if (w > h) { if (w > maxWidth) { h *= maxWidth / w; w = maxWidth; } }
-              else { if (h > maxHeight) { w *= maxHeight / h; h = maxHeight; } }
-              const canvas = document.createElement("canvas");
-              canvas.width = w; canvas.height = h;
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(img, 0, 0, w, h);
-              const compressed = canvas.toDataURL("image/jpeg", 0.85);
-              appState.currentFormImage = compressed;
-              formImgPreview.src = compressed;
-              formImgPreviewBox.style.display = "block";
-              formUploadTrigger.style.display = "none";
-            };
-            img.src = event.target.result;
+            const localBase64 = event.target.result;
+            formImgPreview.src = localBase64;
+            formImgPreviewBox.style.display = "block";
+            uploadTrigger.style.display = "none";
+
+            const cName = (appState.cloudinaryCloudName || AppStorage.get("cloudinaryCloudName", "")).trim();
+            const cPreset = (appState.cloudinaryPreset || AppStorage.get("cloudinaryPreset", "")).trim();
+
+            if (cName && cPreset) {
+              showToast("⏳ Đang tải ảnh lên Cloudinary...");
+              uploadImageToCloudinary(file, cName, cPreset)
+                .then(cloudUrl => {
+                  appState.currentFormImage = cloudUrl;
+                  showToast("✅ Đã lưu ảnh lên Cloudinary (Siêu nhẹ)!");
+                })
+                .catch(err => {
+                  console.warn("Cloudinary upload failed, using local Base64:", err);
+                  appState.currentFormImage = localBase64;
+                  showToast("⚠️ Lỗi Cloudinary, lưu tạm Base64.");
+                });
+            } else {
+              appState.currentFormImage = localBase64;
+              showToast("✓ Đã chọn ảnh (Base64). Hãy cài Cloudinary để tiết kiệm Firebase!");
+            }
           };
           reader.readAsDataURL(file);
         }
@@ -2600,6 +2684,62 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
 
     document.getElementById("btn-save-knowledge").addEventListener("click", window.saveKnowledgeMobile);
 
+      // Xử lý nút Chuyển đổi toàn bộ ảnh Base64 cũ lên Cloudinary
+      const btnMigrateCld = document.getElementById("btn-migrate-cloudinary");
+      if (btnMigrateCld) {
+        btnMigrateCld.addEventListener("click", async () => {
+          const cName = (document.getElementById("set-cloudinary-cloud-name")?.value || appState.cloudinaryCloudName || "").trim();
+          const cPreset = (document.getElementById("set-cloudinary-preset")?.value || appState.cloudinaryPreset || "").trim();
+
+          if (!cName || !cPreset) {
+            alert("Vui lòng nhập Cloud Name và Upload Preset trước khi chuyển đổi.");
+            return;
+          }
+
+          const base64Templates = appState.templates.filter(t => t.image && typeof t.image === "string" && t.image.startsWith("data:"));
+          if (base64Templates.length === 0) {
+            alert("Không có mẫu tin nhắn nào chứa ảnh Base64 cần chuyển đổi.");
+            return;
+          }
+
+          btnMigrateCld.disabled = true;
+          btnMigrateCld.innerText = `⏳ Đang chuyển đổi ${base64Templates.length} ảnh lên Cloudinary...`;
+
+          let migrated = 0;
+          for (const tpl of appState.templates) {
+            if (tpl.image && typeof tpl.image === "string" && tpl.image.startsWith("data:")) {
+              try {
+                const cloudUrl = await uploadImageToCloudinary(tpl.image, cName, cPreset);
+                if (cloudUrl) {
+                  tpl.image = cloudUrl;
+                  migrated++;
+                }
+              } catch (e) {
+                console.warn("Lỗi tải ảnh lên Cloudinary:", tpl.title, e);
+              }
+            }
+          }
+
+          appState.cloudinaryCloudName = cName;
+          appState.cloudinaryPreset = cPreset;
+          AppStorage.set("cloudinaryCloudName", cName);
+          AppStorage.set("cloudinaryPreset", cPreset);
+          AppStorage.set("templates", appState.templates);
+          renderTemplatesList();
+          syncPushToFirebase();
+
+          btnMigrateCld.disabled = false;
+          btnMigrateCld.innerText = "🚀 Chuyển đổi toàn bộ ảnh Base64 cũ lên Cloudinary";
+
+          if (migrated > 0) {
+            alert(`✅ Đã chuyển đổi thành công ${migrated}/${base64Templates.length} ảnh lên Cloudinary!
+Dữ liệu Firebase đã được giảm nhẹ hơn 99%.`);
+          } else {
+            alert("❌ Không thể tải ảnh lên Cloudinary. Vui lòng kiểm tra lại Cloud Name và Preset.");
+          }
+        });
+      }
+
       document.getElementById("btn-force-sync-tpl").addEventListener("click", () => {
         const kb = document.getElementById("knowledge-textarea").value.trim() || appState.customKnowledge;
         appState.templates = syncTemplatesWithKnowledgeBase(appState.templates, kb);
@@ -2663,6 +2803,13 @@ ${appState.chatHistory && appState.chatHistory.length > 0 ? '- KHÁCH HỎI NỐ
         AppStorage.set("cohereModel", appState.cohereModel);
         AppStorage.set("firebaseUrl", appState.firebaseUrl);
         AppStorage.set("firebaseAuth", appState.firebaseAuth);
+
+        const cldNameEl = document.getElementById("set-cloudinary-cloud-name");
+        if (cldNameEl) appState.cloudinaryCloudName = cldNameEl.value.trim();
+        const cldPresetEl = document.getElementById("set-cloudinary-preset");
+        if (cldPresetEl) appState.cloudinaryPreset = cldPresetEl.value.trim();
+        AppStorage.set("cloudinaryCloudName", appState.cloudinaryCloudName);
+        AppStorage.set("cloudinaryPreset", appState.cloudinaryPreset);
 
         settingsModal.style.display = "none";
         initMobileRealtimeSync();
