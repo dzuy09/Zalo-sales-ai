@@ -735,6 +735,23 @@
         <input type="password" id="set-firebase-auth" class="form-input" placeholder="Bỏ trống nếu dùng Test Mode">
       </div>
 
+      <hr style="border: none; border-top: 1px dashed var(--border); margin: 4px 0;">
+
+      <div class="form-group" style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 10px;">
+        <label style="color: #15803d; font-weight: 700;">☁️ 4. Cấu hình Cloudinary (Lưu ảnh dung lượng nhẹ, chống quá tải Firebase):</label>
+        <small style="font-size: 11px; color: #4b5563;">Lưu link ảnh HTTPS thay cho chuỗi Base64 nặng nề vào Firebase, giúp đồng bộ siêu tốc và không lo đầy dung lượng.</small>
+        
+        <label style="font-size: 11px; font-weight: 600; color: #374151; margin-top: 6px;">Cloud Name:</label>
+        <input type="text" id="set-cloudinary-cloud-name" class="form-input" placeholder="Cloud Name (xem ở Dashboard Cloudinary)">
+        
+        <label style="font-size: 11px; font-weight: 600; color: #374151; margin-top: 6px;">Upload Preset (Unsigned):</label>
+        <input type="text" id="set-cloudinary-preset" class="form-input" placeholder="Ví dụ: po0yiyuv">
+        
+        <button id="btn-migrate-cloudinary" class="btn-secondary" style="width: 100%; margin-top: 8px; font-weight: 700; color: #15803d; border-color: #86efac; background: #dcfce7; padding: 8px;">
+          🚀 Chuyển đổi toàn bộ ảnh Base64 cũ lên Cloudinary
+        </button>
+      </div>
+
       <div style="display: flex; gap: 8px; margin-top: 4px;">
         <button id="btn-sync-pull" class="btn-secondary" style="flex: 1; border-color: var(--green); color: var(--green); background: #e6f4ea;">
           🔄 Kiểm tra đồng bộ ngay
